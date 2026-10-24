@@ -1,0 +1,32 @@
+# 验证记录与边界
+
+日期：2026-10-24。此处分别记录历史基准、公开工具的实际复验，以及使用者新工程仍需完成的工作。
+
+## 公开生成器已实际复验
+
+在独立专用库、Virtuoso IC6.1.8、参考 DBU=160 的环境中，运行本仓库 `emit_symbols.py` 生成的原生 SKILL。18 个 symbol 创建成功，全部原生图元、静态/NLP 标签、选择框、pin 坐标和方向与已认可 CTDSM18 基准逐项一致，有效端序检查通过。
+
+结构化结果在 [generator-validation.json](../examples/ctdsm18/generator-validation.json)。这次只验证 symbol 生成器，没有改写原工程，也没有运行新的模拟仿真。其他 PDK 的 DBU、DRF、字体及父级显示仍需在目标环境检查。
+
+## 离线检查
+
+```sh
+python scripts/check_repo.py
+python -m unittest discover -s tests -v
+```
+
+检查本地链接、参考接口/格点、禁止发布的原始文件类型和私人路径/凭据模式。11 项测试覆盖纯坐标变化、改名、器件参数变化、端子短接、端口方向、缺失 net、subckt 范围、端序及 PCell 完整定义。SVG 与 SKILL 生成命令也已实际运行。
+
+这些测试验证工具的判别能力，不证明任意输入快照已完整采集，也不代替当前工程的 PDK/CDF、网表和 GUI 验收。
+
+## 历史基准的完成范围
+
+[CTDSM18 案例](../examples/ctdsm18/README.md) 的 22 张图、18 symbol、6 项环境迁移和四对原生网表比较属于原工程整理时的结果。原始量化记录摘录在 [validation.json](../examples/ctdsm18/validation.json)。
+
+公开包不包含那套 PDK/OA 及完整原始工程，因此不能仅凭仓库离线 CI 重新证明整套模拟电路的行为。此次公开整理也没有把原工程的旧性能结果升级为新结果。
+
+## 使用者需要补齐
+
+实际连接、工艺许可/版本、论文电气设计、真实 CDF、层次端口、仿真模型/条件与目标指标。对新工程执行 [acceptance.md](../skills/paper-to-virtuoso/references/acceptance.md)，给出自己的检查数据、原生网表和 GUI 截图。
+
+参考图形可以复现相同几何；新电路的原生行为、像素渲染和性能需要当地验收。

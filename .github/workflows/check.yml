@@ -1,0 +1,14 @@
+name: Check public skill and reference tools
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python scripts/check_repo.py
+      - run: python -m unittest discover -s tests -v
+      - run: python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
+      - run: python skills/paper-to-virtuoso/scripts/emit_symbols.py --library DEMO_CIRCUIT_SYMBOLS --lib-path /path/to/isolated/DEMO_CIRCUIT_SYMBOLS --tech-library YOUR_TECH_LIBRARY --out build/reference-symbols.il

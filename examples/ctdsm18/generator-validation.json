@@ -1,0 +1,8 @@
+{
+  "native_generator_replayed": true,
+  "symbols": 18,
+  "all_native_pin_directions_and_coordinates_equal_accepted_case": true,
+  "all_native_shapes_labels_and_selection_boxes_equal_accepted_case": true,
+  "new_analog_simulations_run": 0,
+  "scope": "Dedicated test library; accepted circuit was not edited. Runtime/compiler fonts and other PDKs still require local review."
+}

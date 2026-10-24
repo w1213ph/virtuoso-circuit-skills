@@ -1,0 +1,13 @@
+{
+  "task": "",
+  "mode": "paper|redraw|environment|export",
+  "target_library": "",
+  "parameter_connection_readback": {"status": "not_verified", "evidence": []},
+  "native_netlist": {"status": "not_verified", "evidence": []},
+  "symbol_interfaces": {"status": "not_verified", "evidence": []},
+  "maestro_configuration": {"status": "not_verified", "evidence": []},
+  "behavioral_simulation": {"status": "not_run", "evidence": []},
+  "gui_visual_review": {"status": "not_verified", "evidence": []},
+  "installation_and_rollback": {"status": "not_verified", "evidence": []},
+  "known_limits": []
+}

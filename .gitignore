@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+build/
+work/
+*.local.json
+*.local.yaml
+*.cdslck*
+*.oa
+*.psf
+.env
+.DS_Store

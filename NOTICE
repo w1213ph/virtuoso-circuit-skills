@@ -1,0 +1,24 @@
+virtuoso-circuit-skills
+Copyright (c) 2026 w1213ph
+
+This repository contains independently organized engineering guidance, reference
+geometry and tools extracted from an accepted Virtuoso drawing workflow.
+
+Visual and workflow study:
+  JPWang-OvO/analog-artist-skills
+  https://github.com/JPWang-OvO/analog-artist-skills
+  Studied commit: 1e7cbfcf57382647efc0eb00296dcccd30be4213
+  Upstream license: GPL-3.0. Upstream code and SVG examples are not bundled here.
+
+Native API and optional connection reference:
+  Arcadia-1/virtuoso-bridge-lite
+  https://github.com/Arcadia-1/virtuoso-bridge-lite
+  Upstream license: MIT. This repository does not bundle or install the bridge.
+
+Reference circuit context:
+  R. Schreier et al., Understanding Delta-Sigma Data Converters, 2nd edition,
+  section 10.10.4. The book and its figures are not redistributed.
+
+Cadence software, foundry PDKs and simulator models remain separate dependencies.
+Reference screenshots show task-created drawings, not proof that a fresh circuit
+or installation has passed electrical or simulation verification.

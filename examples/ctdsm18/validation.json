@@ -1,0 +1,11 @@
+{
+  "schematics_checked": 22,
+  "symbols_checked": 18,
+  "instance_properties_equal": true,
+  "all_terminal_connections_equal": true,
+  "native_netlists_equal_after_cell_name_and_pcell_definition_mapping": true,
+  "new_simulations_run": 0,
+  "maestro_tests_migrated": 6,
+  "scope": "historical accepted CTDSM18 redraw; not a fresh circuit or fresh simulation",
+  "native_files_verified": 155
+}
