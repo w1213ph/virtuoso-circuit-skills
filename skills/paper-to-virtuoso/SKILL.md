@@ -27,6 +27,10 @@ description: 按论文在 Cadence Virtuoso 中搭建模拟或 RF 电路，或重
 7. 需要运行时先核对测试定义、实际模型/corner/尺度与采样时序，再验证模块和整机。保存设置、收到回调、求解零错误、指标通过是不同结论。
 8. 在独立库完成后，备份并安装到使用者指定项目。仅修改精确管理的库映射，使用新进程验证安装路径/连接/网表和文件哈希。回退遇锁或后来改动时保护用户工作。
 
+## 给使用者的交付
+
+说明实际工程目录、库、顶层 cell/view 和 Maestro 入口，让使用者能打开成果。用简明文字解释修改与结果，附全图和关键局部；参数/连接、网表、行为、GUI 的证据分别链接。列出未达标/未完成项、依赖与回退方法。结构化记录供追溯，不能只交 JSON 或大段日志。
+
 ## 可复用工具
 
 `scripts/render_symbols.py` 生成 18 个参考 SVG；`scripts/emit_symbols.py` 生成只在新专用库创建原生 symbol 的 SKILL；`scripts/new_task.py` 建立任务记录；`scripts/audit_electrical.py` 比较回读；`scripts/compare_netlists.py` 比较有子电路范围和端序的网表。

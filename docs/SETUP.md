@@ -1,46 +1,84 @@
-# 连接、依赖和命令
+# 准备环境并开始使用
 
-离线脚本要求 Python 3.9+，只使用标准库。真正写入/验证 OA 需要使用者自己的 Cadence Virtuoso、工艺库和工具许可。
+本仓库既能作为 AI 的项目参考，也能在本地运行辅助脚本。根据你要做的事准备环境即可。
 
-## 接通使用者的 Virtuoso
+| 你要做什么 | 需要准备 |
+|---|---|
+| 阅读规则、把任务交给 AI | 能读取仓库文件的 AI；[任务提示](AI_START.md) |
+| 预览 symbol、建立记录、比较已有数据 | Python 3.9+；无需 Cadence 或额外 Python 包 |
+| 创建/检查原生电路和 symbol | 可用的 Virtuoso、实际技术库/PDK、相应许可和操作工具 |
+| 运行仿真 | 对应仿真器、许可、模型与明确的测试条件 |
 
-优先使用当前环境已有的受控连接工具。可选择 [virtuoso-bridge-lite](https://github.com/Arcadia-1/virtuoso-bridge-lite)，按上游连接说明安装客户端、连接服务器，并在指定测试会话加载其给出的命令。用户名、主机、路径和密钥由使用者本地提供，本仓库不保存。
+## 1. 获取仓库
 
-也可在独立工作目录用本机终端或 SSH 启动专用 Virtuoso 进程加载 SKILL。不要把脚本注入正在编辑的用户会话，不关闭或强制重载它。先验证 `1+2` 等只读表达式和正确的库映射，再执行写入。
+安装 Git 的电脑可以运行：
 
-## 生成同一组参考 symbol
+```sh
+git clone https://github.com/w1213ph/virtuoso-circuit-skills.git
+cd virtuoso-circuit-skills
+```
+
+也可以在 GitHub 点击 **Code → Download ZIP**，解压后进入包含 `README.md`、`skills/` 和 `scripts/` 的目录。下文所有终端命令都从这个目录运行。
+
+先检查 Python：
+
+```sh
+python --version
+```
+
+需要 3.9 或更新版本。Linux/macOS 只有 `python3` 时，后续统一使用 `python3`；Windows 已有 `py` 命令时，也可以用它选择已安装的合适版本。离线脚本不需要运行 `pip install`。
+
+## 2. 先预览一次
 
 ```sh
 python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
-python skills/paper-to-virtuoso/scripts/emit_symbols.py \
-  --library DEMO_CIRCUIT_SYMBOLS \
-  --lib-path /path/to/isolated/DEMO_CIRCUIT_SYMBOLS \
-  --tech-library YOUR_TECH_LIBRARY \
-  --out build/reference-symbols.il
 ```
 
-将 `YOUR_TECH_LIBRARY` 换成目标环境的真实技术库。先检查生成文件，再在该隔离工作目录的独立 Virtuoso 进程中加载：
+终端出现 `REFERENCE_SVG_CREATED 18`，并在 `build/reference/` 生成 18 个 SVG。用浏览器打开其中任意一个，即可查看图形。此步骤不连接或修改 Virtuoso。
 
-```lisp
-load("/path/to/reference-symbols.il")
+更多工具与输出说明见 [TOOLS.md](TOOLS.md)。想直接交给 AI 搭电路，可继续下一步。
+
+## 3. 让 AI 读取工作规则
+
+将仓库链接和 [AI_START.md](AI_START.md) 中适合任务的提示交给 AI。它应先读取：
+
+```text
+AGENTS.md
+skills/paper-to-virtuoso/SKILL.md
 ```
 
-生成器不自动连接服务器或执行代码，也不覆盖任何已有目标库。它保留参考 pin 坐标/方向/端序、roman、NLP label 和选择框。原生创建完成后仍要回读，并查看实际 symbol 和父级显示。参考 DBU 为 160；其他技术库需验证坐标是否可精确表示。
+如果 AI 无法访问网页，把下载好的仓库放到它可读取的项目中，并提供实际位置。它需要按任务继续读取 Skill 中链接的 references；只复制首页的文字会丢掉细则。
 
-这组参考只有 symbol。搭电路时必须先按论文建立真实下层 schematic，再核对接口；不要用缺少实际电路的 symbol 代替功能实现。
+支持项目内 Skill 的工具，也可以把整个 `skills/paper-to-virtuoso/` 目录复制到该工具的项目技能目录。保留 `SKILL.md`、`references/`、`assets/`、`scripts/` 和 `agents/` 的相对位置。具体发现方式沿用你所用工具的规则；手动读取无需全局安装。
 
-## 任务与电气比较
+## 4. 接通你自己的 Virtuoso
 
-```sh
-python skills/paper-to-virtuoso/scripts/new_task.py --project AFE --mode redraw --out work/afe
-python skills/paper-to-virtuoso/scripts/audit_electrical.py \
-  --before work/afe/before.json --after work/afe/after.json --report work/afe/electrical-check.json
-python skills/paper-to-virtuoso/scripts/compare_netlists.py \
-  --before work/afe/before.scs --after work/afe/after.scs
-```
+已有可用连接时继续使用，并告诉 AI 如何读取本地配置。没有连接时，可以选择：
 
-回读 JSON 的字段与示例见 [验收说明](../skills/paper-to-virtuoso/references/acceptance.md)。改名时以 `--cell-map` 提供已审阅的旧名→新名映射，不做模糊字符串替换。PCell 编号比较只在明确指定前缀后按完整定义归一，保留端序与参数。
+| 方式 | 由谁提供连接能力 | 开始前确认 |
+|---|---|---|
+| 桥接工具 | [Arcadia-1/virtuoso-bridge-lite](https://github.com/Arcadia-1/virtuoso-bridge-lite) | 按上游 README 配置客户端和服务器端；本仓库不附带桥接程序 |
+| 本机终端或 SSH＋SKILL | 你已有的 Cadence 启动环境与远程访问工具 | 能在独立工作目录启动专用 Virtuoso，并读取真实工艺库 |
 
-## 将 Skill 放入 AI 项目
+先让 AI 在测试环境验证连接、当前工作目录和库映射，再执行写入。使用独立测试库和会话，保留你正在编辑的窗口及运行中的仿真。用户名、主机和凭据保存在本地配置中。
 
-支持项目内 Skill 的 AI 可将 `skills/paper-to-virtuoso` 放入其项目技能目录，或直接读取完整目录。此目录内的 references、assets 和 scripts 一起保留。其他 AI 可以从 README 的提示开始手动读取，不依赖 Codex 专有工具。
+本仓库不绑定某一种连接方式。它提供 AI 的搭建规则和离线辅助工具；实际器件查询、绘图与数据库回读需要连接工具支持，或由 AI 编写适合当地版本的原生 SKILL。
+
+## 文档中的几个术语
+
+| 术语 | 在这里的意思 |
+|---|---|
+| PDK / CDF | 工艺器件与模型工具包 / Virtuoso 中器件参数和回调的定义 |
+| library / cell / view | 库 / 电路单元 / 单元的不同视图，例如 `schematic`、`symbol` |
+| symbol / 父级 | 模块的图形接口 / 放置该模块实例的上一层原理图 |
+| Maestro | 保存测试、变量、分析和输出等设置的仿真环境 |
+| OA / 原生网表 | Virtuoso 电路数据库 / 从实际保存电路提取的仿真连接描述 |
+| SKILL / DBU | Cadence 的脚本语言 / 数据库坐标精度，影响图形是否能按坐标准确保存 |
+
+## 5. 选择下一步
+
+- **搭建或整理电路**：填写[任务提示](AI_START.md)，提供实际工艺或现有工程，让 AI 按任务执行。
+- **只复现 18 个参考 symbol**：按[原生生成步骤](TOOLS.md#在-virtuoso-中生成原生-symbol)生成 SKILL，并在专用新库执行。
+- **检查重排有没有改变电路**：按[电气比较说明](TOOLS.md#比较重排前后的电气数据)准备前后回读和原生网表。
+
+遇到命令、路径、DBU 或库名问题，查看[常见问题](TOOLS.md#常见问题)。

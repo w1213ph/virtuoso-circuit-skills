@@ -2,6 +2,14 @@
 
 这是一轮已有电路的原理图、symbol、命名和环境整理案例。用户认可的是紧凑功能图、清楚的父级连接和工程组织。
 
+## 怎样用这个案例
+
+- **只看效果**：查看[首页的真实画面](../../README.md#画出来是什么样)和下方的 DFF symbol。留意功能图形、模块比例和父级走线。
+- **让 AI 整理自己的图**：复制[整理电路提示](../../docs/AI_START.md#整理已有原理图和-symbol)，提供自己的库与 cell；要求 AI 同时处理 symbol 和直接父级。
+- **生成同一组参考图形**：按[工具说明](../../docs/TOOLS.md)生成 SVG 或原生 symbol。固定数据保留几何和接口，不包含下层模拟电路。
+
+## 这次实际完成了什么
+
 | 项目 | 当时实际完成 |
 |---|---|
 | 原理图 | 22 张，Check & Save 均 (0,0) |
@@ -21,13 +29,13 @@
 - 按功能图缩小 symbol 后，移动父级、重拉主通路与反馈，清除旧坐标留下的空旷感。
 - 同类模块命名统一，schematic/symbol/layout 保持同一 cell 的不同 view。
 
-例如 OTA symbol 显示 bbox 面积约缩小 65%、DFF 约 83%、顶层 schematic 约 88%。这是数据库显示包围框，与版图面积无关；新工程不应机械追逐同样百分比。
+例如 OTA symbol 的显示包围框面积约缩小 65%、DFF 约 83%、顶层 schematic 约 88%。这描述画面紧凑程度，与版图面积无关；新工程应以能看清为准。
 
 ![主从 C²MOS 的功能 symbol](../../docs/images/dff-symbol.png)
 
 ## 可复用的数据
 
-[symbol 场景](../../skills/paper-to-virtuoso/assets/ctdsm18-symbols.json) 固定 18 个图形与接口。图元以用户单位存储，参考 DBU=160，字体 roman。生成 SVG/原生 SKILL 的命令见 [SETUP.md](../../docs/SETUP.md)。
+[symbol 场景](../../skills/paper-to-virtuoso/assets/ctdsm18-symbols.json) 固定 18 个图形与接口。图元以用户单位存储，参考 DBU=160，字体 roman。生成 SVG/原生 SKILL 的命令见 [TOOLS.md](../../docs/TOOLS.md)。
 
 [父级参考](../../skills/paper-to-virtuoso/assets/ctdsm18-layouts.json) 保留积分器、环路滤波器和顶层的布局关系/布线路径，去掉 PDK 参数与连接主机。它只作排版参照，不能覆盖目标实际电气清单。
 
