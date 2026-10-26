@@ -52,5 +52,14 @@
   },
   "annotation_generator_sha256": "fd19e025a0f040eee7262d615b6b24f5df7c19626e066fd051a31514714f5335",
   "annotations_sha256": "0493a6dae82e971327c81b8a089c6d4492e72075114ca3179a505dbfb5e0bfc2",
-  "scope": "Simple six-MOS OTA and note-only native generator. Does not prove arbitrary circuits or PDKs."
+  "scope": "Simple six-MOS OTA and note-only native generator. Does not prove arbitrary circuits or PDKs.",
+  "bulk_display_revision": {
+    "revision": "horizontal-stubs",
+    "bulk_stubs": 6,
+    "removed_vertical_segments": 6,
+    "native_instance_properties_and_all_terminal_nets_unchanged": true,
+    "new_behavior_simulations_run": 0,
+    "visual_review_schematic_and_detail": true,
+    "parent_window_and_saved_view_preserved": true
+  }
 }
