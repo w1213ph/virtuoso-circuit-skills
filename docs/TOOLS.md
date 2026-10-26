@@ -134,3 +134,7 @@ python -m unittest discover -s tests -v
 | 有 SVG/symbol，但电路没有功能 | 参考生成器只创建 symbol；模拟电路需要按论文和实际 PDK 另行搭建 |
 | 比较器通过，仍担心连接 | 核对快照是否包含全部端子/属性，再检查实际 CDF、原生网表和 GUI |
 | 下载后仓库哈希检查失败 | 确认文件未被改写；自行修改内容会使发布清单失效，保留差异再排查 |
+
+## 给 schematic 加工程注释
+
+`emit_schematic_notes.py` 从 JSON 生成追加原生文字/注释边框的 SKILL，仅处理现有 schematic，不编辑器件、wire、pin 或 symbol。先适配坐标、条件及数值，备份并在隔离图中加载；同 owner 重复添加会拒绝。完整命令、成功标记与回退见[工程原理图规范](../skills/paper-to-virtuoso/references/engineering-schematic.md#可直接使用的注释模板)。

@@ -1,0 +1,56 @@
+{
+  "devices": 6,
+  "device_terminals": 24,
+  "ports": 6,
+  "full_typed_instance_parameters_positions_and_terminal_connectivity_unchanged_since_v3": true,
+  "symbol_pin_names_directions_positions_preserved": true,
+  "parent_connections_pass": true,
+  "installed_images": {
+    "ota": {
+      "byte_identical": true,
+      "pixel_identical": true
+    },
+    "symbol": {
+      "byte_identical": true,
+      "pixel_identical": true
+    },
+    "tb": {
+      "byte_identical": true,
+      "pixel_identical": true
+    }
+  },
+  "existing_symbol_assets_unchanged": true,
+  "visual_review": {
+    "schematic": true,
+    "detail": true,
+    "symbol": true,
+    "parent": true
+  },
+  "public_annotation_objects": 16,
+  "date": "2026-10-26",
+  "native_netlist_sha256": "314bc58bce0be7651390b4ee22657ed88eaec3d3ed80d3afa3a5a9cc9a363abc",
+  "schematic_check_counts": {
+    "ota": [
+      0,
+      0
+    ],
+    "testbench": [
+      0,
+      0
+    ]
+  },
+  "behavior": {
+    "analyses": [
+      "dc",
+      "ac",
+      "30us transient"
+    ],
+    "errors": 0,
+    "warnings": 0,
+    "notices": 1,
+    "measurement_record": "measurements.json"
+  },
+  "annotation_generator_sha256": "fd19e025a0f040eee7262d615b6b24f5df7c19626e066fd051a31514714f5335",
+  "annotations_sha256": "0493a6dae82e971327c81b8a089c6d4492e72075114ca3179a505dbfb5e0bfc2",
+  "scope": "Simple six-MOS OTA and note-only native generator. Does not prove arbitrary circuits or PDKs."
+}

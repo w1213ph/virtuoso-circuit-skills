@@ -15,3 +15,5 @@
 维护公开文档时，README 面向第一次使用的人，先说明用途、准备信息、开始步骤和可见成果；AI 的执行细节放在 Skill 与相关 references。命令注明运行位置、输入、输出和成功标志，避免要求新用户先读完所有文件。实际使用入口见 [AI_START.md](docs/AI_START.md)，命令见 [TOOLS.md](docs/TOOLS.md)。
 
 仓库工具默认只生成文件或只读比较；`emit_symbols.py` 生成的 SKILL 只能在明确指定、尚不存在的专用库中创建 symbol。不要把它当成覆盖已有工程的重绘器。
+
+晶体管级 schematic 按 `references/engineering-schematic.md` 增补功能分组、目标/实测注释和短线网标。保留已有 symbol 规则与 18 个参考资产。参考 IP 仅用于学习通用组织方法，公开示例使用独立设计，不附带来源 IP 的原始图纸或数据库。

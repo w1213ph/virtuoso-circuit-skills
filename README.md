@@ -66,6 +66,8 @@ OTA symbol 表达差分极性、级联增益和前馈路径。其他模块按各
 
 symbol 缩小后，父级实例和连线也同步收紧。[案例说明](examples/ctdsm18/README.md)包含这次整理的具体做法与完成范围。
 
+晶体管级原理图还可采用[工程化排版与注释模板](skills/paper-to-virtuoso/references/engineering-schematic.md)：按偏置、输入、负载和尾电流分区，分别标出作用、设计目标与实测值，长绕线按需改为同名短线。查看[独立六管 OTA 验证示例](examples/engineering-ota/README.md)；现有 18 个 symbol 的图形基准保持不变。
+
 ## 没有 Cadence，也能先看参考图
 
 电脑有 Git 和 Python 3.9+ 即可运行，脚本只用 Python 标准库：

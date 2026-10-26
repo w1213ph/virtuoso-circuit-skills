@@ -36,3 +36,7 @@ python -m unittest discover -s tests -v
 实际连接、工艺许可/版本、论文电气设计、真实 CDF、层次端口、仿真模型/条件与目标指标。对新工程执行 [acceptance.md](../skills/paper-to-virtuoso/references/acceptance.md)，给出自己的检查数据、原生网表和 GUI 截图。
 
 参考图形可以复现相同几何；新电路的原生行为、像素渲染和性能需要当地验收。
+
+## 2026-10-26：晶体管级工程排版与注释
+
+新增[独立六管 OTA 演示](../examples/engineering-ota/README.md)。公开注释生成器已在 IC6.1.8 实际重放，16 个对象，前后 Check(0,0)；两张 schematic 和父级连接通过，完整原生 SI 在精修前后逐字节一致。新做 DC/AC/30µs瞬态，零错误零警告；标称增益34.643dB，其他条件和边界见案例。全图、局部、symbol和实际父级均已查看；18个既有symbol资产不变。此次验证覆盖简单OTA与注释流程，不等于复杂运放/比较器或所有PDK自动通过。

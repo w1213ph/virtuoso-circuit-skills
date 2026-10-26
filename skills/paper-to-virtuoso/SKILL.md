@@ -10,6 +10,7 @@ description: 按论文在 Cadence Virtuoso 中搭建模拟或 RF 电路，或重
 ## 选择相关资料
 
 - 新论文、工艺迁移：[electrical.md](references/electrical.md)。先明确指标和缺失参数，再查实际 PDK/CDF。
+- 晶体管级分区、工程注释、同名短线与紧凑标题栏：[engineering-schematic.md](references/engineering-schematic.md)。symbol 继续沿用既有风格。
 - schematic 或 symbol：[drawing.md](references/drawing.md) 与 [symbols.md](references/symbols.md)。使用实际端口和变换后锚点。
 - Maestro、改名、迁移或导出：[migration.md](references/migration.md)。保留完整保存状态，不触碰旧运行。
 - 用户要求行为验证：[simulation.md](references/simulation.md)。区分探索 deck 与最终 OA 网表。

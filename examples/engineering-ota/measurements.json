@@ -1,0 +1,25 @@
+{
+  "condition": {
+    "pdk": "SMIC55",
+    "corner": "TT",
+    "temperature_C": 25,
+    "VDD_V": 1.2,
+    "VCM_V": 0.7,
+    "IREF_uA": 20,
+    "CL_fF": 200
+  },
+  "dc_gain_db": 34.64301617340106,
+  "dc_gain_vv": 53.969800000001136,
+  "bandwidth_3db_hz": 4900196.0928019555,
+  "unity_gain_hz": 238714175.42733747,
+  "output_dc_v": 0.7130554575891088,
+  "tail_current_uA": 35.82302079428228,
+  "input_gm_uS": 359.6035263271713,
+  "core_power_uW": 42.98761363430819,
+  "input_diff_peak_uV": 99.99999999999962,
+  "transient_gain_vv": 53.9577895391079,
+  "ac_gain_100k_vv": 53.95856363651279,
+  "transient_gain_relative_error": 1.434614549988833e-05,
+  "positive_input_gain": true,
+  "limitation": "Nominal small-signal demonstration only. No noise, PVT, mismatch, closed-loop or layout signoff. Core supply power excludes the ideal external IREF source."
+}

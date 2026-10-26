@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "owner": "VCS_ENGINEERING_V1",
+  "frame": [
+    [
+      -0.5,
+      -0.95
+    ],
+    [
+      11,
+      8.85
+    ]
+  ],
+  "rules": [
+    [
+      [
+        -0.5,
+        -0.15
+      ],
+      [
+        11,
+        -0.15
+      ]
+    ]
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        8.4
+      ],
+      "text": "STYLE55 / MIRROR-LOAD OTA",
+      "height": 0.23,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        0,
+        8.05
+      ],
+      "text": "Drawing validation  |  differential input / single-ended output  |  Rev A",
+      "height": 0.12,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        6.25,
+        7.7
+      ],
+      "text": "03  ACTIVE LOAD",
+      "height": 0.15,
+      "justify": "centerCenter",
+      "status": "function"
+    },
+    {
+      "at": [
+        6.25,
+        7.45
+      ],
+      "text": "PMOS 1:1 mirror  /  differential to single-ended",
+      "height": 0.105,
+      "justify": "centerCenter",
+      "status": "function"
+    },
+    {
+      "at": [
+        0,
+        5.6
+      ],
+      "text": "01  BIAS",
+      "height": 0.15,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        0,
+        5.3
+      ],
+      "text": "IREF = 20 uA (test setting)",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        0,
+        5.05
+      ],
+      "text": "Mirror ratio = 1:2",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        6.25,
+        4.3
+      ],
+      "text": "02  INPUT PAIR",
+      "height": 0.15,
+      "justify": "centerCenter",
+      "status": "function"
+    },
+    {
+      "at": [
+        6.25,
+        4.05
+      ],
+      "text": "Matched / gm = 359.6 uS",
+      "height": 0.105,
+      "justify": "centerCenter",
+      "status": "measured",
+      "conditions": "SMIC55 TT / 25 C / VDD1.2V / VCM0.7V / IREF20uA / CL200fF; native-v2 DC/AC/tran"
+    },
+    {
+      "at": [
+        7.35,
+        1.65
+      ],
+      "text": "04  TAIL",
+      "height": 0.15,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        7.35,
+        1.38
+      ],
+      "text": "Target: 40 uA  /  measured: 35.82 uA",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "measured",
+      "conditions": "SMIC55 TT / 25 C / VDD1.2V / VCM0.7V / IREF20uA / CL200fF; native-v2 DC/AC/tran"
+    },
+    {
+      "at": [
+        7.35,
+        1.12
+      ],
+      "text": "Finite VDS changes mirror current",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "function"
+    },
+    {
+      "at": [
+        0,
+        -0.52
+      ],
+      "text": "TT / 25 C  |  1.2 V  |  VCM 0.7 V  |  CL 200 fF  |  Core supply: 42.99 uW",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "measured",
+      "conditions": "SMIC55 TT / 25 C / VDD1.2V / VCM0.7V / IREF20uA / CL200fF; native-v2 DC/AC/tran"
+    },
+    {
+      "at": [
+        0,
+        -0.78
+      ],
+      "text": "Measured: A0 34.64 dB  |  f3dB 4.90 MHz  |  fu 238.7 MHz  |  Nominal small-signal only",
+      "height": 0.105,
+      "justify": "lowerLeft",
+      "status": "measured",
+      "conditions": "SMIC55 TT / 25 C / VDD1.2V / VCM0.7V / IREF20uA / CL200fF; native-v2 DC/AC/tran"
+    }
+  ]
+}
