@@ -1,14 +1,19 @@
 # 用 AI 搭建清楚、规范的 Virtuoso 电路
 
-想让 AI 根据论文搭电路，或者把已有原理图整理得更好读？把这个仓库链接交给能操作你工程的 AI，再提供论文和工艺要求，就可以按这里的规范开始。
+想让 AI 根据功能需求搭建电路工程、复现论文，或者继续设计已有电路？把这个仓库链接交给能操作你工程的 agent，再提供目标和工艺要求，就可以按这里的流程开始。
 
 这里提供**搭建方法、绘图规则、功能 symbol 参考和检查工具**。AI 负责结合你的实际工艺完成设计；你可以用示例图和验收清单检查成果。
+
+第一次接触模拟电路也可以从[新手入口](docs/BEGINNER.md)开始：提供论文、目标工艺和用途，让 agent 解释选择、补齐工程电路，再分阶段验证。[完整复现流程](skills/paper-to-virtuoso/references/paper-reproduction.md)写明每一步的产物和通过条件，不只要求图画得整齐。
 
 ## 你想做什么？
 
 | 任务 | 可以让 AI 完成的工作 | 使用入口 |
 |---|---|---|
 | 按论文搭新电路 | 理解拓扑、映射工艺器件、建立分层电路和测试台、验证指标 | [新电路提示](docs/AI_START.md#搭建新论文电路) |
+| 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
+| 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
+| 不熟悉电路设计 | 解释论文和指标，补齐偏置、参考、共模、时钟与控制，逐模块检查 | [新手入口](docs/BEGINNER.md) |
 | 整理已有电路 | 紧凑排版、功能 symbol、规范命名、同步父级连线 | [整理电路提示](docs/AI_START.md#整理已有原理图和-symbol) |
 | 搬迁仿真环境 | 迁移 Maestro 的测试、模型、变量、分析和输出 | [迁移环境提示](docs/AI_START.md#只迁移-maestro-环境) |
 | 导出工程和历史结果 | 保存可交接的工程快照，分清旧结果与新验证 | [导出提示](docs/AI_START.md#只导出工程和历史结果) |
@@ -28,7 +33,7 @@
 ```text
 请使用 https://github.com/w1213ph/virtuoso-circuit-skills 帮我完成电路任务。
 先读取仓库的 AGENTS.md 和 skills/paper-to-virtuoso/SKILL.md，
-再按我的任务读取相关参考文件。
+按 references/paper-reproduction.md 执行，再按任务读取相关参考文件。
 
 我的任务：按附上的论文搭建电路。
 论文范围：[图号或章节]
@@ -38,6 +43,8 @@
 
 原理图和 symbol 参照仓库 CTDSM18 示例：功能直观、尺寸紧凑、
 主路径与反馈使用实体连线；保留我已有的手工修改和正在运行的会话。
+检查论文省略的工程模块并解释设计依据；图面只写当前功能与实际参数，
+迭代过程记录在变更文件中。
 完成后告诉我从哪个库/cell/view 打开，并分别交付连接检查、
 网表检查、实际仿真结果和全图/局部目视检查。未完成的项目明确说明。
 ```
@@ -87,6 +94,10 @@ python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
 | 文件或目录 | 什么时候看 |
 |---|---|
 | [docs/AI_START.md](docs/AI_START.md) | 填需求、复制适合自己任务的提示 |
+| [docs/BEGINNER.md](docs/BEGINNER.md) | 不熟悉电路时，如何给 agent 任务和检查交付 |
+| [论文复现流程](skills/paper-to-virtuoso/references/paper-reproduction.md) | agent 从读论文到交付工程的阶段、产物与通过条件 |
+| [高效优化方法](skills/paper-to-virtuoso/references/optimization.md) | 结构/参数选择、有限候选、分级测试、预算与停止条件 |
+| [常见失误与排错](skills/paper-to-virtuoso/references/lessons.md) | 查器件、模型、接口、测量、绘图和交付中的反复问题 |
 | [docs/SETUP.md](docs/SETUP.md) | 准备 Python、连接 Virtuoso、让 AI 读取 Skill |
 | [docs/TOOLS.md](docs/TOOLS.md) | 查命令、输入输出、原生 symbol 生成和常见问题 |
 | [examples/ctdsm18](examples/ctdsm18/README.md) | 看效果、学习 symbol 与父级的排布 |

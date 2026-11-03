@@ -67,7 +67,7 @@ load("/path/to/reference-symbols.il")
 python skills/paper-to-virtuoso/scripts/new_task.py --project AFE --mode paper --out work/afe
 ```
 
-`AFE` 是你自定的大写项目缩写。`--mode` 可选：`paper` 新电路、`redraw` 整理图、`environment` 迁移环境、`export` 导出。
+`AFE` 是你自定的大写项目缩写。`--mode` 可选：`paper` 论文复现、`design` 按功能搭建工程、`redraw` 整理图、`environment` 迁移环境、`export` 导出。没有论文时把示例中的 `paper` 换成 `design`。
 
 生成内容：
 
@@ -76,6 +76,8 @@ work/afe/
   TASK.md                 任务入口
   requirements.json       待填写的需求
   acceptance.json         待填写的验收结果
+  DESIGN_PLAN.md          paper/design 的阶段、机制、接口和验证记录
+  optimization-candidates.csv  paper/design 的空候选表，按需使用
   CONNECTION.local.json   本地连接占位信息，不提交凭据
   evidence/               检查证据
   screenshots/            实际画面
@@ -84,7 +86,7 @@ work/afe/
   backup/                 备份
 ```
 
-`EMPTY_TASK_CREATED` 只表示记录目录创建完成。先根据用户实际授权填写需求；`paper` 模式中的电气修改/仿真字段是模板初值，不能替代用户授权。已有目录会被拒绝，继续任务时直接读取原目录。
+`EMPTY_TASK_CREATED` 只表示记录目录创建完成。先根据用户实际授权填写需求；`paper`/`design` 模式中的电气修改/仿真字段是模板初值，不能替代用户授权。已有目录会被拒绝，继续任务时直接读取原目录。设计记录按[工程流程](../skills/paper-to-virtuoso/references/paper-reproduction.md)填写，候选表按[优化方法](../skills/paper-to-virtuoso/references/optimization.md)使用；所有状态均待证据支持，没有预填成功数据。
 
 ## 比较重排前后的电气数据
 
