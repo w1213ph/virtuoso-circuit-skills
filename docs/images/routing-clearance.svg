@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
+  <title id="title">引脚引出与布线通道</title>
+  <desc id="desc">左图展示沿 symbol 边缘布线和输入回绕的问题。右图展示输入左侧、输出右侧、向外引出后在独立通道转弯。该图为通用绘图示意。</desc>
+  <style>
+    text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #1d3346; }
+    .title { font-size: 28px; font-weight: 700; }
+    .head { font-size: 21px; font-weight: 700; }
+    .body { font-size: 18px; }
+    .small { font-size: 16px; }
+    .outline { fill: #f3f7fc; stroke: #375f85; stroke-width: 2.5; }
+    .wire { fill: none; stroke: #158365; stroke-width: 2.5; stroke-linejoin: round; }
+    .bad { fill: none; stroke: #b9544f; stroke-width: 2.5; }
+  </style>
+  <rect width="1280" height="520" fill="#ffffff"/>
+  <text x="40" y="48" class="title">引脚引出与布线通道</text>
+  <text x="40" y="82" class="body">先确定 symbol 与标注的占位，再用留白通道组织实际父级连线。</text>
+  <rect x="32" y="110" width="594" height="332" rx="12" fill="#fcf6f5" stroke="#efd9d6"/>
+  <rect x="654" y="110" width="594" height="332" rx="12" fill="#f2f8f5" stroke="#d4e6dc"/>
+  <text x="58" y="149" class="head">需返工</text>
+  <text x="680" y="149" class="head">向外引出，再转弯</text>
+  <rect x="230" y="221" width="210" height="115" class="outline"/>
+  <text x="335" y="288" text-anchor="middle" class="body">信号处理</text>
+  <text x="425" y="247" text-anchor="end" class="small">IN</text>
+  <text x="425" y="317" text-anchor="end" class="small">OUT</text>
+  <path d="M76 239 H223 V215 H446 V239 H440 M440 309 H455 V342 H76" class="bad"/>
+  <circle cx="440" cy="239" r="4" fill="#b9544f"/>
+  <circle cx="440" cy="309" r="4" fill="#b9544f"/>
+  <text x="60" y="190" class="small">输入回绕到右侧，导线紧贴轮廓</text>
+  <text x="60" y="390" class="small">放大画布后，路径和 symbol 仍然难以区分</text>
+  <rect x="807" y="219" width="225" height="117" class="outline"/>
+  <text x="919" y="285" text-anchor="middle" class="body">信号处理</text>
+  <text x="821" y="250" class="small">IN</text>
+  <text x="1018" y="250" text-anchor="end" class="small">OUT</text>
+  <path d="M698 272 H807 M1032 272 H1110 V360 H1200" class="wire"/>
+  <circle cx="807" cy="272" r="4" fill="#158365"/>
+  <circle cx="1032" cy="272" r="4" fill="#158365"/>
+  <path d="M1040 303 H1102 M1040 297 V309 M1102 297 V309" fill="none" stroke="#658378" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="1071" y="325" text-anchor="middle" class="small">间隔</text>
+  <text x="680" y="190" class="small">主输入左侧，主输出右侧</text>
+  <text x="680" y="405" class="small">间隔按实际格点、字号和常用缩放确定</text>
+  <text x="40" y="480" class="small">独立示意 · 实际 wire、端子网络及父级仍需原生回读与目视验收</text>
+</svg>

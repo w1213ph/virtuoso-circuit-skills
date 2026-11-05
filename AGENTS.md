@@ -4,6 +4,8 @@
 
 - 新论文先确定目标与实际 PDK；整理已有图先保存当前已保存状态和手工修改。
 - 以 `examples/ctdsm18` 的已认可画面、symbol 几何和父级参考为绘图基准。不要只画统一的大空框。
+- 新建与重排的图按当前 drawing/symbols 细则审查。symbol 边界明确、功能图接到对应 pin，主输入优先左、输出右；消除贴边绕线、异网交叉与标注遮挡。历史截图按各自记录的标准理解。
+- 片内器件依 `references/physical-sizing.md` 检查实际尺寸与总量，优先紧凑实现；确需大 MOS、C、R、L 时向使用者说明依据、面积和代价。电源 wire 独立加粗仍须在目标版本原生验证后启用。
 - 本仓库没有用户的连接配置、PDK 或完整电路 OA。读取使用者当前工具与环境，不猜服务器路径、不自动复用示例参数。
 - 通过实际原生对象建立 terminal、pin、动态 label、选择框和 wire；画面相似不等于电气连接正确。
 - 用户仅授权改图/迁移环境时，不改电气参数、不启动新仿真。重排后比较参数、逐端连接和原生网表。
@@ -16,6 +18,6 @@
 
 仓库工具默认只生成文件或只读比较；`emit_symbols.py` 生成的 SKILL 只能在明确指定、尚不存在的专用库中创建 symbol。不要把它当成覆盖已有工程的重绘器。
 
-晶体管级 schematic 按 `references/engineering-schematic.md` 增补功能分组、目标/实测注释和短线网标。保留已有 symbol 规则与 18 个参考资产。参考 IP 仅用于学习通用组织方法，公开示例使用独立设计，不附带来源 IP 的原始图纸或数据库。
+晶体管级 schematic 按 `references/engineering-schematic.md` 增补功能分组、结构/条件、目标/实测、非电源接口释义、适用的真值表/配置码映射和短线网标。保留 18 个历史参考资产，新图按当前绘图细则验收。参考 IP 仅用于学习通用组织方法，公开示例使用独立设计，不附带来源 IP 的原始图纸或数据库。
 
 完整论文复现和新电路先按 [paper-reproduction.md](skills/paper-to-virtuoso/references/paper-reproduction.md) 建立阶段与证据。论文省略的工程模块按 [engineering-circuits.md](skills/paper-to-virtuoso/references/engineering-circuits.md) 筛选，偏置/参考按 [bias-design.md](skills/paper-to-virtuoso/references/bias-design.md) 分析。图面使用当前功能与实际参数，迭代过程留在变更记录。不要把画得整齐等同于高质量电气设计。

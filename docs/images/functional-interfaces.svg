@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
+  <title id="title">传输门与偏置的功能接口</title>
+  <desc id="desc">传输门在闭合边框内显示连接同一 A/B 的 NMOS 与 PMOS 支路和独立互补控制。独立偏置示例用电阻连接二极管接法的 PMOS 与 NMOS，展示 BP 与 BN 的产生节点。</desc>
+  <style>
+    text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #1d3346; }
+    .title { font-size: 28px; font-weight: 700; }
+    .head { font-size: 21px; font-weight: 700; }
+    .body { font-size: 18px; }
+    .small { font-size: 16px; }
+    .boundary { fill: #f6f9fd; stroke: #375f85; stroke-width: 2.5; }
+    .wire { fill: none; stroke: #158365; stroke-width: 2.5; stroke-linejoin: round; }
+    .device { fill: none; stroke: #375f85; stroke-width: 2.5; }
+    .control { fill: none; stroke: #855a9b; stroke-width: 2; }
+  </style>
+  <rect width="1280" height="780" fill="white"/>
+  <text x="40" y="48" class="title">功能图与接口连贯，边界清楚</text>
+  <text x="40" y="82" class="body">从实际 schematic 选择代表性结构，保留真实端口与功能关系。</text>
+  <text x="50" y="135" class="head">CMOS 传输门</text>
+  <text x="680" y="135" class="head">电阻设定电流的 N/P 偏置示例</text>
+  <rect x="128" y="222" width="420" height="312" class="boundary"/>
+  <path d="M72 378 H212 V315 H301 M212 378 V451 H301 M375 315 H472 V451 H375 M472 378 H602" class="wire"/>
+  <circle cx="212" cy="378" r="4" fill="#158365"/>
+  <circle cx="472" cy="378" r="4" fill="#158365"/>
+  <text x="82" y="365" class="body">A</text>
+  <text x="580" y="365" class="body">B</text>
+  <path d="M301 315 V340 H375 V315 M311 328 H365" class="device"/>
+  <path d="M338 177 V328" class="control"/>
+  <text x="350" y="195" class="body">EN</text>
+  <text x="387" y="341" class="small">N</text>
+  <path d="M301 451 V426 H375 V451 M311 438 H365" class="device"/>
+  <circle cx="338" cy="446" r="6" fill="white" stroke="#855a9b" stroke-width="2"/>
+  <path d="M338 438 V440 M338 452 V578" class="control"/>
+  <text x="350" y="571" class="body">ENB</text>
+  <text x="387" y="432" class="small">P</text>
+  <path d="M511 178 V267 M511 267 H497 M511 490 H497 M511 490 V578" class="wire"/>
+  <text x="473" y="195" text-anchor="end" class="small">VDD</text>
+  <text x="497" y="286" text-anchor="end" class="small">P body</text>
+  <text x="497" y="482" text-anchor="end" class="small">N body</text>
+  <text x="497" y="571" text-anchor="end" class="small">VSS</text>
+  <text x="50" y="629" class="body">A/B 双向通路连接到同一对并联支路</text>
+  <text x="50" y="660" class="small">EN=1、ENB=0 表示导通控制意图</text>
+  <text x="50" y="689" class="small">体端由独立网名表达，按下层实际接口保留</text>
+  <rect x="830" y="222" width="344" height="312" class="boundary"/>
+  <path d="M978 177 V270 H950 M950 310 H978 V355 M978 390 V416 H950 M950 456 H978 V578" class="wire"/>
+  <path d="M950 270 V310 M932 278 V302 M950 416 V456 M932 424 V448" class="device"/>
+  <circle cx="924" cy="290" r="6" fill="white" stroke="#375f85" stroke-width="2"/>
+  <path d="M930 290 H932" class="device"/>
+  <path d="M918 290 H885 V338 H1220 M932 436 H885 V405 H1220" class="wire"/>
+  <path d="M978 355 l-7 4 14 6 -14 6 14 6 -14 6 7 7" class="device"/>
+  <circle cx="978" cy="338" r="4" fill="#158365"/>
+  <circle cx="978" cy="405" r="4" fill="#158365"/>
+  <text x="991" y="195" class="small">VDD</text>
+  <text x="991" y="571" class="small">VSS</text>
+  <text x="995" y="297" class="small">P</text>
+  <text x="999" y="378" class="small">RSET</text>
+  <text x="995" y="442" class="small">N</text>
+  <text x="1187" y="323" class="body">BP</text>
+  <text x="1187" y="390" class="body">BN</text>
+  <text x="680" y="629" class="body">电流支路与 N/P 栅压输出关系可追踪</text>
+  <text x="680" y="660" class="small">采用本图前，核对下层的实际连接与体端</text>
+  <text x="680" y="689" class="small">其他参考或镜像结构按其真实机制重新选图</text>
+  <text x="40" y="744" class="small">独立功能示意 · 原生 pin、有效端序、NLP 与父级连接需在目标工程验收</text>
+</svg>

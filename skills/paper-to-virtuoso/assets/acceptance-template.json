@@ -1,13 +1,35 @@
 {
   "task": "",
-  "mode": "paper|redraw|environment|export",
+  "mode": "paper|design|redraw|environment|export",
   "target_library": "",
   "parameter_connection_readback": {"status": "not_verified", "evidence": []},
   "native_netlist": {"status": "not_verified", "evidence": []},
   "symbol_interfaces": {"status": "not_verified", "evidence": []},
   "maestro_configuration": {"status": "not_verified", "evidence": []},
   "behavioral_simulation": {"status": "not_run", "evidence": []},
-  "gui_visual_review": {"status": "not_verified", "evidence": []},
+  "gui_visual_review": {
+    "status": "not_verified",
+    "evidence": [],
+    "checks": {
+      "signal_flow_and_orientation": {"status": "not_verified", "evidence": []},
+      "visible_boundary_and_functional_pins": {"status": "not_verified", "evidence": []},
+      "wire_clearance_and_crossings": {"status": "not_verified", "evidence": []},
+      "symbol_scale_and_labels": {"status": "not_verified", "evidence": []},
+      "engineering_annotations_and_pin_guide": {"status": "not_verified", "evidence": []},
+      "logic_truth_tables_and_code_maps": {"status": "not_verified", "evidence": []},
+      "direct_parent_views": {"status": "not_verified", "evidence": []},
+      "power_wire_emphasis": {"status": "not_verified", "evidence": []}
+    },
+    "reviewed_views": [],
+    "open_issues": []
+  },
+  "physical_implementation": {
+    "status": "not_verified",
+    "evidence": [],
+    "area_budget": null,
+    "area_basis": "",
+    "large_device_exceptions": []
+  },
   "installation_and_rollback": {"status": "not_verified", "evidence": []},
   "known_limits": []
 }

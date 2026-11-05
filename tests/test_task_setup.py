@@ -22,6 +22,14 @@ class TaskSetup(unittest.TestCase):
                 self.assertEqual(json.loads((dest / 'requirements.json').read_text())['mode'], mode)
                 self.assertTrue((dest / 'DESIGN_PLAN.md').is_file())
                 self.assertEqual(len((dest / 'optimization-candidates.csv').read_text().splitlines()), 1)
+                acceptance = json.loads((dest / 'acceptance.json').read_text())
+                for check in acceptance['gui_visual_review']['checks'].values():
+                    self.assertEqual(check['status'], 'not_verified')
+                    self.assertEqual(check['evidence'], [])
+                self.assertEqual(acceptance['gui_visual_review']['reviewed_views'], [])
+                self.assertEqual(acceptance['physical_implementation']['status'], 'not_verified')
+                self.assertIsNone(acceptance['physical_implementation']['area_budget'])
+                self.assertEqual(acceptance['physical_implementation']['large_device_exceptions'], [])
                 for name in ['evidence', 'screenshots', 'netlists', 'simulation']:
                     self.assertEqual(list((dest / name).iterdir()), [])
 

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">常用数字单元的通行门形</title>
+  <desc id="desc">展示反相器、与非门、或非门、异或门、多路选择器、正边沿 D 触发器的示意轮廓。实际接口和供电由目标设计确定。</desc>
+  <style>
+    text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #1d3346; }
+    .title { font-size: 28px; font-weight: 700; }
+    .head { font-size: 21px; font-weight: 700; }
+    .body { font-size: 18px; }
+    .wire { fill: none; stroke: #158365; stroke-width: 2.5; }
+    .gate { fill: #f3f7fc; stroke: #375f85; stroke-width: 2.5; stroke-linejoin: round; }
+  </style>
+  <rect width="1200" height="650" fill="white"/>
+  <text x="40" y="48" class="title">数字单元用熟悉的门形，保持真实逻辑与接口</text>
+  <text x="40" y="82" class="body">优先读取目标 PDK 或工具库的标准 symbol，再核对极性、气泡和引脚。</text>
+  <g transform="translate(65 147)">
+    <text x="0" y="0" class="head">INV</text>
+    <path d="M18 90 H80 M185 90 H285" class="wire"/>
+    <path d="M80 40 L170 90 L80 140 Z" class="gate"/>
+    <circle cx="178" cy="90" r="8" class="gate"/>
+    <text x="20" y="77" class="body">A</text><text x="262" y="77" class="body">Y</text>
+  </g>
+  <g transform="translate(447 147)">
+    <text x="0" y="0" class="head">NAND2</text>
+    <path d="M18 64 H80 M18 116 H80 M206 90 H285" class="wire"/>
+    <path d="M80 40 H140 A50 50 0 0 1 140 140 H80 Z" class="gate"/>
+    <circle cx="198" cy="90" r="8" class="gate"/>
+    <text x="20" y="51" class="body">A</text><text x="20" y="104" class="body">B</text><text x="264" y="77" class="body">Y</text>
+  </g>
+  <g transform="translate(829 147)">
+    <text x="0" y="0" class="head">NOR2</text>
+    <path d="M18 64 H90 M18 116 H90 M216 90 H285" class="wire"/>
+    <path d="M80 40 Q160 40 200 90 Q160 140 80 140 Q110 90 80 40 Z" class="gate"/>
+    <circle cx="208" cy="90" r="8" class="gate"/>
+    <text x="20" y="51" class="body">A</text><text x="20" y="104" class="body">B</text><text x="264" y="77" class="body">Y</text>
+  </g>
+  <g transform="translate(65 374)">
+    <text x="0" y="0" class="head">XOR2</text>
+    <path d="M18 64 H90 M18 116 H90 M200 90 H285" class="wire"/>
+    <path d="M80 40 Q160 40 200 90 Q160 140 80 140 Q110 90 80 40 Z" class="gate"/>
+    <path d="M66 40 Q96 90 66 140" fill="none" stroke="#375f85" stroke-width="2.5"/>
+    <text x="20" y="51" class="body">A</text><text x="20" y="104" class="body">B</text><text x="264" y="77" class="body">Y</text>
+  </g>
+  <g transform="translate(447 374)">
+    <text x="0" y="0" class="head">MUX2</text>
+    <path d="M18 60 H90 M18 120 H90 M190 90 H285 M140 128 V177" class="wire"/>
+    <path d="M90 30 L190 60 V120 L90 150 Z" class="gate"/>
+    <text x="104" y="68" class="body">0</text><text x="104" y="129" class="body">1</text>
+    <text x="18" y="47" class="body">D0</text><text x="18" y="107" class="body">D1</text><text x="264" y="77" class="body">Y</text>
+    <text x="153" y="175" class="body">S</text>
+  </g>
+  <g transform="translate(829 374)">
+    <text x="0" y="0" class="head">DFF · 正边沿</text>
+    <path d="M18 60 H90 M18 120 H90 M210 60 H285" class="wire"/>
+    <rect x="90" y="30" width="120" height="120" class="gate"/>
+    <path d="M90 110 L104 120 L90 130" fill="none" stroke="#375f85" stroke-width="2.5"/>
+    <text x="103" y="67" class="body">D</text><text x="185" y="67" class="body">Q</text>
+    <text x="18" y="107" class="body">CLK</text>
+  </g>
+  <text x="40" y="616" class="body">通用几何示意 · 供电、体端、复位和互补输出按实际设计补齐，真实父级另行验收</text>
+</svg>
