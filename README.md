@@ -4,7 +4,7 @@
 
 这里提供**搭建方法、绘图规则、功能 symbol 参考和检查工具**。AI 负责结合你的实际工艺完成设计；你可以用示例图和验收清单检查成果。
 
-第一次接触模拟电路也可以从[新手入口](docs/BEGINNER.md)开始：提供论文、目标工艺和用途，让 agent 解释选择、补齐工程电路，再分阶段验证。[完整复现流程](skills/paper-to-virtuoso/references/paper-reproduction.md)写明每一步的产物和通过条件，不只要求图画得整齐。
+第一次接触模拟电路，可以从[新手入口](docs/BEGINNER.md)用一句话描述用途。Agent 从现有工程读取工艺和供电，帮助确定指标，交付可打开的原理图、功能 symbol、测试台和可复测的前仿结果。已有电路可以用[优化流程](skills/paper-to-virtuoso/references/optimization.md)比较同条件下的候选。
 
 ## 你想做什么？
 
@@ -22,7 +22,7 @@
 
 ### 1. 准备工程信息
 
-- **搭新电路**：提供论文文件、要复现的图或章节、目标工艺、电源和优先指标。
+- **搭新电路**：说明电路要做什么、接什么信号和负载。已知的工艺、电源和指标一并提供。按论文复现时附上论文和图号。
 - **整理已有电路**：提供库名、cell 名称、工程位置，以及要改哪些图。
 - **实际操作环境**：AI 需要能读取工程，并通过你已有的工具访问 Virtuoso。只有网页聊天和仓库链接时，可以先分析论文、制定方案；写入电路还需[接通环境](docs/SETUP.md)。
 
@@ -58,7 +58,7 @@
 - **电路是否正确**：实际工艺器件、参数和端子连接已回读；纯重排前后网表一致。
 - **图是否好读**：symbol 有明确边界和连贯功能图，主输入在左、输出在右，导线留出间隔，消除贴边绕线和异网交叉。
 - **片内规模是否合理**：检查 MOS 与 C/R/L 的实际尺寸、阵列总量和面积依据；确需大器件时，要求说明必要性、代价及替代比较。
-- **指标是否真的测过**：仿真需带条件和结果；只迁移环境时，应明确“未重跑”。
+- **指标是否真的测过**：查看测试台、激励、负载、工况、目标和实际数值。设计或优化时可用[前仿计划](skills/paper-to-virtuoso/references/simulation.md#前仿计划与指标记录)查看每项结果对应的输入版本。
 
 完整检查项见[验收清单](skills/paper-to-virtuoso/references/acceptance.md)。你不需要先读完仓库里的所有技术文件。
 
@@ -104,6 +104,7 @@ python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
 | [docs/SETUP.md](docs/SETUP.md) | 准备 Python、连接 Virtuoso、让 AI 读取 Skill |
 | [docs/TOOLS.md](docs/TOOLS.md) | 查命令、输入输出、原生 symbol 生成和常见问题 |
 | [examples/ctdsm18](examples/ctdsm18/README.md) | 看效果、学习 symbol 与父级的排布 |
+| [动态比较器前仿](examples/dynamic-comparator/README.md) | 看实际 PDK 尺寸取舍、同条件波形测量和负载验证 |
 | [AGENTS.md](AGENTS.md) 与 [SKILL.md](skills/paper-to-virtuoso/SKILL.md) | AI 的执行入口，按任务读取细则 |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | 查哪些工具和案例已经实际验证 |
 

@@ -1,4 +1,4 @@
 interface:
-  display_name: "Virtuoso 论文电路与功能符号"
-  short_description: "搭建真实 PDK 电路，绘制紧凑功能 symbol，核对连接、仿真环境与实际画面"
-  default_prompt: "使用 $paper-to-virtuoso，读取我的论文和实际工程，按参考画风搭建并分别验收电气连接、仿真行为和原生 GUI。"
+  display_name: "Virtuoso 电路设计与前仿"
+  short_description: "用真实 PDK 搭建模拟电路，绘制清楚的原理图和功能符号，按实际测值优化"
+  default_prompt: "使用 $paper-to-virtuoso，读取我的用途和已有工程，设计或优化实际 PDK 电路，交付能打开的原理图和可复测的前仿结果。"

@@ -3,8 +3,12 @@ from pathlib import Path
 import argparse,json
 PORT_MASTERS={('basic','ipin'),('basic','opin'),('basic','iopin')}
 def canonical(data,mapping=None):
+ if not isinstance(data,dict):
+  raise ValueError('The electrical snapshot must be an object')
  mapping=mapping or {};cm=mapping.get('cells',mapping if 'libraries' not in mapping else {});lm=mapping.get('libraries',{})
  cells=data.get('cells',[data]);cells=list(cells.values()) if isinstance(cells,dict) else cells;out={}
+ if not isinstance(cells,list) or not cells:
+  raise ValueError('Supply at least one cell in the electrical snapshot')
  for c in cells:
   name=cm.get(c['cell'],c['cell']);assert name not in out,'Duplicate mapped cell'
   ports={}

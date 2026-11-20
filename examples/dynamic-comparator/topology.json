@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "ports": {
+    "INP": "input",
+    "INN": "input",
+    "OUTP": "output",
+    "OUTN": "output",
+    "CLK": "input",
+    "VDD": "inputOutput",
+    "VSS": "inputOutput"
+  },
+  "devices": [
+    {
+      "instance": "MNINP",
+      "type": "NMOS",
+      "terminals": {
+        "D": "XP",
+        "G": "INP",
+        "S": "TAIL",
+        "B": "VSS"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.6,
+        "candidate": 2.0
+      }
+    },
+    {
+      "instance": "MNINN",
+      "type": "NMOS",
+      "terminals": {
+        "D": "XN",
+        "G": "INN",
+        "S": "TAIL",
+        "B": "VSS"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.6,
+        "candidate": 2.0
+      }
+    },
+    {
+      "instance": "MTAIL",
+      "type": "NMOS",
+      "terminals": {
+        "D": "TAIL",
+        "G": "CLK",
+        "S": "VSS",
+        "B": "VSS"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 3.0,
+        "candidate": 3.0
+      }
+    },
+    {
+      "instance": "MNQ_N",
+      "type": "NMOS",
+      "terminals": {
+        "D": "OUTN",
+        "G": "OUTP",
+        "S": "XP",
+        "B": "VSS"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.2,
+        "candidate": 1.2
+      }
+    },
+    {
+      "instance": "MNQ_P",
+      "type": "NMOS",
+      "terminals": {
+        "D": "OUTP",
+        "G": "OUTN",
+        "S": "XN",
+        "B": "VSS"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.2,
+        "candidate": 1.2
+      }
+    },
+    {
+      "instance": "MPQ_N",
+      "type": "PMOS",
+      "terminals": {
+        "D": "OUTN",
+        "G": "OUTP",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.6,
+        "candidate": 1.6
+      }
+    },
+    {
+      "instance": "MPQ_P",
+      "type": "PMOS",
+      "terminals": {
+        "D": "OUTP",
+        "G": "OUTN",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 2,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 1.6,
+        "candidate": 1.6
+      }
+    },
+    {
+      "instance": "MPR_XL",
+      "type": "PMOS",
+      "terminals": {
+        "D": "XP",
+        "G": "CLK",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 1,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 0.8,
+        "candidate": 0.8
+      }
+    },
+    {
+      "instance": "MPR_QL",
+      "type": "PMOS",
+      "terminals": {
+        "D": "OUTN",
+        "G": "CLK",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 1,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 0.8,
+        "candidate": 0.8
+      }
+    },
+    {
+      "instance": "MPR_XR",
+      "type": "PMOS",
+      "terminals": {
+        "D": "XN",
+        "G": "CLK",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 1,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 0.8,
+        "candidate": 0.8
+      }
+    },
+    {
+      "instance": "MPR_QR",
+      "type": "PMOS",
+      "terminals": {
+        "D": "OUTP",
+        "G": "CLK",
+        "S": "VDD",
+        "B": "VDD"
+      },
+      "length_um": 0.18,
+      "fingers": 1,
+      "multiplier": 1,
+      "total_width_um": {
+        "baseline": 0.8,
+        "candidate": 0.8
+      }
+    }
+  ]
+}

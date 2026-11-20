@@ -8,12 +8,13 @@
 |---|---|---|
 | `render_symbols.py` | 仓库自带参考数据 | 18 个 SVG 预览 |
 | `emit_symbols.py` | 新库名、目标库目录、真实技术库名 | 创建 18 个原生 symbol 的 `.il` 文件 |
-| `new_task.py` | 项目前缀、任务类型、新目录 | 待填写的需求、验收记录和分类目录 |
+| `new_task.py` | 项目前缀、任务类型、新目录 | 待填写的需求、验收记录、前仿计划和分类目录 |
+| `check_prelayout.py` | 前仿计划、声明的输入与证据文件 | 输入快照、限值检查或基线和候选的指标差值 |
 | `audit_electrical.py` | 两份完整电气回读 JSON | 参数、master、端子网络和端口的差异报告 |
 | `compare_netlists.py` | 两份原生 Spectre 网表 | 保留子电路范围与端序的文本比较结果 |
 | `scripts/check_repo.py` | 当前仓库文件 | 本地链接、参考数据、发布文件与哈希检查 |
 
-前五个脚本位于 `skills/paper-to-virtuoso/scripts/`。任意工具都可加 `--help` 查看参数；仓库检查脚本直接运行即可。
+仓库检查以外的脚本位于 `skills/paper-to-virtuoso/scripts/`。可用 `--help` 查看参数。仓库检查脚本直接运行。
 
 ## 预览 18 个参考 symbol
 
@@ -77,6 +78,7 @@ work/afe/
   requirements.json       待填写的需求
   acceptance.json         待填写的验收结果
   DESIGN_PLAN.md          paper/design 的阶段、机制、接口和验证记录
+  prelayout.json          paper/design 的前仿测试、目标与结果
   optimization-candidates.csv  paper/design 的空候选表，按需使用
   CONNECTION.local.json   本地连接占位信息，不提交凭据
   evidence/               检查证据
@@ -86,7 +88,25 @@ work/afe/
   backup/                 备份
 ```
 
-`EMPTY_TASK_CREATED` 只表示记录目录创建完成。先根据用户实际授权填写需求；`paper`/`design` 模式中的电气修改/仿真字段是模板初值，不能替代用户授权。已有目录会被拒绝，继续任务时直接读取原目录。设计记录按[工程流程](../skills/paper-to-virtuoso/references/paper-reproduction.md)填写，候选表按[优化方法](../skills/paper-to-virtuoso/references/optimization.md)使用；所有状态均待证据支持，没有预填成功数据。
+`EMPTY_TASK_CREATED` 表示记录目录创建完成。电气修改和仿真字段初始为 `false`，按用户当前请求记录实际范围。`acceptance.json` 带本任务项目前缀和模式，各项初始待验证。继续任务时直接读取已有目录。设计记录按[工程流程](../skills/paper-to-virtuoso/references/paper-reproduction.md)填写，候选表按[优化方法](../skills/paper-to-virtuoso/references/optimization.md)使用。
+
+## 核对和比较前仿记录
+
+给任务填写[前仿计划](../skills/paper-to-virtuoso/references/simulation.md#前仿计划与指标记录)。相对于计划文件指定实际 DUT 输入及需要保持一致的测试台、模型、工况和测量程序等参考输入。已有任务可复制[空模板](../skills/paper-to-virtuoso/assets/prelayout-template.json)到自己的任务目录再填写。
+
+```sh
+python skills/paper-to-virtuoso/scripts/check_prelayout.py snapshot --plan work/afe/prelayout.json
+python skills/paper-to-virtuoso/scripts/check_prelayout.py check --plan work/afe/prelayout.json
+python skills/paper-to-virtuoso/scripts/check_prelayout.py compare --plan work/afe/candidate/prelayout.json --baseline work/afe/baseline/prelayout.json
+```
+
+| 命令 | 何时运行及如何看结果 |
+|---|---|
+| `snapshot` | 原生仿真前捕获当前测试定义和声明文件的摘要。将输出的 `context_sha256` 随本次仿真一同保存 |
+| `check` | 写入测值和证据后核对限值。`RECORDED_LIMITS_MET` 表示记录覆盖测试且符合确认的阈值。无结果显示 `NOT_RUN`，输入或条件变更显示 `STALE_RESULT` |
+| `compare` | 两份计划使用相同测试 ID、定义和参考输入时输出基线、候选和差值。`candidate_limits_met` 用来判断候选是否满足已确认的全部限值 |
+
+命令输出 JSON。退出码 `0` 分别表示快照可用、记录符合限值或两组结果可比较。需要补充证据、指标越限或比较条件不一致时，根据具体状态处理。脚本执行范围是声明文件与数值的核对。实际仿真、数据提取和原生验收由 Agent 在目标工艺和工具中执行。
 
 ## 比较重排前后的电气数据
 
@@ -104,7 +124,7 @@ python skills/paper-to-virtuoso/scripts/audit_electrical.py --before work/afe/be
 python skills/paper-to-virtuoso/scripts/compare_netlists.py --before work/afe/before.scs --after work/afe/after.scs
 ```
 
-成功输出 `PROVIDED_NATIVE_NETLIST_TEXT_EQUIVALENT`。差异时输出 diff 并返回非零退出码；同样不能省掉 GUI 或仿真检查。
+成功输出 `PROVIDED_NATIVE_NETLIST_TEXT_EQUIVALENT`。保留模型加载和语言指令的相对次序。差异时输出 diff 并返回非零退出码。模型与 include 文件本身另以本次运行的依赖记录核对。
 
 若本次明确重命名了 cell，创建经审阅的 `work/afe/cell-map.json`：
 

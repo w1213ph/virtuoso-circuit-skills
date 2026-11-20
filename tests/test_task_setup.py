@@ -19,10 +19,21 @@ class TaskSetup(unittest.TestCase):
                 dest = Path(td) / mode
                 result = self.run_setup(mode, dest)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(json.loads((dest / 'requirements.json').read_text())['mode'], mode)
+                requirements = json.loads((dest / 'requirements.json').read_text())
+                self.assertEqual(requirements['mode'], mode)
+                self.assertFalse(requirements['electrical_changes_authorized'])
+                self.assertFalse(requirements['new_simulations_authorized'])
+                self.assertIsNone(requirements['purpose'])
+                self.assertEqual(requirements['open_questions'], [])
                 self.assertTrue((dest / 'DESIGN_PLAN.md').is_file())
                 self.assertEqual(len((dest / 'optimization-candidates.csv').read_text().splitlines()), 1)
                 acceptance = json.loads((dest / 'acceptance.json').read_text())
+                self.assertEqual(acceptance['task'], 'AFE')
+                self.assertEqual(acceptance['mode'], mode)
+                self.assertEqual(acceptance['behavioral_simulation']['status'], 'not_run')
+                prelayout = json.loads((dest / 'prelayout.json').read_text())
+                self.assertEqual(prelayout['tests'], [])
+                self.assertEqual(prelayout['results'], {})
                 for check in acceptance['gui_visual_review']['checks'].values():
                     self.assertEqual(check['status'], 'not_verified')
                     self.assertEqual(check['evidence'], [])
@@ -53,6 +64,7 @@ class TaskSetup(unittest.TestCase):
                 req = json.loads((dest / 'requirements.json').read_text())
                 self.assertFalse(req['electrical_changes_authorized'])
                 self.assertFalse(req['new_simulations_authorized'])
+                self.assertFalse((dest / 'prelayout.json').exists())
                 self.assertFalse((dest / 'optimization-candidates.csv').exists())
 
 if __name__ == '__main__':

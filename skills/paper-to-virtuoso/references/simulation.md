@@ -2,6 +2,50 @@
 
 纯重排/改 symbol/迁移环境：比较电气、回读设置和目视画面，不自动跑长仿真。新论文或明确性能优化：先模块再整机，并对最终 OA 原生网表复验。探索 deck 不代替交付电路。
 
+## 前仿计划与指标记录
+
+用 `prelayout.json` 为当前任务写一组需要判定的测试。每项有稳定 ID、指标、单位、原生测试台、分析类型、工况、测量定义和目标来源。按电路和用途选分析。为 PVT 和失配写出实际选用的 corner、电压、温度、随机模型、样本数与判据。可逐工况建测试，也可记录约定的最差值或统计量并保留分项证据。
+
+以下比较器计划用于展示格式。示例的激励、负载和限值由实际任务替换。
+
+```json
+{
+  "schema_version": 1,
+  "inputs": ["netlists/comp.scs"],
+  "reference_inputs": ["simulation/bench-models.json"],
+  "tests": [{
+    "id": "COMP_DELAY_TT",
+    "metric": "决策时间",
+    "unit": "ns",
+    "testbench": "TB_COMP_DECISION",
+    "analysis": "tran",
+    "conditions": {
+      "corner": "TT",
+      "temperature_C": 27,
+      "supply_V": 1.8,
+      "clock_rise_ps": 50,
+      "input_common_mode_V": 0.9,
+      "input_delta_mV": 5,
+      "output_load_per_pin_fF": 30
+    },
+    "measurement": "从评估时钟 50% 到正确极性的差分输出达到 0.6 V，且在该周期保持判决",
+    "target": {
+      "source": "待确认的示例目标",
+      "confirmed": false,
+      "limits": {"<=": 8}
+    }
+  }],
+  "results": {}
+}
+```
+
+- `inputs` 绑定该候选的原生 DUT 网表、实际 deck 等会随电路变化的输入。`reference_inputs` 放基线和候选共用的测试台、模型/角选项清单、激励、负载、测量程序或其文件清单。测试条目可追加自己的 `inputs` 或 `reference_inputs`。路径相对于计划文件。模型和 include 依赖如由清单表示，应在运行前从实际依赖重新生成清单并记录文件摘要。
+- `target.limits` 支持 `>`、`>=`、`<`、`<=` 和 `==`。可合并多个判据。指标未定时用 `target: null` 或 `confirmed: false`，先记录测量或补齐验收条件。
+- 仿真前用 `snapshot` 取得每项 `context_sha256`。仿真后，`results` 以测试 ID 为键，记录同一次运行的 `context_sha256`、`status: "measured"`、有限数值 `value`、同计划单位 `unit` 和 `evidence`。`evidence` 是文件路径到 SHA256 的映射，可包括求解日志、原始数据、测量输出和相应的测试条件。保留求解失败时可写 `status: "run_failed"`、`reason`、当前摘要和证据。
+- 用 `check` 核对记录内的阈值、单位、输入和证据。整理或更换条件后从实际运行重新采集，旧尝试留在原任务记录。用 `compare` 对照相同测试定义及共用输入的基线和候选，核对变化量与候选是否满足全部约定限值。命令见[工具用法](../../../docs/TOOLS.md#核对和比较前仿记录)。
+
+上述工具基于声明的文件和记录的数值。原生验收时仍需核对实际 Maestro history、网表、求解日志、波形和测量脚本，确认测试台在正确的工作点、模式和加载条件下运行。
+
 ## 模拟与共模
 
 记录负载、偏置、模型、corner、温度和精度。差模增益/PM 不等于 CMFB 稳定；多个共模环路需选择合适探针、检查真实 STB 警告，并用足够长的扰动恢复交叉。短时域看起来改善不能推翻明确的不稳定结果。

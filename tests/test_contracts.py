@@ -18,6 +18,10 @@ class ElectricalContracts(unittest.TestCase):
  def test_missing_port_net_is_not_passed(self):
   a=copy.deepcopy(self.d);del a['ports'][0]['net']
   with self.assertRaises(AssertionError):compare(self.d,a)
+ def test_empty_electrical_snapshot_is_rejected(self):
+  for empty_cells in ([], {}):
+   with self.subTest(cells=empty_cells), self.assertRaises(ValueError):
+    compare({'cells': empty_cells}, {'cells': empty_cells})
  def test_explicit_rename(self):
   a=copy.deepcopy(self.d);a['cell']='AFE_AMP';self.assertTrue(compare(self.d,a,{'AMP':'AFE_AMP'})['supplied_electrical_data_equal'])
 class NetlistContracts(unittest.TestCase):
@@ -27,6 +31,14 @@ class NetlistContracts(unittest.TestCase):
   a='subckt A I O\nR0 (I O) resistor r=1k\nends A\nsubckt B I O\nR0 (I O) resistor r=2k\nends B\n';b=a.replace('r=1k','r=TEMP').replace('r=2k','r=1k').replace('r=TEMP','r=2k');self.assertNotEqual(canonical(a),canonical(b))
  def test_port_order_is_preserved(self):
   self.assertNotEqual(canonical('subckt A I O\nends A'),canonical('subckt A O I\nends A'))
+ def test_dependency_order_is_preserved(self):
+  setup = 'simulator lang=spectre\n'
+  model = 'include "foundry.scs" section=tt\n'
+  overrides = 'include "overrides.scs"\n'
+  self.assertNotEqual(canonical(setup + model + overrides), canonical(setup + overrides + model))
+ def test_empty_netlist_is_rejected(self):
+  with self.assertRaises(ValueError):
+   canonical('// Header only\n')
  def test_pcell_alias_preserves_body(self):
   a='subckt r_pcell_0 P N\nR0 (P N) resistor r=1k\nends r_pcell_0\nX1 (A B) r_pcell_0\n';b=a.replace('r_pcell_0','r_pcell_12');self.assertEqual(canonical(a,prefixes=['r_pcell_']),canonical(b,prefixes=['r_pcell_']));self.assertNotEqual(canonical(a,prefixes=['r_pcell_']),canonical(b.replace('1k','2k'),prefixes=['r_pcell_']))
 class ReferenceContracts(unittest.TestCase):

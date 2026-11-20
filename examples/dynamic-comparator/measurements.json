@@ -1,0 +1,235 @@
+{
+  "run": {
+    "process": "SMIC18",
+    "spectre": "15.1",
+    "frequency_MHz": 100,
+    "source_ohm_per_input": 1000,
+    "sampling_ps": 5
+  },
+  "cases": {
+    "heavy_neg": {
+      "conditions": {
+        "id": "heavy_neg",
+        "delta_mV": -5,
+        "cload_fF": 50,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 830.0,
+        "mean_core_energy_fJ": 376.86052,
+        "peak_diff_kickback_mV": 1.48749,
+        "peak_common_kickback_mV": 31.680618,
+        "first_delay_ps": 830.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 765.0,
+        "mean_core_energy_fJ": 375.85038,
+        "peak_diff_kickback_mV": 1.680074,
+        "peak_common_kickback_mV": 36.492095,
+        "first_delay_ps": 765.0,
+        "valid_decisions": 3
+      }
+    },
+    "heavy_pos": {
+      "conditions": {
+        "id": "heavy_pos",
+        "delta_mV": 5,
+        "cload_fF": 50,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 830.0,
+        "mean_core_energy_fJ": 376.86052,
+        "peak_diff_kickback_mV": 1.48749,
+        "peak_common_kickback_mV": 31.680618,
+        "first_delay_ps": 830.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 765.0,
+        "mean_core_energy_fJ": 375.85038,
+        "peak_diff_kickback_mV": 1.680074,
+        "peak_common_kickback_mV": 36.492095,
+        "first_delay_ps": 765.0,
+        "valid_decisions": 3
+      }
+    },
+    "load_neg": {
+      "conditions": {
+        "id": "load_neg",
+        "delta_mV": -5,
+        "cload_fF": 35,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 630.0,
+        "mean_core_energy_fJ": 287.984722,
+        "peak_diff_kickback_mV": 1.981682,
+        "peak_common_kickback_mV": 31.679868,
+        "first_delay_ps": 630.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 580.0,
+        "mean_core_energy_fJ": 288.056865,
+        "peak_diff_kickback_mV": 2.198872,
+        "peak_common_kickback_mV": 36.491764,
+        "first_delay_ps": 580.0,
+        "valid_decisions": 3
+      }
+    },
+    "load_pos": {
+      "conditions": {
+        "id": "load_pos",
+        "delta_mV": 5,
+        "cload_fF": 35,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 630.0,
+        "mean_core_energy_fJ": 287.984722,
+        "peak_diff_kickback_mV": 1.981682,
+        "peak_common_kickback_mV": 31.679868,
+        "first_delay_ps": 630.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 580.0,
+        "mean_core_energy_fJ": 288.056865,
+        "peak_diff_kickback_mV": 2.198872,
+        "peak_common_kickback_mV": 36.491764,
+        "first_delay_ps": 580.0,
+        "valid_decisions": 3
+      }
+    },
+    "nom_neg": {
+      "conditions": {
+        "id": "nom_neg",
+        "delta_mV": -5,
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 425.0,
+        "mean_core_energy_fJ": 199.130279,
+        "peak_diff_kickback_mV": 2.963144,
+        "peak_common_kickback_mV": 31.678506,
+        "first_delay_ps": 425.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 395.0,
+        "mean_core_energy_fJ": 200.290993,
+        "peak_diff_kickback_mV": 3.234873,
+        "peak_common_kickback_mV": 36.491543,
+        "first_delay_ps": 395.0,
+        "valid_decisions": 3
+      }
+    },
+    "nom_pos": {
+      "conditions": {
+        "id": "nom_pos",
+        "delta_mV": 5,
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 425.0,
+        "mean_core_energy_fJ": 199.130279,
+        "peak_diff_kickback_mV": 2.963144,
+        "peak_common_kickback_mV": 31.678506,
+        "first_delay_ps": 425.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 395.0,
+        "mean_core_energy_fJ": 200.290993,
+        "peak_diff_kickback_mV": 3.234873,
+        "peak_common_kickback_mV": 36.491543,
+        "first_delay_ps": 395.0,
+        "valid_decisions": 3
+      }
+    },
+    "slow_neg": {
+      "conditions": {
+        "id": "slow_neg",
+        "delta_mV": -5,
+        "cload_fF": 20,
+        "ramp_ns": 5,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 425.0,
+        "mean_core_energy_fJ": 199.131876,
+        "peak_diff_kickback_mV": 2.963226,
+        "peak_common_kickback_mV": 31.660825,
+        "first_delay_ps": 425.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 395.0,
+        "mean_core_energy_fJ": 200.292843,
+        "peak_diff_kickback_mV": 3.233887,
+        "peak_common_kickback_mV": 35.91193,
+        "first_delay_ps": 395.0,
+        "valid_decisions": 3
+      }
+    },
+    "slow_pos": {
+      "conditions": {
+        "id": "slow_pos",
+        "delta_mV": 5,
+        "cload_fF": 20,
+        "ramp_ns": 5,
+        "corner": "tt",
+        "vdd_V": 1.8,
+        "vcm_V": 0.9,
+        "temp_C": 27
+      },
+      "baseline": {
+        "worst_delay_ps": 425.0,
+        "mean_core_energy_fJ": 199.131876,
+        "peak_diff_kickback_mV": 2.963226,
+        "peak_common_kickback_mV": 31.660825,
+        "first_delay_ps": 425.0,
+        "valid_decisions": 3
+      },
+      "candidate": {
+        "worst_delay_ps": 395.0,
+        "mean_core_energy_fJ": 200.292843,
+        "peak_diff_kickback_mV": 3.233887,
+        "peak_common_kickback_mV": 35.91193,
+        "first_delay_ps": 395.0,
+        "valid_decisions": 3
+      }
+    }
+  }
+}

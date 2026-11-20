@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
   <title id="title">引脚引出与布线通道</title>
-  <desc id="desc">左图展示沿 symbol 边缘布线和输入回绕的问题。右图展示输入左侧、输出右侧、向外引出后在独立通道转弯。该图为通用绘图示意。</desc>
+  <desc id="desc">左图展示贴边绕线。右图的左右引脚水平朝外，上下引脚垂直朝外，底部有三条独立的竖直网标短线。转弯留在独立通道。</desc>
   <style>
     text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #1d3346; }
     .title { font-size: 28px; font-weight: 700; }
@@ -17,7 +17,7 @@
   <rect x="32" y="110" width="594" height="332" rx="12" fill="#fcf6f5" stroke="#efd9d6"/>
   <rect x="654" y="110" width="594" height="332" rx="12" fill="#f2f8f5" stroke="#d4e6dc"/>
   <text x="58" y="149" class="head">需返工</text>
-  <text x="680" y="149" class="head">向外引出，再转弯</text>
+  <text x="680" y="149" class="head">按引脚所在侧直出</text>
   <rect x="230" y="221" width="210" height="115" class="outline"/>
   <text x="335" y="288" text-anchor="middle" class="body">信号处理</text>
   <text x="425" y="247" text-anchor="end" class="small">IN</text>
@@ -31,12 +31,22 @@
   <text x="919" y="285" text-anchor="middle" class="body">信号处理</text>
   <text x="821" y="250" class="small">IN</text>
   <text x="1018" y="250" text-anchor="end" class="small">OUT</text>
-  <path d="M698 272 H807 M1032 272 H1110 V360 H1200" class="wire"/>
+  <path d="M807 272 H698 M1032 272 H1110 V360 H1200" class="wire"/>
+  <path d="M919 219 V192" class="wire"/>
+  <path d="M846 336 V379 M919 336 V379 M992 336 V379" class="wire"/>
   <circle cx="807" cy="272" r="4" fill="#158365"/>
   <circle cx="1032" cy="272" r="4" fill="#158365"/>
+  <circle cx="919" cy="219" r="4" fill="#158365"/>
+  <circle cx="846" cy="336" r="4" fill="#158365"/>
+  <circle cx="919" cy="336" r="4" fill="#158365"/>
+  <circle cx="992" cy="336" r="4" fill="#158365"/>
+  <text x="934" y="201" class="small">VDD</text>
+  <text x="846" y="401" text-anchor="middle" class="small">REF</text>
+  <text x="919" y="401" text-anchor="middle" class="small">BIAS</text>
+  <text x="992" y="401" text-anchor="middle" class="small">VSS</text>
   <path d="M1040 303 H1102 M1040 297 V309 M1102 297 V309" fill="none" stroke="#658378" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="1071" y="325" text-anchor="middle" class="small">间隔</text>
-  <text x="680" y="190" class="small">主输入左侧，主输出右侧</text>
-  <text x="680" y="405" class="small">间隔按实际格点、字号和常用缩放确定</text>
+  <text x="680" y="190" class="small">左右水平引出</text>
+  <text x="680" y="428" class="small">上下垂直引出，底部短线各自留出网标空间</text>
   <text x="40" y="480" class="small">独立示意 · 实际 wire、端子网络及父级仍需原生回读与目视验收</text>
 </svg>
