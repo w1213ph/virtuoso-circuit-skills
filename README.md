@@ -13,6 +13,7 @@
 | 按论文搭新电路 | 理解拓扑、映射工艺器件、建立分层电路和测试台、验证指标 | [新电路提示](docs/AI_START.md#搭建新论文电路) |
 | 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
 | 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
+| 第一次在真实工艺上复跑 | 在 SMIC18 建动态比较器、扫 gm/ID，亲自复测改宽输入对的速度、能耗和反冲 | [从空目录复跑](examples/dynamic-comparator/README.md#从空目录复跑) |
 | 不熟悉电路设计 | 解释论文和指标，补齐偏置、参考、共模、时钟与控制，逐模块检查 | [新手入口](docs/BEGINNER.md) |
 | 整理已有电路 | 紧凑排版、功能 symbol、规范命名、同步父级连线 | [整理电路提示](docs/AI_START.md#整理已有原理图和-symbol) |
 | 搬迁仿真环境 | 迁移 Maestro 的测试、模型、变量、分析和输出 | [迁移环境提示](docs/AI_START.md#只迁移-maestro-环境) |
@@ -104,7 +105,7 @@ python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
 | [docs/SETUP.md](docs/SETUP.md) | 准备 Python、连接 Virtuoso、让 AI 读取 Skill |
 | [docs/TOOLS.md](docs/TOOLS.md) | 查命令、输入输出、原生 symbol 生成和常见问题 |
 | [examples/ctdsm18](examples/ctdsm18/README.md) | 看效果、学习 symbol 与父级的排布 |
-| [动态比较器前仿](examples/dynamic-comparator/README.md) | 看实际 PDK 尺寸取舍、同条件波形测量和负载验证 |
+| [动态比较器前仿](examples/dynamic-comparator/README.md) | 在本机工艺中重建两套图、生成器件查表数据，逐工况比较测值 |
 | [AGENTS.md](AGENTS.md) 与 [SKILL.md](skills/paper-to-virtuoso/SKILL.md) | AI 的执行入口，按任务读取细则 |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | 查哪些工具和案例已经实际验证 |
 

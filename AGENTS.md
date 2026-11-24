@@ -17,7 +17,7 @@
 
 维护公开文档时，README 面向第一次使用的人，先说明用途、准备信息、开始步骤和可见成果；AI 的执行细节放在 Skill 与相关 references。命令注明运行位置、输入、输出和成功标志，避免要求新用户先读完所有文件。实际使用入口见 [AI_START.md](docs/AI_START.md)，命令见 [TOOLS.md](docs/TOOLS.md)。
 
-仓库工具默认只生成文件或只读比较；`emit_symbols.py` 生成的 SKILL 只能在明确指定、尚不存在的专用库中创建 symbol。不要把它当成覆盖已有工程的重绘器。
+离线工具用于生成文件和核对证据。`emit_symbols.py` 生成的 SKILL 仅在明确指定的新专用库创建 symbol。用户要实际复跑 SMIC18 动态比较器时，按[案例入口](examples/dynamic-comparator/README.md#从空目录复跑)调用 `run_native.py`，使用本机配置和新目录，对两版执行原生建图、器件表征与瞬态。命令执行完后另查实际父级、原理图全图和局部。
 
 晶体管级 schematic 按 `references/engineering-schematic.md` 增补功能分组、结构/条件、目标/实测、非电源接口释义、适用的真值表/配置码映射和短线网标。保留 18 个历史参考资产，新图按当前绘图细则验收。参考 IP 仅用于学习通用组织方法，公开示例使用独立设计，不附带来源 IP 的原始图纸或数据库。
 

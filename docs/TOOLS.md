@@ -1,11 +1,12 @@
 # 工具用法与常见问题
 
-以下命令从仓库根目录运行，使用 Python 3.9+ 标准库。除生成的 SKILL 需要在 Virtuoso 中执行外，其余工具都在本地处理文件，不自动连接服务器或运行仿真。
+以下命令从仓库根目录运行，离线工具使用 Python 3.9+ 标准库。原生 symbol 的 SKILL 在 Virtuoso 内执行。动态比较器的原生入口在已配置 Cadence 和 SMIC18 的 Linux 主机上直接启动 Virtuoso、SI 和 Spectre。
 
 ## 先选工具
 
 | 工具 | 输入 | 得到什么 |
 |---|---|---|
+| `run_native.py` | 比较器案例的本地 Cadence、PDK 和工况配置 | 两套原生 OA、gm/ID 表、PSF 和逐工况测量报告 |
 | `render_symbols.py` | 仓库自带参考数据 | 18 个 SVG 预览 |
 | `emit_symbols.py` | 新库名、目标库目录、真实技术库名 | 创建 18 个原生 symbol 的 `.il` 文件 |
 | `new_task.py` | 项目前缀、任务类型、新目录 | 待填写的需求、验收记录、前仿计划和分类目录 |
@@ -14,7 +15,7 @@
 | `compare_netlists.py` | 两份原生 Spectre 网表 | 保留子电路范围与端序的文本比较结果 |
 | `scripts/check_repo.py` | 当前仓库文件 | 本地链接、参考数据、发布文件与哈希检查 |
 
-仓库检查以外的脚本位于 `skills/paper-to-virtuoso/scripts/`。可用 `--help` 查看参数。仓库检查脚本直接运行。
+比较器入口位于 `examples/dynamic-comparator/`。通用工具位于 `skills/paper-to-virtuoso/scripts/`，可用 `--help` 查看参数。仓库检查脚本直接运行。
 
 ## 预览 18 个参考 symbol
 
@@ -91,6 +92,8 @@ work/afe/
 `EMPTY_TASK_CREATED` 表示记录目录创建完成。电气修改和仿真字段初始为 `false`，按用户当前请求记录实际范围。`acceptance.json` 带本任务项目前缀和模式，各项初始待验证。继续任务时直接读取已有目录。设计记录按[工程流程](../skills/paper-to-virtuoso/references/paper-reproduction.md)填写，候选表按[优化方法](../skills/paper-to-virtuoso/references/optimization.md)使用。
 
 ## 核对和比较前仿记录
+
+若要在 SMIC18 中直接生成原理图、扫器件并运行瞬态，[动态比较器原生入口](../examples/dynamic-comparator/README.md#从空目录复跑)会在仿真前生成快照，测量后调用下列比较工具，并写出可阅读的 `RESULTS.md`。下列命令也可单独核对其他电路的前仿记录。
 
 给任务填写[前仿计划](../skills/paper-to-virtuoso/references/simulation.md#前仿计划与指标记录)。相对于计划文件指定实际 DUT 输入及需要保持一致的测试台、模型、工况和测量程序等参考输入。已有任务可复制[空模板](../skills/paper-to-virtuoso/assets/prelayout-template.json)到自己的任务目录再填写。
 

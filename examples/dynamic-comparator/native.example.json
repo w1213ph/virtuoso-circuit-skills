@@ -1,0 +1,20 @@
+{
+  "cds_lib": "/path/to/project/cds.lib",
+  "model_file": "/path/to/smic18/models/spectre/model.lib",
+  "pdk_library": "smic18mmrf",
+  "virtuoso": "virtuoso",
+  "si": "si",
+  "spectre": "spectre",
+  "corner": "tt",
+  "temp_C": 27,
+  "vdd_V": 1.8,
+  "vcm_V": 0.9,
+  "diff_mV": 5,
+  "scenarios": [
+    {"name": "nom", "cload_fF": 20, "ramp_ns": 0.1},
+    {"name": "load", "cload_fF": 35, "ramp_ns": 0.1},
+    {"name": "heavy", "cload_fF": 50, "ramp_ns": 0.1},
+    {"name": "slow", "cload_fF": 20, "ramp_ns": 5}
+  ],
+  "limits": {}
+}

@@ -2,6 +2,32 @@
 
 这个案例用同一套测试台比较两个真实 PDK 电路。核心是带四个预充电管的动态差分锁存比较器。时钟低时预充电，时钟高时判决。正差分输入对应 OUTP 高、OUTN 低。[连接与尺寸表](topology.json)给出可重建的电气定义。
 
+## 从空目录复跑
+
+在装好 Virtuoso、SI、Spectre 和 SMIC18 的 Linux 主机上，从仓库根目录执行。可以把这一节交给 agent，并告诉它本机工程的 `cds.lib` 和 Spectre 模型入口在哪里。此例使用实际的 `n18`、`p18`、`analogLib` 和 `basic`，已在 Python 3.6.8、IC6.1.8、Spectre 15.1 上运行。
+
+```sh
+cp examples/dynamic-comparator/native.example.json comparator.local.json
+```
+
+在本地配置中填入 `cds_lib` 和 `model_file`。前者须能解析工艺与标准器件库，后者须包含指定工艺角。`virtuoso`、`si`、`spectre` 可用 PATH 中的名字或本机可执行文件路径。配置中的相对文件路径以配置文件所在目录为起点。选一个尚未创建的输出目录。
+
+```sh
+python3 examples/dynamic-comparator/run_native.py --config comparator.local.json --out work/cmp-first
+```
+
+命令在 `baseline/` 和 `candidate/` 各建一套隔离的 `CMP18_BENCH` 库，生成核心、symbol 和测试台。第一次先从基线原生网表取表征器件，生成九条 gm/ID 曲线，再运行同条件瞬态。如果当前工程已映射同名库，启动时请在本地配置中选择仅含所需 PDK 和标准库的 `cds.lib`。已有输出目录会被保留，再跑请选择新目录名。
+
+先打开 `work/cmp-first/RESULTS.md`。里面有每个工况的延迟、能量、反冲、器件尺寸和打开原生图的命令。`nom_pos` 和 `nom_neg` 分别是正、负输入。`status.json` 记录成功配对的工况和超限项。默认要求三个完整判决均正确，延迟小于 4 ns。能耗和反冲默认保留实测值，设定自己的预算后，在本地配置的 `limits` 中填入 `energy_fJ` 或 `kickback_mV`，也可用 `delay_ps` 定义延迟上限。脚本返回非零时先看 `status.json` 和对应工况的 `measurement.json`。
+
+改变差分输入或负载，可沿用上一次的器件表。在本地配置中更改工况后执行第二次命令。
+
+```sh
+python3 examples/dynamic-comparator/run_native.py --config comparator.local.json --out work/cmp-next --reuse-lut work/cmp-first/characterization
+```
+
+输入表、实际加载的模型依赖和表征条件均匹配时复用旧表。工艺角、温度、电源或模型内容变化会触发重新表征。运行记录写入 `characterization/manifest.json`。表中只有本例两种参考器件的尺寸。改变器件类型、沟道长度或指宽时，应按新几何补扫，再选电路尺寸。此例的 PDK 映射和 CDF 参数用于 SMIC18，其他工艺需单独适配和验证。
+
 ## 从工艺数据到尺寸
 
 先回读所用 NMOS、PMOS 的端子、CDF 和原生网表。表征采用与本例一致的 0.18 µm 沟道长度、每管 1.6 µm 总宽与两指。TT、27°C 下扫描栅压，漏源电压绝对值取 0.25、0.50、0.90 V，NMOS 比较零及 0.15 V 反向体偏置。记录电流密度、gm/ID、gm/gds、VDSAT、Cgg 和 Cgd。
@@ -33,4 +59,15 @@ Virtuoso IC6.1.8、Spectre 15.1、SMIC18、TT、27°C。表中延迟取两种极
 
 在 20 fF、5 ns 电源上升条件下，两种极性的首次完整判决通过，最坏延迟分别为 425 ps 和 395 ps。两版的原生 schematic 与测试台均 Check & Save (0, 0)，各核对 11 个 MOS 的 44 个端子与 7 个父级引线。16 次短瞬态均为零错误、零警告。[两极性及慢上电测值](measurements.json)
 
-选用候选前应核对实际前级的反冲预算。本例的面积指标采用 ΣWL，基线 2.700 µm²、候选 2.844 µm²。这是栅尺寸代理量。验证范围为上述标称工艺角、源阻抗和负载条件。阈值附近的统计判决、PVT、失配和噪声需为具体任务另建测试。运行需使用者自己的工艺库和模型。公开文件提供连接表、尺寸、测试定义、测值和提取脚本。
+选用候选前应核对实际前级的反冲预算。本例的面积指标采用 ΣWL，基线 2.700 µm²、候选 2.844 µm²。这个量只统计 MOS 栅面积。扩散、器件间距和布线占地要到版图阶段才能确定。
+
+## 小输入和慢角复测
+
+同一原生入口又测了两组 ±1 mV 的差分输入。每个输出端接 20 fF，电源上升时间为 0.1 ns，表中列出正负输入中较差的结果。复跑时在本地配置将 `diff_mV` 改为 `1`，`scenarios` 只保留 20 fF、0.1 ns 这一项。第二行再设 `corner` 为 `ss`、`temp_C` 为 `85`、`vdd_V` 为 `1.62`、`vcm_V` 为 `0.81`。
+
+| 工艺、电源、温度、共模 | 判决延迟 ps，基线 → 候选 | DUT 能量 fJ/次 | 差分反冲 mV |
+|---|---:|---:|---:|
+| TT，1.80 V，27 °C，0.90 V | 520 → 480 | 224.4 → 225.0 | 2.967 → 3.248 |
+| SS，1.62 V，85 °C，0.81 V | 915 → 820 | 164.3 → 165.7 | 1.502 → 1.734 |
+
+当输入差分变小时，给同一对输入管加宽仍可缩短判决延迟，同时会增加峰值反冲。这里每个极性检查了三个完整判决，结果来自确定性瞬态。判决误码率、输入失调分布、瞬态噪声和完整 PVT 覆盖仍需专门测试。[逐极性测值](measurements.json)
