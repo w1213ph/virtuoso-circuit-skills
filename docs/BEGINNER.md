@@ -4,6 +4,8 @@
 
 ## 先准备什么
 
+想先看一次完整交付，可以把这句话发给 agent：“请运行 SKY130 电流镜案例。给我可以打开的工程和第一次运行的报告，解释为什么加长沟道能改变输出误差，也告诉我面积和速度的代价。”在有 Python、Xschem 和 ngspice 的 Linux 上，agent 只需从仓库根目录运行一条命令。报告保留初版没通过的工况，还给出候选的实测结果。[环境、命令与读图示例](../examples/sky130-current-mirror/README.md)
+
 有论文时提供 PDF 和复现范围。准备独立的新电路时，说明用途和已知条件。以传感器放大器为例，ADC 的输入负载和采样窗口决定需要多快建立，供电与输入范围影响可用结构。Agent 会把已知条件、建议目标和仍需确认的问题列在任务记录里。遇到确实影响性能取舍的未知项，再一起确定。
 
 真正生成 Virtuoso 电路需要可用的 Cadence、合法可访问的 PDK、仿真模型和连接工具。连接入口见 [SETUP.md](SETUP.md)。只有聊天环境时，可以先完成论文分析和设计计划；agent 应说明还缺哪些能力。
@@ -12,7 +14,7 @@
 
 ```text
 请使用 https://github.com/w1213ph/virtuoso-circuit-skills 帮我设计电路。
-我是集成电路新手，请先读取仓库 AGENTS.md 和 paper-to-virtuoso/SKILL.md，
+我是集成电路新手，请先读取仓库 AGENTS.md 和 skills/paper-to-virtuoso/SKILL.md，
 按 references/paper-reproduction.md 的流程执行。
 
 我的用途：[用一句话描述，按论文搭建时附上论文和图号]

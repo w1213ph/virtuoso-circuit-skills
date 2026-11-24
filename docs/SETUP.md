@@ -5,6 +5,7 @@
 | 你要做什么 | 需要准备 |
 |---|---|
 | 阅读规则、把任务交给 AI | 能读取仓库文件的 AI；[任务提示](AI_START.md) |
+| 从空目录实际搭建和验证开源工艺案例 | Linux、Python 3、Xschem、ngspice，首次下载公开模型需联网；[安装与复跑 SKY130 电流镜](../examples/sky130-current-mirror/README.md) |
 | 预览 symbol、建立记录、比较已有数据 | Python 3.9+；无需 Cadence 或额外 Python 包 |
 | 创建/检查原生电路和 symbol | 可用的 Virtuoso、实际技术库/PDK、相应许可和操作工具 |
 | 运行仿真 | 对应仿真器、许可、模型与明确的测试条件 |

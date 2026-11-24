@@ -1,0 +1,24 @@
+{
+  "repository": "google/skywater-pdk-libs-sky130_fd_pr",
+  "revision": "f62031a1be9aefe902d6d54cddd6f59b57627436",
+  "files": {
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__ff.corner.spice": "440a5b78e0aa92f9cae53a7fc750493211c9e08dbdf0169de8396de0a53e7c55",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__ff.pm3.spice": "6b7859f53968eb8bd82a8febb6ab252bb98c550b6f2c3f743db9d9728c304405",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__mismatch.corner.spice": "24a3b29d7d7f26f99098811c31eb5497950a3aed520ab83768a96f35467fe818",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__ss.corner.spice": "896cd2d75e86826556819d92048c99a14bab6b9e4ae9d9295519a1bd64a3210f",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__ss.pm3.spice": "5280e1a07ed54547a4393008dccc4c3c1640920a5741f507ad7db9467b809114",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__tt.corner.spice": "0c03b2e5727c414942f1d2b27e19a68724fb84be90b2c73b361ad41779311130",
+    "cells/nfet_01v8/sky130_fd_pr__nfet_01v8__tt.pm3.spice": "3d706d50cf2e57175aea78bcf27e4ee07d9f750b154a4b06e6090531364a831b",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__ff.corner.spice": "30ba71bde4024ff291a68352930bf2fc3e07f627efb090e1575b9dbd7b6e75da",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__ff.pm3.spice": "7c701f17c39f0649fbc64397f64df00f04355e8aade2f16a375ff17a16966fe8",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__mismatch.corner.spice": "f4d560668712678ea60641de923fce7691e64acda951949f840986837c31741a",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__ss.corner.spice": "8d8b59726b48aa7a435b8f9bf0d0ecce0cef9f6359d4bb206f0a31306712e310",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__ss.pm3.spice": "52afa3f88f9c2ed7069990160e13aab8ae464b047a9efea7ef51a93510986e60",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__tt.corner.spice": "641d251a08bf9ddcfc67ba4bd4698ae1978d09447eb6ebf90055fdf3d21917ab",
+    "cells/pfet_01v8/sky130_fd_pr__pfet_01v8__tt.pm3.spice": "bf40d8c358fc11998f60f3734208dce44c206b0007a51c7bb5680f55d41a5c55",
+    "models/all.spice": "5739aa5c696842bff5e4cd2774fb27a25dc64c92a7086632763e06647bccb0de",
+    "models/parameters/lod.spice": "6200b50c14eebb68d8009ca68e452d4c045e2d25d7438ee417c155883527fd7c",
+    "models/sky130.lib.spice": "f5fbc01dce8a14735355c44c28eb3c99befe8cf73e42cb07bece86dcf8472c48"
+  }
+}

@@ -4,7 +4,9 @@
 
 这里提供**搭建方法、绘图规则、功能 symbol 参考和检查工具**。AI 负责结合你的实际工艺完成设计；你可以用示例图和验收清单检查成果。
 
-第一次接触模拟电路，可以从[新手入口](docs/BEGINNER.md)用一句话描述用途。Agent 从现有工程读取工艺和供电，帮助确定指标，交付可打开的原理图、功能 symbol、测试台和可复测的前仿结果。已有电路可以用[优化流程](skills/paper-to-virtuoso/references/optimization.md)比较同条件下的候选。
+**第一次试用**，把这句话发给能运行命令的 agent：“请从空目录跑通仓库里的 SKY130 电流镜，打开原理图，告诉我哪一版满足要求，以及它增加了多少面积。”这个案例用开源工具下载固定版本的工艺模型，生成可编辑的原理图和测试台，并在三组工况下比较两种尺寸。[开源案例、原生截图与复跑命令](examples/sky130-current-mirror/README.md)
+
+**设计自己的电路**，在[新手入口](docs/BEGINNER.md)用一句话描述用途。Agent 从工程读取工艺和供电，与你确定指标，用器件实测表选择初始尺寸，再交付电路、功能 symbol、测试台和结果。已有电路也可以比较同条件下的候选。[性能优化流程](skills/paper-to-virtuoso/references/optimization.md)
 
 ## 你想做什么？
 
@@ -13,7 +15,8 @@
 | 按论文搭新电路 | 理解拓扑、映射工艺器件、建立分层电路和测试台、验证指标 | [新电路提示](docs/AI_START.md#搭建新论文电路) |
 | 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
 | 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
-| 第一次在真实工艺上复跑 | 在 SMIC18 建动态比较器、扫 gm/ID，亲自复测改宽输入对的速度、能耗和反冲 | [从空目录复跑](examples/dynamic-comparator/README.md#从空目录复跑) |
+| 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
+| 在已有 Cadence 环境复跑 | 在 SMIC18 建动态比较器，复测改宽输入对的速度、能耗和反冲 | [Virtuoso + Spectre](examples/dynamic-comparator/README.md#从空目录复跑) |
 | 不熟悉电路设计 | 解释论文和指标，补齐偏置、参考、共模、时钟与控制，逐模块检查 | [新手入口](docs/BEGINNER.md) |
 | 整理已有电路 | 紧凑排版、功能 symbol、规范命名、同步父级连线 | [整理电路提示](docs/AI_START.md#整理已有原理图和-symbol) |
 | 搬迁仿真环境 | 迁移 Maestro 的测试、模型、变量、分析和输出 | [迁移环境提示](docs/AI_START.md#只迁移-maestro-环境) |
@@ -36,9 +39,8 @@
 先读取仓库的 AGENTS.md 和 skills/paper-to-virtuoso/SKILL.md，
 按 references/paper-reproduction.md 执行，再按任务读取相关参考文件。
 
-我的任务：按附上的论文搭建电路。
-论文范围：[图号或章节]
-目标工艺：[实际 PDK 库名与版本]
+我的用途：[描述输入、输出和它将接到哪里。按论文搭建时附图号或章节]
+目标工艺：[实际 PDK 库名与版本，或先跑 SKY130 开源案例]
 电源与主要指标：[填写，并说明优先级]
 工程位置与连接方式：[填写，或读取我已有的项目配置]
 

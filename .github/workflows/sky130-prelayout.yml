@@ -1,0 +1,58 @@
+name: SKY130 current mirror pre-layout simulation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/sky130-prelayout.yml'
+  pull_request:
+    paths:
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/sky130-prelayout.yml'
+permissions:
+  contents: read
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    timeout-minutes: 15
+    steps:
+      - name: Install Xschem and ngspice
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git python3 xschem ngspice
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Characterize the PDK and simulate both native schematics
+        run: python3 examples/sky130-current-mirror/run.py --out work/mirror
+      - name: Verify the three corners and six candidate measurements
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('work/mirror')
+          status = json.loads((root / 'status.json').read_text())
+          assert status['status'] == 'completed'
+          assert {r['corner']: (r['curves'], r['points'], r['mode']) for r in status['characterization']} == {
+              'tt': (24, 4344, 'measured'), 'ss': (24, 3912, 'measured'), 'ff': (24, 4344, 'measured')}
+          tests = json.loads((root / 'candidate/checked.json').read_text())['tests']
+          assert {row['id'] for row in tests if row['status'] == 'PASS'} == {
+              c + '.' + m for c in ('tt', 'ss', 'ff') for m in ('ratio', 'settling')}
+          PY
+          cat work/mirror/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-current-mirror
+          path: |
+            work/mirror/RESULTS.md
+            work/mirror/status.json
+            work/mirror/comparison.json
+            work/mirror/common/
+            work/mirror/characterization/*/manifest.json
+            work/mirror/characterization/*/table.csv
+            work/mirror/baseline/
+            work/mirror/candidate/

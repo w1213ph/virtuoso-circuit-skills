@@ -1,0 +1,145 @@
+{
+  "process": "SKY130",
+  "model_revision": "f62031a1be9aefe902d6d54cddd6f59b57627436",
+  "schematic_editor": "Xschem 3.4.4",
+  "simulator": "ngspice 39.3",
+  "requirements": {
+    "current_uA": 10,
+    "dc_output_V": [
+      0.4,
+      1.2
+    ],
+    "maximum_error_pct": 5,
+    "transient_output_V": 0.8,
+    "reference_load_fF": 100,
+    "maximum_settling_ns": 200
+  },
+  "characterization": [
+    {
+      "corner": "tt",
+      "temperature_C": 27,
+      "supply_V": 1.8,
+      "curves": 24,
+      "points": 4344,
+      "table_sha256": "ac20395acfef91913ae8f18eae6e58630dfc2f04c1289c0d5adf181f6df62bcc"
+    },
+    {
+      "corner": "ss",
+      "temperature_C": 85,
+      "supply_V": 1.62,
+      "curves": 24,
+      "points": 3912,
+      "table_sha256": "2bb1b6a094f75b19f6304b079fae344319e849b8832197378e4a144b5743f2cb"
+    },
+    {
+      "corner": "ff",
+      "temperature_C": -40,
+      "supply_V": 1.8,
+      "curves": 24,
+      "points": 4344,
+      "table_sha256": "613f8840cb18f39358fe5229f939fe43e5a00d04c46353197194f68e4cdcb94d"
+    }
+  ],
+  "variants": {
+    "baseline": {
+      "width_um": 3.45,
+      "length_um": 0.5,
+      "fingers": 1,
+      "mirror_pair_gate_area_um2": 3.45,
+      "table_gm_id_per_V": 14.90264073866181,
+      "requirement_status": {
+        "tt.ratio": "FAIL",
+        "tt.settling": "PASS",
+        "ss.ratio": "PASS",
+        "ss.settling": "PASS",
+        "ff.ratio": "FAIL",
+        "ff.settling": "PASS"
+      },
+      "conditions": {
+        "tt": {
+          "worst_error_pct": 5.204088699800002,
+          "worst_vout_V": 1.2,
+          "compliance_mV": null,
+          "settling_ns": 11.11,
+          "output_current_uA_at_0p8V": 10.09858265769,
+          "reference_node_V": 0.7154732071114,
+          "output_resistance_Mohm": 0.8775306078928973,
+          "dc_points": 151,
+          "transient_points": 1514
+        },
+        "ss": {
+          "worst_error_pct": 4.370926780299977,
+          "worst_vout_V": 1.2,
+          "compliance_mV": 350,
+          "settling_ns": 11.710000000000003,
+          "output_current_uA_at_0p8V": 10.081071535289999,
+          "reference_node_V": 0.7195071723971,
+          "output_resistance_Mohm": 1.019945977451598,
+          "dc_points": 151,
+          "transient_points": 1514
+        },
+        "ff": {
+          "worst_error_pct": 6.327790576599979,
+          "worst_vout_V": 1.2,
+          "compliance_mV": null,
+          "settling_ns": 10.709999999999999,
+          "output_current_uA_at_0p8V": 10.107170430390001,
+          "reference_node_V": 0.7240212232936,
+          "output_resistance_Mohm": 0.7198728488759778,
+          "dc_points": 151,
+          "transient_points": 1514
+        }
+      }
+    },
+    "candidate": {
+      "width_um": 7.1,
+      "length_um": 1.0,
+      "fingers": 1,
+      "mirror_pair_gate_area_um2": 14.2,
+      "table_gm_id_per_V": 15.274674294219384,
+      "requirement_status": {
+        "tt.ratio": "PASS",
+        "tt.settling": "PASS",
+        "ss.ratio": "PASS",
+        "ss.settling": "PASS",
+        "ff.ratio": "PASS",
+        "ff.settling": "PASS"
+      },
+      "conditions": {
+        "tt": {
+          "worst_error_pct": 4.173435648199986,
+          "worst_vout_V": 1.2,
+          "compliance_mV": 250,
+          "settling_ns": 14.310000000000002,
+          "output_current_uA_at_0p8V": 10.107387767019999,
+          "reference_node_V": 0.673470240147,
+          "output_resistance_Mohm": 1.2133452776353,
+          "dc_points": 151,
+          "transient_points": 1514
+        },
+        "ss": {
+          "worst_error_pct": 3.691467425299977,
+          "worst_vout_V": 1.2,
+          "compliance_mV": 240,
+          "settling_ns": 15.110000000000001,
+          "output_current_uA_at_0p8V": 10.09733259696,
+          "reference_node_V": 0.671606450456,
+          "output_resistance_Mohm": 1.3670242066623495,
+          "dc_points": 151,
+          "transient_points": 1514
+        },
+        "ff": {
+          "worst_error_pct": 4.859022842399985,
+          "worst_vout_V": 1.2,
+          "compliance_mV": 280,
+          "settling_ns": 13.71,
+          "output_current_uA_at_0p8V": 10.11385234303,
+          "reference_node_V": 0.6857497722377,
+          "output_resistance_Mohm": 1.0243217451439053,
+          "dc_points": 151,
+          "transient_points": 1514
+        }
+      }
+    }
+  }
+}
