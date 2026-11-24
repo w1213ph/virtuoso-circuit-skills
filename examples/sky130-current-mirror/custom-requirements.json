@@ -1,0 +1,412 @@
+{
+  "simulator": "ngspice 39.3",
+  "states": [
+    {
+      "corner": "tt",
+      "temperature_C": 27,
+      "supply_V": 1.8
+    },
+    {
+      "corner": "ss",
+      "temperature_C": 85,
+      "supply_V": 1.62
+    },
+    {
+      "corner": "ff",
+      "temperature_C": -40,
+      "supply_V": 1.8
+    }
+  ],
+  "runs": [
+    {
+      "reference_uA": 10,
+      "max_error_pct": 5,
+      "settling_limit_ns": 200,
+      "candidate_length_um": 1,
+      "device_table_mode": "measured",
+      "table_sha256": {
+        "tt": "ac20395acfef91913ae8f18eae6e58630dfc2f04c1289c0d5adf181f6df62bcc",
+        "ss": "2bb1b6a094f75b19f6304b079fae344319e849b8832197378e4a144b5743f2cb",
+        "ff": "613f8840cb18f39358fe5229f939fe43e5a00d04c46353197194f68e4cdcb94d"
+      },
+      "status": "completed",
+      "variants": {
+        "baseline": {
+          "length_um": 0.5,
+          "width_um": 3.45,
+          "mirror_pair_gate_area_um2": 3.45,
+          "checks": {
+            "tt.ratio": "FAIL",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 5.204088699800002,
+              "settling_ns": 11.11,
+              "output_resistance_Mohm": 0.8775306078928973,
+              "compliance_mV": null
+            },
+            "ss": {
+              "worst_error_pct": 4.370926780299977,
+              "settling_ns": 11.710000000000003,
+              "output_resistance_Mohm": 1.019945977451598,
+              "compliance_mV": 350
+            },
+            "ff": {
+              "worst_error_pct": 6.327790576599979,
+              "settling_ns": 10.709999999999999,
+              "output_resistance_Mohm": 0.7198728488759778,
+              "compliance_mV": null
+            }
+          }
+        },
+        "candidate": {
+          "length_um": 1.0,
+          "width_um": 7.1,
+          "mirror_pair_gate_area_um2": 14.2,
+          "checks": {
+            "tt.ratio": "PASS",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "PASS",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 4.173435648199986,
+              "settling_ns": 14.310000000000002,
+              "output_resistance_Mohm": 1.2133452776353,
+              "compliance_mV": 250
+            },
+            "ss": {
+              "worst_error_pct": 3.691467425299977,
+              "settling_ns": 15.110000000000001,
+              "output_resistance_Mohm": 1.3670242066623495,
+              "compliance_mV": 240
+            },
+            "ff": {
+              "worst_error_pct": 4.859022842399985,
+              "settling_ns": 13.71,
+              "output_resistance_Mohm": 1.0243217451439053,
+              "compliance_mV": 280
+            }
+          }
+        }
+      }
+    },
+    {
+      "reference_uA": 5,
+      "max_error_pct": 5,
+      "settling_limit_ns": 200,
+      "candidate_length_um": 1,
+      "device_table_mode": "reused",
+      "table_sha256": {
+        "tt": "ac20395acfef91913ae8f18eae6e58630dfc2f04c1289c0d5adf181f6df62bcc",
+        "ss": "2bb1b6a094f75b19f6304b079fae344319e849b8832197378e4a144b5743f2cb",
+        "ff": "613f8840cb18f39358fe5229f939fe43e5a00d04c46353197194f68e4cdcb94d"
+      },
+      "status": "review_required",
+      "variants": {
+        "baseline": {
+          "length_um": 0.5,
+          "width_um": 1.75,
+          "mirror_pair_gate_area_um2": 1.75,
+          "checks": {
+            "tt.ratio": "FAIL",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 5.003370058919998,
+              "settling_ns": 21.309999999999995,
+              "output_resistance_Mohm": 1.806644569765189,
+              "compliance_mV": null
+            },
+            "ss": {
+              "worst_error_pct": 4.152882539799996,
+              "settling_ns": 22.31,
+              "output_resistance_Mohm": 2.112568995209442,
+              "compliance_mV": 340
+            },
+            "ff": {
+              "worst_error_pct": 6.142003845959998,
+              "settling_ns": 20.310000000000002,
+              "output_resistance_Mohm": 1.4741220692652321,
+              "compliance_mV": null
+            }
+          }
+        },
+        "candidate": {
+          "length_um": 1.0,
+          "width_um": 3.55,
+          "mirror_pair_gate_area_um2": 7.1,
+          "checks": {
+            "tt.ratio": "PASS",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 4.783374317919997,
+              "settling_ns": 23.91,
+              "output_resistance_Mohm": 2.071688618184599,
+              "compliance_mV": 310
+            },
+            "ss": {
+              "worst_error_pct": 4.292445933660005,
+              "settling_ns": 25.11,
+              "output_resistance_Mohm": 2.287957549490413,
+              "compliance_mV": 300
+            },
+            "ff": {
+              "worst_error_pct": 5.447881562239987,
+              "settling_ns": 22.909999999999997,
+              "output_resistance_Mohm": 1.7920464696584937,
+              "compliance_mV": null
+            }
+          }
+        }
+      }
+    },
+    {
+      "reference_uA": 5,
+      "max_error_pct": 5,
+      "settling_limit_ns": 200,
+      "candidate_length_um": 1.5,
+      "device_table_mode": "measured",
+      "table_sha256": {
+        "tt": "2301c24b35ab5331402310bd31b89e5f7260e61d6907c91fcb48da4f1124687a",
+        "ss": "649dce513f19f39e3ecb35ea13879dc836df32e2ec81caba97f00dcfd2c80602",
+        "ff": "a4eb1632b1aba08cf0a46eabd4cc204eca3b52026a7d3858e8790f3cb52aa4c2"
+      },
+      "status": "completed",
+      "variants": {
+        "baseline": {
+          "length_um": 0.5,
+          "width_um": 1.75,
+          "mirror_pair_gate_area_um2": 1.75,
+          "checks": {
+            "tt.ratio": "FAIL",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 5.003370058919998,
+              "settling_ns": 21.309999999999995,
+              "output_resistance_Mohm": 1.806644569765189,
+              "compliance_mV": null
+            },
+            "ss": {
+              "worst_error_pct": 4.152882539799996,
+              "settling_ns": 22.31,
+              "output_resistance_Mohm": 2.112568995209442,
+              "compliance_mV": 340
+            },
+            "ff": {
+              "worst_error_pct": 6.142003845959998,
+              "settling_ns": 20.310000000000002,
+              "output_resistance_Mohm": 1.4741220692652321,
+              "compliance_mV": null
+            }
+          }
+        },
+        "candidate": {
+          "length_um": 1.5,
+          "width_um": 4.35,
+          "mirror_pair_gate_area_um2": 13.05,
+          "checks": {
+            "tt.ratio": "PASS",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "PASS",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 4.095384201719976,
+              "settling_ns": 28.31,
+              "output_resistance_Mohm": 2.481814369021397,
+              "compliance_mV": 240
+            },
+            "ss": {
+              "worst_error_pct": 3.580833544259998,
+              "settling_ns": 29.71,
+              "output_resistance_Mohm": 2.8266348771594476,
+              "compliance_mV": 240
+            },
+            "ff": {
+              "worst_error_pct": 4.831242898379995,
+              "settling_ns": 27.109999999999996,
+              "output_resistance_Mohm": 2.066352481540878,
+              "compliance_mV": 270
+            }
+          }
+        }
+      }
+    },
+    {
+      "reference_uA": 10,
+      "max_error_pct": 4,
+      "settling_limit_ns": 200,
+      "candidate_length_um": 1,
+      "device_table_mode": "reused",
+      "table_sha256": {
+        "tt": "ac20395acfef91913ae8f18eae6e58630dfc2f04c1289c0d5adf181f6df62bcc",
+        "ss": "2bb1b6a094f75b19f6304b079fae344319e849b8832197378e4a144b5743f2cb",
+        "ff": "613f8840cb18f39358fe5229f939fe43e5a00d04c46353197194f68e4cdcb94d"
+      },
+      "status": "review_required",
+      "variants": {
+        "baseline": {
+          "length_um": 0.5,
+          "width_um": 3.45,
+          "mirror_pair_gate_area_um2": 3.45,
+          "checks": {
+            "tt.ratio": "FAIL",
+            "tt.settling": "PASS",
+            "ss.ratio": "FAIL",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 5.204088699800002,
+              "settling_ns": 11.11,
+              "output_resistance_Mohm": 0.8775306078928973,
+              "compliance_mV": null
+            },
+            "ss": {
+              "worst_error_pct": 4.370926780299977,
+              "settling_ns": 11.710000000000003,
+              "output_resistance_Mohm": 1.019945977451598,
+              "compliance_mV": null
+            },
+            "ff": {
+              "worst_error_pct": 6.327790576599979,
+              "settling_ns": 10.709999999999999,
+              "output_resistance_Mohm": 0.7198728488759778,
+              "compliance_mV": null
+            }
+          }
+        },
+        "candidate": {
+          "length_um": 1.0,
+          "width_um": 7.1,
+          "mirror_pair_gate_area_um2": 14.2,
+          "checks": {
+            "tt.ratio": "FAIL",
+            "tt.settling": "PASS",
+            "ss.ratio": "PASS",
+            "ss.settling": "PASS",
+            "ff.ratio": "FAIL",
+            "ff.settling": "PASS"
+          },
+          "corners": {
+            "tt": {
+              "worst_error_pct": 4.173435648199986,
+              "settling_ns": 14.310000000000002,
+              "output_resistance_Mohm": 1.2133452776353,
+              "compliance_mV": null
+            },
+            "ss": {
+              "worst_error_pct": 3.691467425299977,
+              "settling_ns": 15.110000000000001,
+              "output_resistance_Mohm": 1.3670242066623495,
+              "compliance_mV": 290
+            },
+            "ff": {
+              "worst_error_pct": 4.859022842399985,
+              "settling_ns": 13.71,
+              "output_resistance_Mohm": 1.0243217451439053,
+              "compliance_mV": null
+            }
+          }
+        }
+      }
+    }
+  ],
+  "comparison_5uA_same_requirements": {
+    "status": "COMPARABLE",
+    "candidate_limits_met": true,
+    "tests": [
+      {
+        "id": "tt.ratio",
+        "baseline_status": "PASS",
+        "candidate_status": "PASS",
+        "unit": "%",
+        "baseline": 4.783374317919997,
+        "candidate": 4.095384201719976,
+        "status": "COMPARABLE",
+        "delta": -0.6879901162000213
+      },
+      {
+        "id": "tt.settling",
+        "baseline_status": "PASS",
+        "candidate_status": "PASS",
+        "unit": "ns",
+        "baseline": 23.91,
+        "candidate": 28.31,
+        "status": "COMPARABLE",
+        "delta": 4.399999999999999
+      },
+      {
+        "id": "ss.ratio",
+        "baseline_status": "PASS",
+        "candidate_status": "PASS",
+        "unit": "%",
+        "baseline": 4.292445933660005,
+        "candidate": 3.580833544259998,
+        "status": "COMPARABLE",
+        "delta": -0.711612389400007
+      },
+      {
+        "id": "ss.settling",
+        "baseline_status": "PASS",
+        "candidate_status": "PASS",
+        "unit": "ns",
+        "baseline": 25.11,
+        "candidate": 29.71,
+        "status": "COMPARABLE",
+        "delta": 4.600000000000001
+      },
+      {
+        "id": "ff.ratio",
+        "baseline_status": "FAIL",
+        "candidate_status": "PASS",
+        "unit": "%",
+        "baseline": 5.447881562239987,
+        "candidate": 4.831242898379995,
+        "status": "COMPARABLE",
+        "delta": -0.6166386638599919
+      },
+      {
+        "id": "ff.settling",
+        "baseline_status": "PASS",
+        "candidate_status": "PASS",
+        "unit": "ns",
+        "baseline": 22.909999999999997,
+        "candidate": 27.109999999999996,
+        "status": "COMPARABLE",
+        "delta": 4.199999999999999
+      }
+    ]
+  }
+}

@@ -54,18 +54,50 @@ def verify(root):
     return root / LIB
 
 
-def fetch(name):
-    url = "https://raw.githubusercontent.com/{}/{}/{}".format(
-        LOCK["repository"], LOCK["revision"], urllib.parse.quote(name, safe="/"))
-    request = urllib.request.Request(url, headers={"User-Agent": "sky130-current-mirror", "Accept-Encoding": "gzip"})
-    for attempt in range(3):
+def download(request):
+    with urllib.request.urlopen(request, timeout=20) as response:
+        encoding = response.getheader("Content-Encoding")
         try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                content = response.read()
-                return gzip.decompress(content) if response.getheader("Content-Encoding") == "gzip" else content
-        except (OSError, http.client.HTTPException) as exc:
-            if attempt == 2:
-                raise ValueError("Could not fetch pinned model input " + name) from exc
+            data = response.read()
+            return gzip.decompress(data) if encoding == "gzip" else data
+        except http.client.IncompleteRead as exc:
+            size = response.getheader("Content-Length")
+            if encoding not in (None, "identity") or not size or not exc.partial:
+                raise
+            prefix, total = exc.partial, int(size)
+    start = len(prefix)
+    if start >= total:
+        raise ValueError("Inconsistent length on partial download")
+    headers = dict(request.header_items())
+    headers.update({"Accept-Encoding":"identity", "Range":"bytes={}-{}".format(start, total-1)})
+    tail = urllib.request.Request(request.full_url, headers=headers)
+    with urllib.request.urlopen(tail, timeout=20) as response:
+        expected = "bytes {}-{}/{}".format(start, total-1, total)
+        if response.status != 206 or response.getheader("Content-Range") != expected:
+            raise ValueError("Missing requested byte range on partial download")
+        data = prefix + response.read()
+        if len(data) != total:
+            raise ValueError("Resumed download is incomplete")
+        return data
+
+
+def fetch(name):
+    path = urllib.parse.quote(name, safe="/")
+    raw = "https://raw.githubusercontent.com/{}/{}/{}".format(LOCK["repository"], LOCK["revision"], path)
+    api = "https://api.github.com/repos/{}/contents/{}?ref={}".format(LOCK["repository"], path, LOCK["revision"])
+    headers = {"User-Agent":"sky130-current-mirror", "Accept-Encoding":"gzip", "Accept":"application/vnd.github.raw+json"}
+    errors = {}
+    for url in (raw, api, raw, api):
+        try:
+            request = urllib.request.Request(url, headers=headers)
+            content = download(request)
+            if checksum(content) != LOCK["files"][name]:
+                raise ValueError("Content differs from the locked SHA-256")
+            return content
+        except (OSError, EOFError, ValueError, http.client.HTTPException) as exc:
+            errors[urllib.parse.urlsplit(url).netloc] = str(exc)
+    detail = ", ".join("{} ({})".format(host, reason) for host,reason in errors.items())
+    raise ValueError("Could not fetch pinned input {} from {}. Supply verified offline models with --models.".format(name, detail))
 
 
 def prepare(out, source=None):

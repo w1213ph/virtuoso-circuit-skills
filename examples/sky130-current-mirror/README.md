@@ -22,7 +22,7 @@ sh work/first-mirror/candidate/open.sh symbol
 sh work/first-mirror/candidate/open.sh bench
 ```
 
-如果还没有 Linux 环境，可以先打开 GitHub 的仿真运行记录。点进成功的一次运行看摘要，在 Artifacts 下载工程和数据。已有本仓库副本的使用者也可在自己仓库的 Actions 页运行 `Run workflow`。[SKY130 前仿运行记录](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/sky130-prelayout.yml)
+如果还没有 Linux 环境，可以先打开已完成的 GitHub 仿真，查看摘要。登录 GitHub 后可在 Artifacts 下载原理图、器件表、网表和波形。已有本仓库副本的使用者也可在自己仓库的 Actions 页选择 `Run workflow`。[一次完整复跑](https://github.com/w1213ph/virtuoso-circuit-skills/actions/runs/45412924301) · [全部运行记录](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/sky130-prelayout.yml)
 
 ## 怎样选尺寸
 
@@ -51,6 +51,19 @@ sh work/first-mirror/candidate/open.sh bench
 
 这些数据来自 Xschem 3.4.4 和 ngspice 39.3。初版通过 4/6 项，TT 和 FF 的镜像误差超限。候选通过 6/6 项，三组输出电阻均提高，两管栅面积变为初版的 4.12 倍，参考开启后稳定时间也变长。如果系统会在很短的窗口内读取这条偏置，应以实际时间窗口重新定指标。候选与外部参考一起接入整机后，还要核对实际负载、参考源启动和供电条件。随机失配、噪声及更完整的工况覆盖属于具体设计的前仿任务。
 
+## 换成自己的需求
+
+可以告诉 agent：“参考电流改为 5 µA，输出范围和 5% 精度要求照旧。如果失败，请找出哪个工况超差，重新选尺寸，并告诉我代价。”第一次尝试可复用已经测过的表。下面两条命令依次在独立目录保存这次尝试与修改后的工程。
+
+```sh
+python3 examples/sky130-current-mirror/run.py --models work/first-mirror/models --reuse-lut work/first-mirror/characterization --reference-ua 5 --out work/5ua
+python3 examples/sky130-current-mirror/run.py --models work/first-mirror/models --reuse-lut work/first-mirror/characterization --reference-ua 5 --candidate-length-um 1.5 --out work/5ua-long
+```
+
+第一条命令返回 `review_required` 并保留结果。1.00 µm 沟道在 FF、−40 °C 时误差为 **5.448%**。第二条命令为新沟道长度重扫三组器件表，重新计算宽度，在原指标下复测。FF 误差降到 **4.831%**，三组工况的六项要求均满足。两管栅面积由 **7.10 增至 13.05 µm²**，最慢稳定时间从 **25.11 增至 29.71 ns**。运行记录里的 `requirements.json` 可用来核实两次的目标完全相同。
+
+也可以用 `--max-error-pct 4` 明确提出更严的精度。在 10 µA、候选沟道 1.00 µm 的实测里，TT 和 FF 超出 4%，SS 通过。优化时保留这份记录，按系统要求决定能接受的器件规模。导出的中文报告和网表分别记录当前目标与实际激励，便于核对。[同规格改尺寸及超限测值](custom-requirements.json)
+
 ## 复用器件表，继续查结果
 
 下面的命令共用上一次校验过的模型目录，并把新结果写到新的目录。脚本核对模型、实际扫压输入、仿真器版本及二进制、查表代码和原始数据哈希。匹配时会打印 `reused`，不匹配的工况会重新扫描。两版电路随后均重新网表化和仿真。
@@ -67,6 +80,6 @@ python3 examples/sky130-current-mirror/run.py --models work/first-mirror/models 
 | 初版在哪个工况超差 | `baseline/checked.json`、`baseline/ff/measurement.json` |
 | 想自己从波形重算指标 | 每版每工况的 `input.spice`、`ngspice.log`、`dc.dat`、`transient.dat` |
 
-首次下载需要能访问 GitHub 的原始文件服务。已有相同提交的官方模型源树时，也可用 `fetch_models.py --from-dir /path/to/sky130_fd_pr --out work/models` 准备模型，然后给 `run.py` 传 `--models work/models`。程序拒绝覆盖已有运行目录。遇到 `review_required` 或 `failed`，保留目录，先读状态和对应的求解日志。
+首次下载从 GitHub 的原始文件服务读取，遇到连接失败时自动尝试同一提交的 GitHub Contents API，所有文件仍校验同一份 SHA-256。已有相同提交的官方模型源树时，也可用 `python3 examples/sky130-current-mirror/fetch_models.py --from-dir /path/to/sky130_fd_pr --out work/models` 准备模型，然后给 `run.py` 传 `--models work/models`。程序拒绝覆盖已有运行目录。遇到 `review_required` 或 `failed`，保留目录，先读状态和对应的求解日志。
 
 固定源为官方 `sky130_fd_pr` 提交 `f62031a1`。锁文件列出 18 个输入的 SHA-256，包括上游 Apache 2.0 许可。仅为这个两种器件、三个工艺角的练习生成模型入口，保留上游几何缩放、模型参数及器件定义。详细器件适用范围见工艺文档。[源提交](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/tree/f62031a1be9aefe902d6d54cddd6f59b57627436) · [SKY130 器件说明](https://skywater-pdk.readthedocs.io/en/main/rules/device-details.html) · [模型清单](models.lock.json)

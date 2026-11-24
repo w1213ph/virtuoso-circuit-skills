@@ -8,6 +8,8 @@
 
 **设计自己的电路**，在[新手入口](docs/BEGINNER.md)用一句话描述用途。Agent 从工程读取工艺和供电，与你确定指标，用器件实测表选择初始尺寸，再交付电路、功能 symbol、测试台和结果。已有电路也可以比较同条件下的候选。[性能优化流程](skills/paper-to-virtuoso/references/optimization.md)
 
+想试试改需求，可以让 agent 把电流镜改为 5 µA，仍要求误差不超过 5%。案例保留快工艺角超差的第一次尝试，以及补扫新沟道长度后实测通过的工程。[按自己的指标选尺寸](examples/sky130-current-mirror/README.md#换成自己的需求)
+
 ## 你想做什么？
 
 | 任务 | 可以让 AI 完成的工作 | 使用入口 |

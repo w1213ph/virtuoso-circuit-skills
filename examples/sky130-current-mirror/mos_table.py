@@ -61,13 +61,13 @@ def table(path, names):
     return results
 
 
-def scans(lib, corner, temp, supply):
+def scans(lib, corner, temp, supply, lengths=LENGTHS):
     lines = ["SKY130 MOS characterization", '.lib "{}" {}'.format(lib, corner), ".temp {}".format(temp),
              "VG gate 0 0", "EINV pgate 0 gate 0 -1"]
     devices, controls = [], []
     for pol, sign, gate in (("n", 1, "gate"), ("p", -1, "pgate")):
         master = "sky130_fd_pr__{}fet_01v8".format(pol)
-        for i, length in enumerate(LENGTHS):
+        for i, length in enumerate(lengths):
             for j, drain in enumerate((0.35, 0.65, 1.2)):
                 for k, body in enumerate((0, 0.15)):
                     tag = "{}{}{}{}".format(pol, i, j, k)
@@ -104,12 +104,13 @@ def cache_record(source, recipe, names):
         return None
 
 
-def characterize(root, lib, tool, state, identity, previous=None):
+def characterize(root, lib, tool, state, identity, previous=None, lengths=LENGTHS):
     corner, temp, supply = state
     folder = root / corner
     folder.mkdir()
-    deck, devices = scans(lib, corner, temp, supply)
-    recipe = dict(identity, input_sha256=checksum(deck.encode("utf-8")), reader_sha256=checksum(Path(__file__).read_bytes()))
+    deck, devices = scans(lib, corner, temp, supply, lengths)
+    recipe = dict(identity, lengths_um=list(lengths), input_sha256=checksum(deck.encode("utf-8")),
+                  reader_sha256=checksum(Path(__file__).read_bytes()))
     files = ["input.spice", "ngspice.log", "table.csv"] + [tag+".dat" for tag, *_rest in devices]
     source = previous / corner if previous else None
     cached = cache_record(source, recipe, files)

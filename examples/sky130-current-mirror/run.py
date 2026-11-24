@@ -1,12 +1,13 @@
 """Build, size and measure a SKY130 current mirror in a fresh Xschem/ngspice project."""
 import argparse
 import json
+import math
 import shutil
 import sys
 from pathlib import Path
 
 from fetch_models import HERE, LOCK, checksum, prepare, verify
-from measure import MAX_ERROR_PCT, MAX_SETTLING_NS, VECTORS, deck, metrics
+from measure import DEFAULT_CURRENT_UA, MAX_ERROR_PCT, MAX_SETTLING_NS, VECTORS, deck, metrics
 from mos_table import LENGTHS, STATES, characterize, choose, command, save_json, simulate
 from native import build
 
@@ -15,8 +16,8 @@ import check_prelayout
 
 
 MEASURES = (
-    ("ratio", "worst_error_pct", "%", MAX_ERROR_PCT, "Worst absolute error of IOUT/IREF on the 0.40–1.20 V sweep."),
-    ("settling", "settling_ns", "ns", MAX_SETTLING_NS, "Time from 99% reference turn-on until output stays within 1% of its own 0.8 V DC current."),
+    ("ratio", "worst_error_pct", "%", "max_error_pct", "Worst absolute error of IOUT/IREF on the 0.40–1.20 V sweep."),
+    ("settling", "settling_ns", "ns", "max_settling_ns", "Time from 99% reference turn-on until output stays within 1% of its own 0.8 V DC current."),
 )
 
 
@@ -31,22 +32,22 @@ def resolve_tool(value):
     return str(Path(path).resolve())
 
 
-def plan_variant(stage, cases, lib, native, shared):
+def plan_variant(stage, cases, lib, native, shared, requirements):
     plan = {"schema_version":1, "inputs":["sizing.json", "views/TB_BIAS_MIRROR.spice"],
             "reference_inputs":shared, "tests":[], "results":{}}
     for state in cases:
         corner, temp, vdd = state
         folder = stage / corner
         folder.mkdir()
-        (folder / "input.spice").write_text(deck(lib, state, native), encoding="utf-8")
-        conditions = {"corner":corner, "temperature_C":temp, "vdd_V":vdd, "reference_uA":10,
+        (folder / "input.spice").write_text(deck(lib, state, native, requirements["reference_uA"]), encoding="utf-8")
+        conditions = {"corner":corner, "temperature_C":temp, "vdd_V":vdd, "reference_uA":requirements["reference_uA"],
                       "reference_load_fF":100, "dc_output_V":[0.4,1.2], "dc_step_mV":10, "transient_output_V":0.8,
                       "reference_pulse_rise_ns":1}
-        for name, field, unit, target, definition in MEASURES:
+        for name, field, unit, limit_key, definition in MEASURES:
             plan["tests"].append({"id":corner+"."+name, "metric":field, "unit":unit, "testbench":"TB_BIAS_MIRROR",
                                   "analysis":"dc" if name=="ratio" else "tran", "measurement":definition, "conditions":conditions,
-                                  "inputs":[corner+"/input.spice"], "target":{"source":"Declared design exercise",
-                                  "confirmed":True, "limits":{"<=":target}}})
+                                  "inputs":[corner+"/input.spice"], "target":{"source":"requirements.json",
+                                  "confirmed":True, "limits":{"<=":requirements[limit_key]}}})
     save_json(stage / "prelayout.json", plan)
     plan, before = check_prelayout.load_records(stage / "prelayout.json", {})
     if any("error" in row for row in before.values()):
@@ -55,15 +56,15 @@ def plan_variant(stage, cases, lib, native, shared):
     return plan, before
 
 
-def measure_variant(stage, cases, native, lib, ngspice, shared):
-    plan, before = plan_variant(stage, cases, lib, native, shared)
+def measure_variant(stage, cases, native, lib, ngspice, shared, requirements):
+    plan, before = plan_variant(stage, cases, lib, native, shared, requirements)
     for state in cases:
         corner, _temp, vdd = state
         folder = stage / corner
         result = {}
         try:
             simulate(ngspice, folder, (folder / "input.spice").read_text(encoding="utf-8"))
-            result = metrics(folder, vdd)
+            result = metrics(folder, vdd, requirements["reference_uA"], requirements["max_error_pct"])
             detail = {"status":"measured", "metrics":result}
         except (OSError, ValueError) as exc:
             detail = {"status":"run_failed", "reason":str(exc)}
@@ -82,15 +83,16 @@ def measure_variant(stage, cases, native, lib, ngspice, shared):
         print(stage.name, corner, detail["status"], flush=True)
 
 
-def report(out, variants, records, gm):
-    lines = ["# SKY130 偏置电流镜前仿", "", "目标为镜像外部 10 µA 参考电流。输出在 0.40–1.20 V 时误差上限为 5%，"
-             "参考端接 100 fF，开启后应在 200 ns 内稳定。两项阈值均为本案例的教学规格。", "",
+def report(out, variants, records, gm, requirements):
+    lines = ["# SKY130 偏置电流镜前仿", "", ("目标为镜像外部 {reference_uA:g} µA 参考电流。输出在 0.40–1.20 V 时误差上限为 "
+             "{max_error_pct:g}%，参考端接 100 fF，开启后应在 {max_settling_ns:g} ns 内稳定。"
+             "本次采用的规格见 `requirements.json`。").format(**requirements), "",
              "| 版本 | 单管 W/L，µm | 两管栅面积合计，µm² | 查表参考 gm/ID，V⁻¹ |",
              "|---|---:|---:|---:|"]
     for name, sizing in variants.items():
         lines.append("| {} | {:g} / {:g} | {:g} | {:.2f} |".format(
             name, sizing["width_um"], sizing["length_um"], sizing["mirror_pair_gate_area_um2"], sizing["selected_row"]["gm_id_per_V"]))
-    lines.extend(["", "| 工况 | 版本 | 最坏镜像误差 % | 首个持续满足 5% 的输出电压 mV | 稳定时间 ns | 输出电阻 MΩ |",
+    lines.extend(["", "| 工况 | 版本 | 最坏镜像误差 % | 首个持续满足 {:g}% 的输出电压 mV | 稳定时间 ns | 输出电阻 MΩ |".format(requirements["max_error_pct"]),
                   "|---|---|---:|---:|---:|---:|"])
     for corner, temp, vdd in STATES:
         for name in variants:
@@ -102,7 +104,7 @@ def report(out, variants, records, gm):
                     corner, temp, vdd, name, v["worst_error_pct"], limit, v["settling_ns"], v["output_resistance_Mohm"]))
             else:
                 lines.append("| {} | {} | {} | — | — | — |".format(corner, name, row["status"]))
-    lines.extend(["", "输出电压从零扫描到 1.50 V。表中最低电压要求从该点到 1.20 V 的所有采样均满足 5% 误差。"
+    lines.extend(["", "输出电压从零扫描到 1.50 V。表中最低电压要求从该点到 1.20 V 的所有采样均满足本次误差上限。"
                   "输出电阻取 0.8 V 两侧的电压电流斜率。稳定时间以输出最终 DC 测值为基准。", "",
                   "每个版本的 `checked.json` 保存逐项判定和失败原因。", ""])
     for name, checks in records.items():
@@ -118,7 +120,8 @@ def report(out, variants, records, gm):
     (out / "RESULTS.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def run(out, model_dir, ngspice, xschem, previous):
+def run(out, model_dir, ngspice, xschem, previous, requirements, candidate_length):
+    save_json(out / "requirements.json", requirements)
     if model_dir is None:
         model_dir = out / "models"
         lib = prepare(model_dir)
@@ -136,13 +139,14 @@ def run(out, model_dir, ngspice, xschem, previous):
               measurement_sha256=digest(HERE/"measure.py"), table_reader_sha256=digest(HERE/"mos_table.py"),
               fixture_vectors=VECTORS))
     gm, variants = [], {}
+    lengths = (LENGTHS[0], candidate_length)
     for state in STATES:
-        rows, result = characterize(tables, lib, ngspice, state, identity, previous)
+        rows, result = characterize(tables, lib, ngspice, state, identity, previous, lengths)
         gm.append(result)
         if state[0] == "tt":
-            variants = {name:choose(rows, length) for name, length in zip(("baseline","candidate"),LENGTHS)}
+            variants = {name:choose(rows, length, requirements["reference_uA"]) for name, length in zip(("baseline","candidate"),lengths)}
         print("Device table", state[0], result["mode"], result["points"], flush=True)
-    shared = ["../common/bench.txt","../common/recipe.json","../common/ngspice-version.txt",str(lib)]
+    shared = ["../requirements.json","../common/bench.txt","../common/recipe.json","../common/ngspice-version.txt",str(lib)]
     shared += [str(model_dir / name) for name in sorted(LOCK["files"])]
     for name, sizing in variants.items():
         stage = out / name
@@ -155,7 +159,7 @@ def run(out, model_dir, ngspice, xschem, previous):
             (common / "bench.txt").write_bytes(payload)
         elif (common / "bench.txt").read_bytes()!=payload:
             raise ValueError("Native baseline and candidate testbenches differ")
-        measure_variant(stage, STATES, native, lib, ngspice, shared)
+        measure_variant(stage, STATES, native, lib, ngspice, shared, requirements)
     records = {}
     for name in variants:
         stage = out / name
@@ -168,7 +172,7 @@ def run(out, model_dir, ngspice, xschem, previous):
     status = {"status":"completed" if comparison.get("candidate_limits_met") else "review_required",
               "comparison":comparison["status"], "candidate_limits_met":comparison.get("candidate_limits_met", False),
               "characterization":gm}
-    report(out, variants, records, gm)
+    report(out, variants, records, gm, requirements)
     return status
 
 
@@ -179,7 +183,14 @@ def main():
     cli.add_argument("--reuse-lut", type=Path, help="Previous characterization directory for the same models")
     cli.add_argument("--ngspice", default="ngspice")
     cli.add_argument("--xschem", default="xschem")
+    cli.add_argument("--reference-ua", type=float, default=DEFAULT_CURRENT_UA, help="External reference current in microamperes (default: 10)")
+    cli.add_argument("--max-error-pct", type=float, default=MAX_ERROR_PCT, help="Maximum mirror error in percent (default: 5)")
+    cli.add_argument("--candidate-length-um", type=float, choices=(1.0,1.5), default=LENGTHS[1],
+                     help="Candidate channel length in micrometres. A new geometry recharacterizes the devices.")
     args = cli.parse_args()
+    if not all(math.isfinite(v) and v>0 for v in (args.reference_ua,args.max_error_pct)):
+        cli.error("Reference current and maximum error must be finite positive numbers")
+    requirements = {"reference_uA":args.reference_ua, "max_error_pct":args.max_error_pct, "max_settling_ns":MAX_SETTLING_NS}
     try:
         ngspice, xschem = resolve_tool(args.ngspice), resolve_tool(args.xschem)
         out = args.out.expanduser().resolve()
@@ -189,7 +200,7 @@ def main():
     save_json(out / "status.json", {"status":"running"})
     try:
         result = run(out, args.models.expanduser().resolve() if args.models else None, ngspice, xschem,
-                     args.reuse_lut.expanduser().resolve() if args.reuse_lut else None)
+                     args.reuse_lut.expanduser().resolve() if args.reuse_lut else None, requirements, args.candidate_length_um)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:
         result = {"status":"failed", "reason":str(exc)}
     save_json(out / "status.json", result)

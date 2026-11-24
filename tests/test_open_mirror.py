@@ -1,9 +1,10 @@
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 CASE = Path(__file__).resolve().parents[1] / "examples/sky130-current-mirror"
 sys.path.insert(0, str(CASE))
@@ -33,6 +34,31 @@ class OpenMirrorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "checksum"):
                 fetch_models.prepare(target, source)
             self.assertEqual((target / "models/all.spice").read_bytes(), b"modified")
+        reply = MagicMock()
+        reply.__enter__.return_value = reply
+        reply.read.return_value = content
+        reply.getheader.return_value = None
+        with patch.dict(fetch_models.LOCK, files={"models/all.spice":fetch_models.checksum(content)}), \
+                patch.object(fetch_models.urllib.request, "urlopen", side_effect=[OSError("unavailable"), reply]) as fetch:
+            self.assertEqual(fetch_models.fetch("models/all.spice"), content)
+        fallback = fetch.call_args_list[1][0][0]
+        self.assertEqual(fallback.host, "api.github.com")
+        self.assertIn("ref="+fetch_models.LOCK["revision"], fallback.full_url)
+        partial = MagicMock()
+        partial.__enter__.return_value = partial
+        partial.getheader.side_effect = {"Content-Encoding":None, "Content-Length":"4"}.get
+        partial.read.side_effect = fetch_models.http.client.IncompleteRead(b"ab", 2)
+        tail = MagicMock()
+        tail.__enter__.return_value = tail
+        tail.getheader.return_value = "bytes 2-3/4"
+        tail.status, tail.read.return_value = 206, b"cd"
+        with patch.object(fetch_models.urllib.request, "urlopen", side_effect=[partial,tail]) as fetch:
+            self.assertEqual(fetch_models.download(fallback), b"abcd")
+            self.assertEqual(fetch.call_args_list[1][0][0].get_header("Range"), "bytes=2-3")
+        tail.status = 200
+        with patch.object(fetch_models.urllib.request, "urlopen", side_effect=[partial,tail]):
+            with self.assertRaisesRegex(ValueError, "requested byte range"):
+                fetch_models.download(fallback)
 
     def test_parent_lead_audit_rejects_an_inward_connection_on_the_right(self):
         for name in ("BIAS_MIRROR.sym", "TB_BIAS_MIRROR.sch"):
@@ -57,6 +83,13 @@ class OpenMirrorTests(unittest.TestCase):
         sizing = mos_table.choose(groups, 0.5)
         self.assertAlmostEqual(sizing["width_um"], 3.8)
         self.assertEqual(sizing["selected_row"], row)
+        half = mos_table.choose(groups, 0.5, current_uA=5)
+        self.assertAlmostEqual(half["width_um"], 1.9)
+        self.assertEqual(half["reference_current_uA"], 5)
+        standard, _ = mos_table.scans("pdk", "tt", 27, 1.8)
+        extended, _ = mos_table.scans("pdk", "tt", 27, 1.8, (0.5,1.5))
+        self.assertNotIn("l=1.5 nf=1", standard)
+        self.assertIn("l=1.5 nf=1", extended)
         with self.assertRaisesRegex(ValueError, "No applicable"):
             mos_table.choose(groups, 1)
 
@@ -96,9 +129,24 @@ class OpenMirrorTests(unittest.TestCase):
         raw = self.root / "transient.dat"
         raw.write_text(header + "".join(tran))
         result = measure.metrics(self.root, 1.8)
+        self.assertIn("ISET=5u", measure.deck("library.spice", ("tt",27,1.8), "mirror\n.end\n", 5))
+        with self.assertRaisesRegex(ValueError, "reference current"):
+            measure.metrics(self.root, 1.8, reference_uA=5)
+        self.assertIsNotNone(result["compliance_mV"])
+        self.assertIsNone(measure.metrics(self.root, 1.8, max_error_pct=0.5)["compliance_mV"])
         self.assertAlmostEqual(result["worst_error_pct"], 0.8)
         self.assertGreater(result["settling_ns"], 8)
         self.assertLess(result["settling_ns"], 10)
         raw.write_text(header + "".join(tran[:500]))
         with self.assertRaisesRegex(ValueError, "Incomplete transient"):
             measure.metrics(self.root, 1.8)
+
+    def test_invalid_design_requirements_stop_before_tool_lookup_or_output(self):
+        for name, value in (("--reference-ua", "nan"), ("--max-error-pct", "-1")):
+            with self.subTest(name=name):
+                out = self.root / "run"
+                result = subprocess.run([sys.executable, str(CASE / "run.py"), "--out", str(out), name, value],
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn(b"finite positive", result.stderr)
+                self.assertFalse(out.exists())

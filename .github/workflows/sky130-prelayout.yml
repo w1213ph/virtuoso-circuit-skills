@@ -43,12 +43,48 @@ jobs:
               c + '.' + m for c in ('tt', 'ss', 'ff') for m in ('ratio', 'settling')}
           PY
           cat work/mirror/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Resize for 5 uA and retain failed requirements
+        run: |
+          expect_review() {
+            if python3 examples/sky130-current-mirror/run.py --models work/mirror/models --reuse-lut work/mirror/characterization "$@"; then
+              echo "The reference design no longer reproduces the expected limit misses."
+              return 1
+            else
+              test "$?" -eq 1
+            fi
+          }
+          expect_review --reference-ua 5 --out work/mirror-5ua
+          expect_review --max-error-pct 4 --out work/mirror-4pct
+          python3 examples/sky130-current-mirror/run.py --models work/mirror/models --reuse-lut work/mirror/characterization --reference-ua 5 --candidate-length-um 1.5 --out work/mirror-5ua-long
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          def read(root, file):
+              return json.loads((Path('work') / root / file).read_text())
+          for folder in ('mirror-5ua', 'mirror-4pct'):
+              status = read(folder, 'status.json')
+              assert status['status'] == 'review_required' and all(r['mode'] == 'reused' for r in status['characterization'])
+          for variant in ('baseline', 'candidate'):
+              original = read('mirror', variant + '/sizing.json')
+              resized = read('mirror-5ua', variant + '/sizing.json')
+              assert resized['reference_current_uA'] == 5 and resized['width_um'] < original['width_um']
+          strict = read('mirror-4pct', 'candidate/checked.json')['tests']
+          assert {r['id'] for r in strict if r['status'] == 'FAIL'} == {'tt.ratio', 'ff.ratio'}
+          half = read('mirror-5ua', 'candidate/checked.json')['tests']
+          assert {r['id'] for r in half if r['status'] == 'FAIL'} == {'ff.ratio'}
+          retry = read('mirror-5ua-long', 'status.json')
+          assert retry['status'] == 'completed'
+          assert all(r['mode'] == 'measured' and r['recipe']['lengths_um'] == [0.5, 1.5] for r in retry['characterization'])
+          assert read('mirror-5ua-long', 'requirements.json') == read('mirror-5ua', 'requirements.json')
+          assert all(r['status'] == 'PASS' for r in read('mirror-5ua-long', 'candidate/checked.json')['tests'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sky130-current-mirror
           path: |
             work/mirror/RESULTS.md
+            work/mirror/requirements.json
             work/mirror/status.json
             work/mirror/comparison.json
             work/mirror/common/
@@ -56,3 +92,20 @@ jobs:
             work/mirror/characterization/*/table.csv
             work/mirror/baseline/
             work/mirror/candidate/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-alternative-requirements
+          path: |
+            work/mirror-5ua/RESULTS.md
+            work/mirror-5ua/requirements.json
+            work/mirror-5ua/comparison.json
+            work/mirror-5ua/candidate/
+            work/mirror-5ua-long/RESULTS.md
+            work/mirror-5ua-long/requirements.json
+            work/mirror-5ua-long/comparison.json
+            work/mirror-5ua-long/candidate/
+            work/mirror-4pct/RESULTS.md
+            work/mirror-4pct/requirements.json
+            work/mirror-4pct/comparison.json
+            work/mirror-4pct/candidate/
