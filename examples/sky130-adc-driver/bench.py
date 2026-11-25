@@ -154,6 +154,7 @@ def transient_metrics(folder, r, vdd):
         settle = None if last_bad == len(during)-1 else during[last_bad+1][0]-a
         held = [at(b+EDGE_NS)[3], after[3]] + [w[3] for t,w in zip(times,waves) if b+EDGE_NS < t < end]
         details[name] = {"track_error_mV": 1e3*abs(before[3]-target), "driver_error_mV": 1e3*abs(before[2]-target),
+                         "switch_drop_mV": 1e3*abs(before[2]-before[3]),
                          "hold_error_mV": 1e3*max(abs(v-target) for v in held),
                          "hold_endpoint_error_mV": 1e3*abs(after[3]-target), "settling_ns": settle}
     return {"edges": details, "precharge_error_mV": 1000*abs(at(599)[3]-r["input_low_V"]),

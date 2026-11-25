@@ -154,6 +154,10 @@ jobs:
           read = lambda p: json.loads(Path(p).read_text())
           result = read("work/driver-check.json")
           assert result["selected"] == "candidate" and result["pass_counts"] == {"baseline": 14, "candidate": 18}
+          for design in ("baseline", "candidate"):
+              rows = read("work/adc-driver/" + design + "/checked.json")["tests"]
+              diagnostic = {r["id"] for r in rows if r["status"] == "DIAGNOSTIC_MEASURED" and r["role"] == "diagnostic"}
+              assert diagnostic == {c + "." + edge + ".switch_drop" for c in ("tt","ss","ff") for edge in ("up","down")}
           for c in ("tt", "ss", "ff"):
               assert read("work/adc-driver/characterization/" + c + "/manifest.json")["mode"] == "reused"
           r = read("examples/sky130-adc-driver/requirements.example.json")

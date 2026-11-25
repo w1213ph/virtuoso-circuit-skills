@@ -22,11 +22,13 @@ def verify(out):
     theory=budget(r)
     reviews,areas={},{}
     fixture=read(out/"fixture.json")
+    version=read(out/"recipe.json").get("schema_version",1)
+    require(type(version) is int and version in (1,2),"Unsupported sampling-driver run format")
     for name in ("baseline","candidate"):
         stage=out/name
         f=stage/"prelayout.json"
         plan=checks.load_plan(f)
-        expected=[t for c,temp,vdd in STATES for t in tests_for(c,temp,vdd,r,theory)]
+        expected=[t for c,temp,vdd in STATES for t in tests_for(c,temp,vdd,r,theory,include_diagnostics=version>=2)]
         require(plan["tests"]==expected,"Test conditions differ from requirements: "+name)
         contexts=read(stage/"before-simulation.json")
         sizing=read(stage/"sizing.json")
@@ -45,6 +47,7 @@ def verify(out):
             for edge,m in dynamics["edges"].items():
                 for phase in ("track","hold"):
                     values[corner+"."+edge+"."+phase]=m[phase+"_error_mV"]
+                values[corner+"."+edge+".switch_drop"]=m["switch_drop_mV"]
             for mode in ("track","hold"):
                 measured=loop_metrics(folder/mode,vdd,mode=="track",r)
                 values[corner+"."+mode+".margin"]=measured["phase_margin_deg"]
@@ -64,7 +67,9 @@ def verify(out):
                 require(checks.file_hash(out/p,hashes)==ctx["reference_files"]["../"+p],"Changed common input: "+p)
             require(math.isclose(values[idx],record["value"],rel_tol=1e-10,abs_tol=1e-9),"Raw measurement differs: "+idx)
         reviews[name]=checks.check(plan,stage,contexts,hashes)
-        require(reviews[name]==read(stage/"checked.json") and all(t["status"] in ("PASS","FAIL") for t in reviews[name]["tests"]),
+        require(reviews[name]==read(stage/"checked.json") and all(
+            t["status"] in (("DIAGNOSTIC_MEASURED",) if t.get("role")=="diagnostic" else ("PASS","FAIL"))
+            for t in reviews[name]["tests"]),
                 "Archived decisions or evidence differ: "+name)
     comparison=checks.compare(reviews["baseline"],reviews["candidate"])
     require(comparison==read(out/"comparison.json"),"Comparison differs")

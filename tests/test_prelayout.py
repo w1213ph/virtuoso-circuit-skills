@@ -65,10 +65,10 @@ class PrelayoutCommands(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stderr or result.stdout)
         return json.loads(result.stdout)
 
-    def measure(self, path, plan, value):
+    def measure(self, path, plan, value, filename="measurement.txt"):
         test = plan["tests"][0]
         context = self.invoke("snapshot", path)["tests"][test["id"]]
-        evidence = path.parent / "measurement.txt"
+        evidence = path.parent / filename
         evidence.write_text(f"Synthetic test measure: {value} {test['unit']}\n", encoding="utf-8")
         record = {
             "status": "measured",
@@ -162,6 +162,40 @@ class PrelayoutCommands(unittest.TestCase):
         self.assertEqual(self.invoke("check", path, expected=1)["tests"][0]["status"], "RUN_FAILED")
         (path.parent / "dut.txt").unlink()
         self.assertEqual(self.invoke("check", path, expected=1)["tests"][0]["status"], "INPUT_UNAVAILABLE")
+
+    def test_diagnostic_limits_do_not_qualify_a_design_or_replace_a_required_test(self):
+        diagnostic = dict(self.comparator, role="diagnostic")
+        path, plan = self.plan("diagnosis", diagnostic)
+        self.measure(path, plan, 4)
+        row = self.invoke("check", path, expected=1)["tests"][0]
+        self.assertEqual((row["role"], row["status"], row["within_limits"]), ("diagnostic","DIAGNOSTIC_MEASURED",True))
+        self.assertEqual(self.invoke("compare",path,baseline=path,expected=1)["passing_variants"], [])
+        actual, actual_plan = self.plan("actual", self.comparator)
+        self.measure(actual, actual_plan, 9)
+        self.assertEqual(self.invoke("compare",path,baseline=actual,expected=1)["status"], "INCOMPARABLE")
+        # Relabeling a saved diagnostic changes its context.
+        del plan["tests"][0]["role"]
+        self.save(path,plan)
+        self.assertEqual(self.invoke("check",path,expected=1)["tests"][0]["status"], "STALE_RESULT")
+
+    def test_optional_diagnostic_keeps_its_evidence_status_without_changing_selection(self):
+        base, p = self.plan("base", self.comparator)
+        self.measure(base,p,7)
+        trial, q = self.plan("trial", dict(self.comparator, role="acceptance"))
+        self.measure(trial,q,6)
+        probe = dict(self.comparator, id="internal_node", role="diagnostic", target=None)
+        q["tests"].insert(0,probe)
+        self.save(trial,q)
+        report = self.invoke("check",trial)
+        self.assertEqual(report["tests"][0]["status"], "NOT_RUN")
+        self.measure(trial,q,19,filename="diagnostic.txt")
+        self.assertEqual(self.invoke("check",trial)["tests"][0]["status"], "DIAGNOSTIC_MEASURED")
+        cmp = self.invoke("compare",trial,baseline=base)
+        self.assertEqual(cmp["passing_variants"], ["baseline","candidate"])
+        self.assertEqual([r["id"] for r in cmp["tests"]], [self.comparator["id"]])
+        (trial.parent/"diagnostic.txt").write_bytes(b"changed")
+        diag = self.invoke("check",trial)["tests"][0]
+        self.assertEqual((diag["role"],diag["status"]), ("diagnostic","CHANGED_EVIDENCE"))
 
 
 if __name__ == "__main__":

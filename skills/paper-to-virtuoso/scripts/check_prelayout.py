@@ -52,6 +52,8 @@ def load_plan(path):
         if not isinstance(test, dict) or not all(text_present(test.get(key)) for key in fields):
             raise ValueError(f"Each test requires text fields: {', '.join(fields)}")
         test_id = test["id"]
+        if test.get("role", "acceptance") not in ("acceptance", "diagnostic"):
+            raise ValueError(f"{test_id}: role must be acceptance or diagnostic")
         if test_id in ids:
             raise ValueError(f"Duplicate test ID: {test_id}")
         ids.add(test_id)
@@ -105,6 +107,9 @@ def snapshot(plan, directory, hashes):
             test_definition = {
                 key: value for key, value in test.items() if key not in ("inputs", "reference_inputs")
             }
+            # Omitting the default and explicitly spelling it have the same meaning in existing plans.
+            if test_definition.get("role") == "acceptance":
+                del test_definition["role"]
             reference_hash = record_hash({"test": test_definition, "files": reference_files})
             contexts[test["id"]] = {
                 "context_sha256": record_hash({"reference_sha256": reference_hash, "files": files}),
@@ -145,6 +150,12 @@ def review_measurement(test, context, result, directory, hashes):
         return {"status": "INVALID_MEASUREMENT"}
 
     target = test.get("target")
+    if test.get("role") == "diagnostic":
+        review = {"status": "DIAGNOSTIC_MEASURED", "value": value}
+        if target and target["confirmed"]:
+            review["limits"] = target["limits"]
+            review["within_limits"] = all(COMPARISONS[op](value, limit) for op, limit in target["limits"].items())
+        return review
     if target is None or not target["confirmed"]:
         return {"status": "TARGET_UNCONFIRMED", "value": value}
     limits = target["limits"]
@@ -159,6 +170,8 @@ def check(plan, directory, contexts, hashes):
         review = review_measurement(
             test, contexts[test_id], plan["results"].get(test_id), directory, hashes
         )
+        if test.get("role") == "diagnostic":
+            review["role"] = "diagnostic"
         results.append({
             "id": test_id,
             "metric": test["metric"],
@@ -166,7 +179,8 @@ def check(plan, directory, contexts, hashes):
             "reference_sha256": contexts[test_id].get("reference_sha256"),
             **review,
         })
-    passed = bool(results) and all(test["status"] == "PASS" for test in results)
+    required = [row for row in results if row.get("role") != "diagnostic"]
+    passed = bool(required) and all(test["status"] == "PASS" for test in required)
     return {
         "status": "RECORDED_LIMITS_MET" if passed else "REVIEW_REQUIRED",
         "tests": results,
@@ -175,11 +189,11 @@ def check(plan, directory, contexts, hashes):
 
 
 def compare(baseline, candidate):
-    base_tests = {test["id"]: test for test in baseline["tests"]}
-    candidate_tests = {test["id"]: test for test in candidate["tests"]}
+    base_tests = {test["id"]: test for test in baseline["tests"] if test.get("role") != "diagnostic"}
+    candidate_tests = {test["id"]: test for test in candidate["tests"] if test.get("role") != "diagnostic"}
     if not base_tests or base_tests.keys() != candidate_tests.keys():
         return {"status": "INCOMPARABLE", "passing_variants": [], "candidate_limits_met": False,
-                "detail": "The plans must cover the same nonempty test IDs."}
+                "detail": "The plans must cover the same nonempty set of acceptance tests."}
 
     comparisons = []
     for test_id, base in base_tests.items():

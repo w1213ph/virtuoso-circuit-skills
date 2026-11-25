@@ -115,6 +115,8 @@ python skills/paper-to-virtuoso/scripts/check_prelayout.py compare --plan work/a
 
 命令输出 JSON。退出码 `0` 分别表示快照可用、记录符合限值或两组结果可比较。需要补充证据、指标越限或比较条件不一致时，根据具体状态处理。脚本执行范围是声明文件与数值的核对。实际仿真、数据提取和原生验收由 Agent 在目标工艺和工具中执行。
 
+在 `prelayout.json` 中，正式指标沿用默认设置。用于观察内部节点或用理想替代定位问题时，可将该条测试标记为 `"role": "diagnostic"`。`check` 显示诊断值及证据状态，`compare` 用两份计划中相同的正式指标选型。只有诊断的计划返回 `REVIEW_REQUIRED`。[模式与测试用途](../skills/paper-to-virtuoso/references/simulation.md#模式负载与测试用途)
+
 ## 比较重排前后的电气数据
 
 先用你的连接工具或原生 SKILL，从修改前后的 OA 数据库导出完整快照，保存为 `work/afe/before.json` 和 `work/afe/after.json`。本仓库的比较器不负责自动采集 OA；字段与示例见[回读格式](../skills/paper-to-virtuoso/references/acceptance.md#电气回读-json)。

@@ -84,6 +84,7 @@ class SamplingDriverTests(unittest.TestCase):
         f.write_text("".join(rows))
         edges=bench.transient_metrics(self.tmp,r,1.8)["edges"]
         self.assertEqual(edges["up"]["driver_error_mV"],0)
+        self.assertAlmostEqual(edges["up"]["switch_drop_mV"],10)
         self.assertAlmostEqual(edges["up"]["track_error_mV"],10)
         self.assertAlmostEqual(edges["up"]["hold_error_mV"],15)
         self.assertAlmostEqual(edges["up"]["hold_endpoint_error_mV"],0)

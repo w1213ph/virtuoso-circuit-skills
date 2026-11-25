@@ -20,7 +20,7 @@ def digest(p):
     return checksum(p.read_bytes())
 
 
-def tests_for(corner, temp, vdd, r, theory):
+def tests_for(corner, temp, vdd, r, theory, include_diagnostics=False):
     common = {"corner":corner,"supply_V":vdd,"temperature_C":temp,"input_V":[r["input_low_V"],r["input_high_V"]],
               "sample_cap_pF":r["sample_cap_pF"],"output_cap_pF":FIXED_OUTPUT_PF,"track_ns":r["track_ns"],"hold_ns":r["hold_ns"]}
     definitions = []
@@ -35,6 +35,13 @@ def tests_for(corner, temp, vdd, r, theory):
         yield {"id":corner+"."+name,"metric":name,"unit":unit,"analysis":analysis,"testbench":"TB_ADRV_SAMPLE",
                "conditions":common,"measurement":definition,"inputs":[corner+"/"+mode+"/input.spice"],
                "target":{"source":"../requirements.json","confirmed":True,"limits":{op:limit}}}
+    if include_diagnostics:
+        for edge in ("up", "down"):
+            name = edge + ".switch_drop"
+            yield {"id": corner+"."+name, "role": "diagnostic", "metric": name, "unit": "mV",
+                   "analysis": "tran", "testbench": "TB_ADRV_SAMPLE", "conditions": common,
+                   "measurement": "Absolute OUT-to-SAMPLE drop just before switch opening after the "+edge+" step",
+                   "inputs": [corner+"/track/input.spice"], "target": None}
 
 
 def simulate_variant(path,native,r,lib,tool,references):
@@ -46,7 +53,7 @@ def simulate_variant(path,native,r,lib,tool,references):
             d=path/corner/mode
             d.mkdir(parents=True)
             (d/"input.spice").write_text(deck(native,lib,state,r,mode=="track"),encoding="utf-8")
-        plan["tests"].extend(tests_for(corner,temp,vdd,r,theory))
+        plan["tests"].extend(tests_for(corner,temp,vdd,r,theory,include_diagnostics=True))
     f=path/"prelayout.json"
     save_json(f,plan)
     plan,before=checks.load_records(f,{})
@@ -69,6 +76,7 @@ def simulate_variant(path,native,r,lib,tool,references):
                     for edge,x in detail["transient"]["edges"].items():
                         for item in ("track","hold"):
                             values[edge+"."+item]=x[item+"_error_mV"]
+                        values[edge+".switch_drop"]=x["switch_drop_mV"]
             except (ValueError,OSError) as exc:
                 detail[mode+"_error"]=str(exc)
         save_json(folder/"measurement.json",detail)
@@ -118,9 +126,10 @@ def report(out,r,theory,geometry,measurements,reviews,pick):
                 m["track"]["phase_margin_deg"],m["hold"]["phase_margin_deg"],m["track"]["quiescent_uA"]))
     lines.append("")
     for name,review in reviews.items():
-        failed=[t for t in review["tests"] if t["status"]!="PASS"]
-        lines.append("- {} 通过 {}/{} 项，放大器栅面积 {:.2f} µm²，采样开关另计 {:.2f} µm²。".format(name,len(review["tests"])-len(failed),
-                     len(review["tests"]),geometry[name]["core_gate_area_um2"],geometry[name]["switch_gate_area_um2"]))
+        required=[t for t in review["tests"] if t.get("role")!="diagnostic"]
+        failed=[t for t in required if t["status"]!="PASS"]
+        lines.append("- {} 通过 {}/{} 项，放大器栅面积 {:.2f} µm²，采样开关另计 {:.2f} µm²。".format(name,len(required)-len(failed),
+                     len(required),geometry[name]["core_gate_area_um2"],geometry[name]["switch_gate_area_um2"]))
         for t in failed:
             if t["status"]=="FAIL":
                 op,limit=next(iter(t["limits"].items()))
@@ -128,6 +137,19 @@ def report(out,r,theory,geometry,measurements,reviews,pick):
             else:
                 info=t.get("detail",t["status"])
             lines.append("  - "+t["id"]+" "+info)
+    lines+=["", "### 开关导通末端的误差来源", "",
+            "在跟踪结束、时钟开始关断的同一时刻，比较驱动输出和采样电容。验收使用采样电容相对目标的误差。下表的开关压差帮助定位误差来源。", "",
+            "| 版本、工况 | 边沿 | 驱动输出到目标 (mV) | 开关两端压差 (mV) | 采样电容到目标 (mV) |",
+            "|---|---|---:|---:|---:|"]
+    for name, records in measurements.items():
+        for corner, record in records.items():
+            if "transient" not in record:
+                lines.append("| {} {} | 双向 | 测量不完整 | | |".format(name,corner))
+                continue
+            for edge, label in (("up","上升"), ("down","下降")):
+                m=record["transient"]["edges"][edge]
+                lines.append("| {} {} | {} | {:.4f} | {:.4f} | {:.4f} |".format(
+                    name,corner,label,m["driver_error_mV"],m["switch_drop_mV"],m["track_error_mV"]))
     lines+=["","参考支路由电源直接建立。静态电流在两输入电平的中点从放大器电源测得。电源、输入、时钟是测试台激励。"
             "小信号裕度通过高阻反馈输入的串联电压注入估算，真实开关的双向瞬态单独验收。"
             "面积统计两类电路的 MOS 栅面积；完整 ADC、噪声、随机失配和电容版图面积仍需在目标工程验证。",""]
@@ -151,7 +173,7 @@ def run(out,r,models,previous,xschem,ngspice):
         if state[0]=="tt":
             tt_rows=rows
         print("MOS",state[0],record["mode"],record["points"],flush=True)
-    save_json(out/"recipe.json",dict(identity,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
+    save_json(out/"recipe.json",dict(identity,schema_version=2,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
                                      runner=digest(HERE/"run.py"),xschem_binary=digest(Path(xschem))))
     refs=["../requirements.json","../budget.json","../recipe.json","../fixture.json","../ngspice-version.txt",str(lib)]
     refs += [str(lib.parent/p) for p in sorted(LOCK["files"])]
