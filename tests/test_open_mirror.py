@@ -1,3 +1,5 @@
+import importlib.util
+import json
 import shutil
 import subprocess
 import sys
@@ -12,6 +14,9 @@ import fetch_models
 import measure
 import mos_table
 import native
+spec = importlib.util.spec_from_file_location("mirror_workflow", CASE / "run.py")
+workflow = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(workflow)
 
 
 class OpenMirrorTests(unittest.TestCase):
@@ -150,3 +155,39 @@ class OpenMirrorTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 2)
                 self.assertIn(b"finite positive", result.stderr)
                 self.assertFalse(out.exists())
+
+    def test_requirements_replay_retains_unconfirmed_load_and_rejects_conflicts(self):
+        request = {"purpose": "8 µA ADC bias", "reference_uA": 8, "max_error_pct": 8, "max_settling_ns": 40,
+                   "selection": "min_gate_area"}
+        source = self.root / "request.json"
+        source.write_text(json.dumps(request), encoding="utf-8")
+        effective, defaults = workflow.load_requirements(source)
+        self.assertEqual(defaults, ["reference_load_fF"])
+        self.assertEqual(effective["assumed_fields"], ["reference_load_fF"])
+        source.write_text(json.dumps(effective), encoding="utf-8")
+        self.assertEqual(workflow.load_requirements(source)[0], effective)
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            workflow.load_requirements(source, reference_uA=5)
+        source.write_text(json.dumps(dict(request, reference_uA=True)), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            workflow.load_requirements(source, reference_uA=1)
+        for changed in ({"reference_load_fF": -10}, {"max_settling_ns": False},
+                        {"max_settling_ns": 1e308}, {"settling_max": 40}, {"selection": "any"}):
+            source.write_text(json.dumps(dict(request, **changed)), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                workflow.load_requirements(source)
+
+    def test_minimum_area_selects_only_among_passing_variants(self):
+        sizes = {"baseline": {"mirror_pair_gate_area_um2": 2.75}, "candidate": {"mirror_pair_gate_area_um2": 12}}
+        for passing, expected in (([], None), (["candidate"], "candidate"), (["baseline"], "baseline"),
+                                  (["baseline", "candidate"], "baseline")):
+            with self.subTest(passing=passing):
+                choice = workflow.select_design({"passing_variants": passing}, sizes, "min_gate_area")
+                self.assertEqual(choice["selected_variant"], expected)
+        self.assertIsNone(workflow.select_design({"passing_variants":["baseline"]}, sizes, "candidate")["selected_variant"])
+
+    def test_long_deadline_extends_both_transient_and_reference_pulse(self):
+        self.assertEqual(measure.reference_pulse(40), "PULSE(0 'ISET' 10n 1n 1n 1u 2u)")
+        self.assertIn("1131n 2262n", measure.reference_pulse(1100))
+        text = measure.deck("pdk.lib", ("tt",27,1.8), ".end\n", 8, 1100)
+        self.assertIn("tran 0.2n 1131n 0 0.2n", text)

@@ -97,6 +97,7 @@ class PrelayoutCommands(unittest.TestCase):
         self.measure(candidate, candidate_plan, 7)
         comparison = self.invoke("compare", candidate, baseline=baseline)
         self.assertTrue(comparison["candidate_limits_met"])
+        self.assertEqual(comparison["passing_variants"], ["candidate"])
         self.assertEqual(comparison["tests"][0]["baseline_status"], "FAIL")
         self.assertEqual(comparison["tests"][0]["delta"], -1.5)
 
@@ -132,6 +133,7 @@ class PrelayoutCommands(unittest.TestCase):
         comparison = self.invoke("compare", candidate, expected=1, baseline=baseline)
         self.assertEqual(comparison["tests"][0]["status"], "REFERENCE_MISMATCH")
         self.assertFalse(comparison["candidate_limits_met"])
+        self.assertEqual(comparison["passing_variants"], [])
 
     def test_missing_and_changed_result_evidence_are_rejected(self):
         path, plan = self.plan("candidate", self.comparator)

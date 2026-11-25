@@ -64,6 +64,37 @@ python3 examples/sky130-current-mirror/run.py --models work/first-mirror/models 
 
 也可以用 `--max-error-pct 4` 明确提出更严的精度。在 10 µA、候选沟道 1.00 µm 的实测里，TT 和 FF 超出 4%，SS 通过。优化时保留这份记录，按系统要求决定能接受的器件规模。导出的中文报告和网表分别记录当前目标与实际激励，便于核对。[同规格改尺寸及超限测值](custom-requirements.json)
 
+## 用一句 ADC 偏置需求选方案
+
+> 给 ADC 偏置支路复制外部 8 µA 参考电流，输出端下拉，0.40 到 1.20 V 内误差不超过 8%，参考节点接 250 fF，开启后 40 ns 内稳定，满足要求时选栅面积较小的一版。
+
+把这句话交给 agent 即可。这个练习已有外部参考电流，核心负责复制电流。250 fF 接在参考节点 IREF，测试台将输出 IOUT 固定在 0.80 V 测开启瞬态。Agent 将原话和数值放进[示例需求文件](adc-bias.example.json)。从仓库根目录可以复跑：
+
+```sh
+python3 examples/sky130-current-mirror/run.py --requirements examples/sky130-current-mirror/adc-bias.example.json --out work/adc-bias
+```
+
+在 `work/adc-bias/RESULTS.md` 打开选中原理图和测试台。两版都使用三组工况的 SKY130 器件表取初值，各自从 Xschem 网表运行 DC 与瞬态。每个工况各判定镜像误差和稳定时间一次。
+
+| 方案 | 每只管 W / L（µm） | 两管栅面积（µm²） | 三组工况最坏误差 | 三组工况最慢稳定时间 | 达标项 |
+|---|---:|---:|---:|---:|---:|
+| 初版 | 2.80 / 0.50 | 2.80 | 6.161%（FF） | 34.11 ns（SS） | 6/6 |
+| 长沟道候选 | 5.70 / 1.00 | 11.40 | 5.218%（FF） | 36.11 ns（SS） | 6/6 |
+
+初版满足 8% 和 40 ns 的要求，两管栅面积比候选少约 75.4%，因此报告选中 `baseline`。面积按两只 MOS 的 Σ(W × L) 计算。图中可核对 IREF 左出、IOUT 右出、VSS 向下，以及 IREF 上的实际负载。
+
+![8 µA 初版的原生 Xschem 测试台，参考节点接 250 fF](images/adc-bias-bench.png)
+
+也可以让 agent 用以下条件检查结果会怎样改变。
+
+| 改动 | 这次复跑看到的结果 |
+|---|---|
+| 只把参考端负载改为 100 fF | 初版最慢稳定时间降到 14.51 ns，DC 镜像误差相同 |
+| 保持 250 fF，只把稳定时间收紧到 5 ns | 两版在三组工况的稳定时间都超限，报告列出实测值和限值，没有选中版本 |
+| 自定义需求文件省略参考负载 | 三项 DC 误差仍可判定；三项稳定时间按临时 100 fF 实测，标为 `TARGET_UNCONFIRMED`。复用输出的需求文件仍保留这个状态 |
+
+自定义文件支持 `reference_uA`、`reference_load_fF`、`max_error_pct` 和 `max_settling_ns`。本例的 DC 验收区间固定为 0.40–1.20 V。`selection` 选 `min_gate_area` 时在全部达标版本中选较小者，选 `candidate` 时验收指定候选。若实际条件还在确认，输出的 `requirements.json` 会在 `assumed_fields` 列出暂用的电气数值；核实后填入实值、移除对应字段名，再用新目录复测。每次公开仿真的报告和可编辑工程也随 `sky130-adc-bias` 工件发布。[GitHub 仿真记录](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/sky130-prelayout.yml)
+
 ## 复用器件表，继续查结果
 
 下面的命令共用上一次校验过的模型目录，并把新结果写到新的目录。脚本核对模型、实际扫压输入、仿真器版本及二进制、查表代码和原始数据哈希。匹配时会打印 `reused`，不匹配的工况会重新扫描。两版电路随后均重新网表化和仿真。

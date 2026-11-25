@@ -10,6 +10,7 @@ OUTPUT_MIN_V = 0.40
 OUTPUT_MAX_V = 1.20
 MAX_ERROR_PCT = 5.0
 MAX_SETTLING_NS = 200
+DEFAULT_REFERENCE_LOAD_FF = 100.0
 VECTORS = ("v(iout)", "v(iref)", "i(vforce)", "i(vbias)")
 CONTROLS = """.control
 set wr_singlescale
@@ -18,7 +19,7 @@ set numdgt=12
 save v(iout) v(iref) i(vforce) i(vbias) v(vdd)
 dc VFORCE 0 1.50 0.01
 wrdata dc.dat v(iout) v(iref) i(vforce) i(vbias) v(vdd)
-tran 0.2n 300n 0 0.2n
+tran 0.2n {stop_ns:.12g}n 0 0.2n
 wrdata transient.dat v(iout) v(iref) i(vforce) i(vbias) v(vdd)
 echo analysis_complete
 quit
@@ -27,7 +28,18 @@ quit
 """
 
 
-def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA):
+def observation_ns(max_settling_ns):
+    # Keep the established test window; longer deadlines also need time after enable and after settling.
+    return max(300.0, 11.0 + max_settling_ns + 20.0)
+
+
+def reference_pulse(max_settling_ns):
+    stop = observation_ns(max_settling_ns)
+    hold = "1u 2u" if stop <= 1000.0 else "{:.12g}n {:.12g}n".format(stop, 2 * stop)
+    return "PULSE(0 'ISET' 10n 1n 1n " + hold + ")"
+
+
+def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA, max_settling_ns=MAX_SETTLING_NS):
     corner, temp, vdd = state
     body, n = re.subn(r"(?im)^\.end\s*\Z", "", native)
     if n != 1:
@@ -35,10 +47,10 @@ def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA):
     return ("SKY130 current mirror from Xschem\n"
             '.lib "{}" {}\n.temp {}\n.param VDDTEST={:g} ISET={:.12g}u VOUTTEST=0.8\n'.format(
                 lib, corner, temp, vdd, reference_uA)
-            + body + "\n" + CONTROLS)
+            + body + "\n" + CONTROLS.format(stop_ns=observation_ns(max_settling_ns)))
 
 
-def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERROR_PCT):
+def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERROR_PCT, max_settling_ns=MAX_SETTLING_NS):
     reference_A = reference_uA / 1e6
     dc = table(folder / "dc.dat", VECTORS + ("v(vdd)",))
     if len(dc) != 151 or not math.isclose(dc[-1][0], 1.5):
@@ -59,7 +71,8 @@ def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERRO
     if slope <= 0:
         raise ValueError("Unexpected output conductance around 0.8 V")
     tran = table(folder / "transient.dat", VECTORS + ("v(vdd)",))
-    if (tran[0][0] > 1e-9 or not math.isclose(tran[-1][0], 300e-9, abs_tol=0.3e-9)
+    stop = observation_ns(max_settling_ns) * 1e-9
+    if (tran[0][0] > 1e-9 or not math.isclose(tran[-1][0], stop, rel_tol=0, abs_tol=0.3e-9)
             or any(b[0]-a[0] > 0.201e-9 for a,b in zip(tran,tran[1:]))):
         raise ValueError("Incomplete transient or sampling too coarse")
     if any(not math.isclose(r[1], 0.8, abs_tol=1e-7) or not math.isclose(r[5], vdd, abs_tol=1e-7) for r in tran):

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 
@@ -11,7 +12,21 @@ DESIGN_MODES = {"paper", "design"}
 
 
 def write_json(path, data):
-    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def brief_text(value):
+    # Older Linux EDA hosts may decode UTF-8 command-line bytes using the C locale.
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        try:
+            value = os.fsencode(value).decode("utf-8")
+        except UnicodeError as exc:
+            raise argparse.ArgumentTypeError("Pass the task description as UTF-8 text") from exc
+    if not value.strip():
+        raise argparse.ArgumentTypeError("Provide a nonempty task description")
+    return value
 
 
 def main():
@@ -21,6 +36,7 @@ def main():
         "--mode", choices=["paper", "design", "redraw", "environment", "export"], required=True
     )
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--brief", type=brief_text, help="Original task description to retain as the purpose in requirements.json")
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Z][A-Z0-9_]*", args.project):
         parser.error("Project prefix must use uppercase letters, digits and underscores")
@@ -47,7 +63,7 @@ def main():
     requirements = {
         "project": args.project,
         "mode": args.mode,
-        "purpose": None,
+        "purpose": args.brief,
         "interfaces": [],
         "paper": None,
         "figure_numbers": [],

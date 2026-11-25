@@ -1,5 +1,6 @@
 """Task setup is offline, leaves evidence unfilled and protects existing work."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,6 +13,19 @@ class TaskSetup(unittest.TestCase):
     def run_setup(self, mode, dest):
         return subprocess.run([sys.executable, str(SCRIPT), '--project', 'AFE', '--mode', mode,
                                '--out', str(dest)], capture_output=True, text=True)
+
+    def test_original_brief_is_retained_without_inventing_targets(self):
+        with tempfile.TemporaryDirectory() as td:
+            dest = Path(td) / "amplifier"
+            brief = "低功耗传感器放大器，驱动 ADC；输入幅度待确认。"
+            env = dict(os.environ, LC_ALL="C", PYTHONUTF8="0", PYTHONCOERCECLOCALE="0")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--mode", "design", "--project", "AFE",
+                                     "--brief", brief, "--out", str(dest)], capture_output=True, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            record = json.loads((dest / "requirements.json").read_text(encoding="utf-8"))
+            self.assertEqual(record["purpose"], brief)
+            self.assertEqual(record["goals"], [])
+            self.assertFalse(record["electrical_changes_authorized"])
 
     def test_new_design_and_paper_start_without_completed_results(self):
         with tempfile.TemporaryDirectory() as td:

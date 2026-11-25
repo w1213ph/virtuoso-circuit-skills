@@ -5,6 +5,7 @@ import re
 import shlex
 
 from fetch_models import HERE
+from measure import DEFAULT_REFERENCE_LOAD_FF, MAX_SETTLING_NS, reference_pulse
 from mos_table import command
 
 
@@ -50,15 +51,16 @@ def leads(directory):
     return pins
 
 
-def audit(netlist, width, length):
+def audit(netlist, width, length, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS):
     joined = re.sub(r"\n\s*\+\s*", " ", netlist)
     lines = [line.strip().lower() for line in joined.splitlines() if line.strip() and not line.lstrip().startswith("*")]
     header = ".subckt bias_mirror iref iout vss"
     if lines.count(header) != 1 or lines[-1:] != [".end"]:
         raise ValueError("Native mirror definition or terminal order differs")
     top = lines[:lines.index(header)]
-    expected_top = ["vbias vdd 0 dc 'vddtest'", "irefdrv vdd iref dc 'iset' pulse(0 'iset' 10n 1n 1n 1u 2u)",
-                    "cref iref 0 100f m=1", "xbias iref iout 0 bias_mirror", "vforce iout 0 dc 'vouttest'"]
+    expected_top = ["vbias vdd 0 dc 'vddtest'", "irefdrv vdd iref dc 'iset' " + reference_pulse(max_settling_ns).lower(),
+                    "cref iref 0 {:.12g}f m=1".format(reference_load_fF), "xbias iref iout 0 bias_mirror",
+                    "vforce iout 0 dc 'vouttest'"]
     if sorted(top) != sorted(expected_top):
         raise ValueError("Native testbench connections or stimuli differ")
     body = lines[lines.index(header)+1:]
@@ -80,10 +82,11 @@ def audit(netlist, width, length):
         terms[name] = dict(zip("DGSB", parts[1:5]))
     if terms.keys() != expected.keys():
         raise ValueError("Missing native device")
-    return {"device_connections":terms, "width_um":width, "length_um":length, "parent_port_order":["IREF","IOUT","VSS"]}, top
+    return {"device_connections":terms, "width_um":width, "length_um":length, "reference_load_fF":reference_load_fF,
+            "parent_port_order":["IREF","IOUT","VSS"]}, top
 
 
-def build(directory, sizing, xschem):
+def build(directory, sizing, xschem, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS):
     directory.mkdir()
     width, length = sizing["width_um"], sizing["length_um"]
     for name in VIEWS:
@@ -96,6 +99,13 @@ def build(directory, sizing, xschem):
                 content = content.replace(token, "{:.8g}".format(value))
             content = content.replace("MIR_W and MIR_L set both device dimensions in micrometres.",
                                       "Each NMOS: W = {:g} um, L = {:g} um, one finger.".format(width, length))
+        elif name == "TB_BIAS_MIRROR.sch":
+            for old, new in (("name=CREF value=100f", "name=CREF value={:.12g}f".format(reference_load_fF)),
+                             ("The 100 fF reference load", "The {:.12g} fF reference load".format(reference_load_fF)),
+                             (reference_pulse(MAX_SETTLING_NS), reference_pulse(max_settling_ns))):
+                if content.count(old) != 1:
+                    raise ValueError("Missing or ambiguous testbench fixture: " + old)
+                content = content.replace(old, new, 1)
         (directory / name).write_text(content, encoding="utf-8")
     env = dict(os.environ, MIRROR_SCHEMATIC_DIR=str(directory))
     command([xschem,"-n","-q","-x","-s","--tcl",TCL_PATH,"--netlist_path",directory,
@@ -105,7 +115,7 @@ def build(directory, sizing, xschem):
         raise ValueError("Review native Xschem diagnostics in " + str(directory))
     path = directory / "TB_BIAS_MIRROR.spice"
     netlist = path.read_text(encoding="utf-8")
-    readback, top = audit(netlist, width, length)
+    readback, top = audit(netlist, width, length, reference_load_fF, max_settling_ns)
     readback["parent_leads"] = leads(directory)
     opener = directory.parent / "open.sh"
     opener.write_text(

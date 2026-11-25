@@ -69,7 +69,11 @@ load("/path/to/reference-symbols.il")
 python skills/paper-to-virtuoso/scripts/new_task.py --project AFE --mode paper --out work/afe
 ```
 
-`AFE` 是你自定的大写项目缩写。`--mode` 可选：`paper` 论文复现、`design` 按功能搭建工程、`redraw` 整理图、`environment` 迁移环境、`export` 导出。没有论文时把示例中的 `paper` 换成 `design`。
+`AFE` 是你自定的大写项目缩写。`--mode` 可选：`paper` 论文复现、`design` 按功能搭建工程、`redraw` 整理图、`environment` 迁移环境、`export` 导出。没有论文时把示例中的 `paper` 换成 `design`。Agent 可用 `--brief` 将用户原话写入 `requirements.json` 的 `purpose`，再根据工程和用户确认的条件填写指标。例如：
+
+```sh
+python skills/paper-to-virtuoso/scripts/new_task.py --project AFE --mode design --brief "传感器放大器要在 ADC 的采样窗口内建立，实际负载待确认。" --out work/afe-design
+```
 
 生成内容：
 
@@ -107,7 +111,7 @@ python skills/paper-to-virtuoso/scripts/check_prelayout.py compare --plan work/a
 |---|---|
 | `snapshot` | 原生仿真前捕获当前测试定义和声明文件的摘要。将输出的 `context_sha256` 随本次仿真一同保存 |
 | `check` | 写入测值和证据后核对限值。`RECORDED_LIMITS_MET` 表示记录覆盖测试且符合确认的阈值。无结果显示 `NOT_RUN`，输入或条件变更显示 `STALE_RESULT` |
-| `compare` | 两份计划使用相同测试 ID、定义和参考输入时输出基线、候选和差值。`candidate_limits_met` 用来判断候选是否满足已确认的全部限值 |
+| `compare` | 测试与参考输入一致、实测证据可比时，输出基线、候选和差值。`passing_variants` 列出通过全部已确认限值的版本，可用于按面积等设计要求选型。比较条件不一致时列表为空。`candidate_limits_met` 单独表示候选的结果 |
 
 命令输出 JSON。退出码 `0` 分别表示快照可用、记录符合限值或两组结果可比较。需要补充证据、指标越限或比较条件不一致时，根据具体状态处理。脚本执行范围是声明文件与数值的核对。实际仿真、数据提取和原生验收由 Agent 在目标工艺和工具中执行。
 

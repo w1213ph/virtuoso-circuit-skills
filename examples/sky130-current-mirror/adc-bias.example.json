@@ -1,0 +1,8 @@
+{
+  "purpose": "给 ADC 偏置支路复制外部 8 µA 参考电流，输出端下拉，0.40 到 1.20 V 内误差不超过 8%，参考节点接 250 fF，开启后 40 ns 内稳定，满足要求时选栅面积较小的一版。",
+  "reference_uA": 8,
+  "reference_load_fF": 250,
+  "max_error_pct": 8,
+  "max_settling_ns": 40,
+  "selection": "min_gate_area"
+}

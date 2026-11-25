@@ -43,6 +43,33 @@ jobs:
               c + '.' + m for c in ('tt', 'ss', 'ff') for m in ('ratio', 'settling')}
           PY
           cat work/mirror/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Build the smaller qualified design for a different ADC bias request
+        run: |
+          ex=examples/sky130-current-mirror
+          python3 "$ex/run.py" --requirements "$ex/adc-bias.example.json" --models work/mirror/models --reuse-lut work/mirror/characterization --out work/adc-bias
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out = Path("work/adc-bias")
+          def read(path):
+              return json.loads((out / path).read_text())
+          request = json.loads(Path("examples/sky130-current-mirror/adc-bias.example.json").read_text())
+          assert read("requirements.json") == request
+          status = read("status.json")
+          assert status["status"] == "completed" and not status["defaulted_fields"]
+          assert status["selection"] == {"policy": "min_gate_area", "passing_variants": ["baseline", "candidate"], "selected_variant": "baseline"}
+          areas = []
+          for variant in ("baseline", "candidate"):
+              assert read(variant + "/native-readback.json")["reference_load_fF"] == 250
+              assert "CREF IREF 0 250f m=1" in (out / variant / "views/TB_BIAS_MIRROR.spice").read_text()
+              tests = read(variant + "/checked.json")["tests"]
+              assert len(tests) == 6 and all(t["status"] == "PASS" for t in tests)
+              for t in tests:
+                  assert t["limits"]["<="] == (8 if t["id"].endswith(".ratio") else 40)
+              areas.append(read(variant + "/sizing.json")["mirror_pair_gate_area_um2"])
+          assert areas[0] < areas[1] and "sh baseline/open.sh bench" in (out / "RESULTS.md").read_text()
+          PY
+          cat work/adc-bias/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
       - name: Resize for 5 uA and retain failed requirements
         run: |
           expect_review() {
@@ -109,3 +136,8 @@ jobs:
             work/mirror-4pct/requirements.json
             work/mirror-4pct/comparison.json
             work/mirror-4pct/candidate/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-adc-bias
+          path: work/adc-bias/

@@ -178,7 +178,8 @@ def compare(baseline, candidate):
     base_tests = {test["id"]: test for test in baseline["tests"]}
     candidate_tests = {test["id"]: test for test in candidate["tests"]}
     if not base_tests or base_tests.keys() != candidate_tests.keys():
-        return {"status": "INCOMPARABLE", "detail": "The plans must cover the same nonempty test IDs."}
+        return {"status": "INCOMPARABLE", "passing_variants": [], "candidate_limits_met": False,
+                "detail": "The plans must cover the same nonempty test IDs."}
 
     comparisons = []
     for test_id, base in base_tests.items():
@@ -197,9 +198,12 @@ def compare(baseline, candidate):
                 entry["status"] = "DELTA_OUT_OF_RANGE"
         comparisons.append(entry)
     comparable = all(test["status"] == "COMPARABLE" for test in comparisons)
+    passing = [name for name, report in (("baseline", baseline), ("candidate", candidate))
+               if comparable and report["status"] == "RECORDED_LIMITS_MET"]
     return {
         "status": "COMPARABLE" if comparable else "INCOMPARABLE",
-        "candidate_limits_met": comparable and candidate["status"] == "RECORDED_LIMITS_MET",
+        "passing_variants": passing,
+        "candidate_limits_met": "candidate" in passing,
         "tests": comparisons,
     }
 
