@@ -12,7 +12,7 @@ from pathlib import Path
 from audit_native import audit
 from characterize import characterize, phase_lookup, sizing_example
 from measure_psf import analyze, sample, scalar_sweep
-from schematic import CORE, TB, LIB, HERE, MOS_MASTERS, write_build
+from schematic import CORE, TB, LIB, HERE, MOS_MASTERS, width_overrides, write_build
 from spectre_run import TRANSIENT, execute, read_json, run_spectre, save_json, sha256
 
 SCRIPTS = HERE.parents[1] / "skills/paper-to-virtuoso/scripts"
@@ -42,12 +42,13 @@ def load_config(path):
     defaults = {"pdk_library": "smic18mmrf", "pdk_revision": None, "mos_family": "nominal", "virtuoso": "virtuoso",
                 "si": "si", "spectre": "spectre", "corner": "tt", "temp_C": 27,
                 "vdd_V": 1.8, "vcm_V": 0.9, "diff_mV": 5, "scenarios": DEFAULT_SCENARIOS,
-                "limits": {}}
+                "limits": {}, "candidate_widths_um": {}}
     extra = set(config) - set(defaults) - {"cds_lib", "model_file"}
     if extra:
         raise ValueError("Unknown configuration keys: " + ", ".join(sorted(extra)))
     defaults.update(config)
     config = defaults
+    width_overrides(config["candidate_widths_um"])
     if not isinstance(config["mos_family"], str) or config["mos_family"] not in MOS_MASTERS:
         raise ValueError("mos_family must be nominal or statistical")
     for key in ("cds_lib", "model_file"):
@@ -117,7 +118,7 @@ def build(stage, variant, config):
                pdk_library=config["pdk_library"], process_version=config["pdk_revision"],
                supply_v=config["vdd_V"], electrical_changes_authorized=True, new_simulations_authorized=True)
     save_json(stage / "requirements.json", req)
-    expected = write_build(stage, variant, config["pdk_library"], config["mos_family"])
+    expected = write_build(stage, variant, config["pdk_library"], config["mos_family"], config["candidate_widths_um"])
     execute([config["virtuoso"], "-nograph", "-log", stage / "build.log", "-restore", stage / "build.il"],
             stage, "build.stdout", 240)
     log = (stage / "build.log").read_text(encoding="utf-8", errors="replace")

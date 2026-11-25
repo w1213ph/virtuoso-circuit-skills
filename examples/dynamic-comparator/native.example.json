@@ -3,6 +3,7 @@
   "model_file": "/path/to/smic18/models/spectre/model.lib",
   "pdk_library": "smic18mmrf",
   "mos_family": "nominal",
+  "candidate_widths_um": {},
   "virtuoso": "virtuoso",
   "si": "si",
   "spectre": "spectre",

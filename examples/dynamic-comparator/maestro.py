@@ -112,17 +112,17 @@ def review_view(stage, config, cases, measure, metrics):
     return {"status": "measured", "history": history, "tests": completed}
 
 
-def run_view(stage, config, cases, measure, metrics):
+def launch_view(stage, config, cases, extra_analysis="", model_section=None):
     folder = stage / "maestro-evidence"
     folder.mkdir()
     results = stage / "maestro-results"
     results.mkdir()
     saves = folder / "save.scs"
-    saves.write_text("simulator lang=spectre\nsave VSUP:p XDUT.XP XDUT.XN XDUT.TAIL\n", encoding="utf-8")
+    saves.write_text("simulator lang=spectre\nsave VSUP:p XDUT.XP XDUT.XN XDUT.TAIL\n" + extra_analysis, encoding="utf-8")
     tests = {case["id"].upper(): case for case in cases}
     rows = ["({} ({}))".format(q(name), " ".join("({} {})".format(q(k), q(v)) for k, v in variables(case)))
             for name, case in sorted(tests.items())]
-    values = {"cmpLib": LIB, "cmpTB": TB, "cmpModel": config["model_file"], "cmpCorner": config["corner"],
+    values = {"cmpLib": LIB, "cmpTB": TB, "cmpModel": config["model_file"], "cmpCorner": model_section or config["corner"],
               "cmpSaves": saves, "cmpSpectre": config["spectre"],
               "cmpTemp": "{:g}".format(config["temp_C"]), "cmpReadback": folder / "maestro-readback.txt",
               "cmpHistory": folder / "maestro-history.txt"}
@@ -137,6 +137,11 @@ def run_view(stage, config, cases, measure, metrics):
         script.write_text(prefix + "unless(errset({}() t) exit(3)) exit(0)\n".format(procedure), encoding="utf-8")
         execute([config["virtuoso"], "-nograph", "-log", folder / ("maestro-" + phase + ".log"),
                  "-restore", script], stage, "maestro-" + phase + ".stdout", 600)
+    return folder
+
+
+def run_view(stage, config, cases, measure, metrics):
+    folder = launch_view(stage, config, cases)
     report = review_view(stage, config, cases, measure, metrics)
     save_json(folder / "maestro-report.json", report)
     return report

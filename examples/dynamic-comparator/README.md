@@ -4,6 +4,8 @@
 
 ## 从空目录复跑
 
+要比较失配样本、定位慢角并在 Virtuoso 打开一次实际判错，见[小输入比较器的尺寸取舍](SIZING_STUDY.md)。里面给出了两组可重建的尺寸、独立样本复核和失败波形的打开命令。
+
 在装好 Virtuoso、SI、Spectre 和 SMIC18 的 Linux 主机上，从仓库根目录执行。可以把这一节交给 agent，并告诉它本机工程的 `cds.lib` 和 Spectre 模型入口在哪里。此例使用实际的 `n18`、`p18`、`analogLib` 和 `basic`，已在 Python 3.6.8、IC6.1.8、Spectre 15.1 上运行。
 
 ```sh

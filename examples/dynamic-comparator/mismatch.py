@@ -45,18 +45,25 @@ def sensitivity(rows, distinct):
             "response_observed": distinct > 1 and spread > 1e-6}
 
 
-def run_sample_set(folder, case, config, stage, section, count, seed):
+def nominal_deck(case, config, stage):
     control = stage / "simulation" / case["id"]
     origin = control / "input.scs"
     if read_json(control / "measurement.json").get("status") != "measured":
         raise ValueError("Require a measured nominal control for " + case["id"])
+    dependencies = read_json(stage.parent / "common/model-dependencies.json")
+    if str(config["model_file"]) not in dependencies or any(sha256(Path(p)) != h for p, h in dependencies.items()):
+        raise ValueError("The PDK files differ from the characterized native run")
     native = (stage / "netlists/netlist").read_text(encoding="utf-8")
     check_family(native, config["mos_family"])
     if origin.read_text(encoding="utf-8") != TRANSIENT.format(model=config["model_file"], native=native, **case):
         raise ValueError("Recorded nominal deck differs from the supplied configuration or circuit")
+    return origin, native
+
+
+def run_draws(folder, original, config, section, count, seed):
     folder.mkdir()
     deck = folder / "input.scs"
-    deck.write_text(mc_deck(origin.read_text(encoding="utf-8"), config["model_file"], case["corner"],
+    deck.write_text(mc_deck(original, config["model_file"], config["corner"],
                             section, count, seed), encoding="utf-8")
     execute([config["spectre"], "-64", "+mt=1", "input.scs", "-format", "psfascii", "-raw", "psf",
              "+log", "spectre.out"], folder, "console.out", 600)
@@ -75,22 +82,39 @@ def run_sample_set(folder, case, config, stage, section, count, seed):
             traces[index] = item
     if set(traces) != set(range(1, count + 1)):
         raise ValueError("Missing requested mismatch traces: " + str(sorted(traces)))
+    draws = folder / "psf/mc.mismatch.mcdata"
+    parameters = folder / "psf/mc.mismatch.mcparam"
+    return traces, {"deck_sha256": sha256(deck), "warnings": int(done[2]),
+                    "draws_sha256": sha256(draws), "parameters_sha256": sha256(parameters),
+                    "distinct_draws": sampled_vectors(draws, count)}
+
+
+def verify_grid(axis):
+    if len(axis) != 7801 or any(abs(t - i * 5e-12) > 1e-15 for i, t in enumerate(axis)):
+        raise ValueError("Incomplete 39 ns mismatch trace at 5 ps strobe")
+
+
+def verify_stimulus(data, rise, case):
+    p, n, v = (sample(data["time"], data[k], rise - 50e-12) for k in ("SRC_P", "SRC_N", "VDD"))
+    if not all(math.isclose(a, b, abs_tol=1e-6) for a, b in
+               ((p - n, case["delta_mV"] * 1e-3), ((p + n) / 2, case["vcm_V"]), (v, case["vdd_V"]))):
+        raise ValueError("Mismatch sample stimulus differs")
+
+
+def run_sample_set(folder, case, config, stage, section, count, seed):
+    origin, _native = nominal_deck(case, config, stage)
+    traces, evidence = run_draws(folder, origin.read_text(encoding="utf-8"), config, section, count, seed)
     rows = []
     for index, trace in sorted(traces.items()):
         text = trace.read_text(encoding="utf-8")
         data = scalar_sweep(text, "time", ("SRC_P", "SRC_N", "VDD", "XDUT.XP", "XDUT.XN"))
         axis = data["time"]
-        if len(axis) != 7801 or any(abs(t - i * 5e-12) > 1e-15 for i, t in enumerate(axis)):
-            raise ValueError("Incomplete mismatch sample " + str(index))
+        verify_grid(axis)
         stats = analyze(text, case["vdd_V"], case["vcm_V"], case["delta_mV"])
         if len(stats["cycles"]) != 3:
             raise ValueError("Incomplete clock sequence in sample " + str(index))
         for cycle in stats["cycles"]:
-            when = cycle["clock_rise_ns"] * 1e-9 - 50e-12
-            p, n, v = (sample(axis, data[k], when) for k in ("SRC_P", "SRC_N", "VDD"))
-            if not all(math.isclose(a, b, abs_tol=1e-6) for a, b in
-                       ((p - n, case["delta_mV"] * 1e-3), ((p + n)/2, case["vcm_V"]), (v, case["vdd_V"]))):
-                raise ValueError("Mismatch sample stimulus differs")
+            verify_stimulus(data, cycle["clock_rise_ns"] * 1e-9, case)
         rise = stats["cycles"][1]["clock_rise_ns"] * 1e-9
         diff = [sample(axis, data["XDUT.XP"], rise + off) - sample(axis, data["XDUT.XN"], rise + off)
                 for off in (100e-12, 200e-12, 300e-12)]
@@ -100,10 +124,9 @@ def run_sample_set(folder, case, config, stage, section, count, seed):
                      "kickback_mV": stats["peak_diff_kickback_mV"]})
         row = rows[-1]
         row["unmet_limits"] = [k for k, limit in config["limits"].items() if row[k] is None or row[k] > limit]
-    draws = folder / "psf/mc.mismatch.mcdata"
-    return {"origin_sha256": sha256(origin), "deck_sha256": sha256(deck), "warnings": int(done[2]),
-            "draws_sha256": sha256(draws), "sensitivity": sensitivity(rows, sampled_vectors(draws, count)),
-            "samples": rows}
+    evidence.update(origin_sha256=sha256(origin), sensitivity=sensitivity(rows, evidence["distinct_draws"]),
+                    samples=rows)
+    return evidence
 
 
 def main():
@@ -142,6 +165,7 @@ def main():
             within[sign] = {r["index"] for r in rows if r["all_cycles_correct"] and not r["unmet_limits"]}
             summary["results"][sign] = {"correct": sum(r["all_cycles_correct"] for r in rows),
                                         "within_declared_limits": len(within[sign]), "draws_sha256": result["draws_sha256"],
+                                        "parameters_sha256": result["parameters_sha256"],
                                         "total": len(rows), "warnings": result["warnings"], "sensitivity": result["sensitivity"],
                                         "samples_sha256": sha256(detail)}
             save_json(output / "summary.json", summary)
@@ -152,7 +176,8 @@ def main():
             summary["status"] = "sampled_limits_exceeded"
         if not all(r["sensitivity"]["response_observed"] for r in summary["results"].values()):
             summary["status"] = "mismatch_sensitivity_unconfirmed"
-        if summary["results"]["pos"]["draws_sha256"] == summary["results"]["neg"]["draws_sha256"]:
+        if all(summary["results"]["pos"][k] == summary["results"]["neg"][k]
+               for k in ("draws_sha256", "parameters_sha256")):
             summary["paired_draws"] = {"total": args.runs, "correct_both_signs": len(correct["pos"] & correct["neg"]),
                                        "within_limits_both_signs": len(within["pos"] & within["neg"])}
         else:

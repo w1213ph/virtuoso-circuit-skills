@@ -1,6 +1,7 @@
 """Draw the published comparator and its bench on the SMIC18 n18/p18 symbol grid."""
 
 import json
+import math
 from pathlib import Path
 
 
@@ -56,8 +57,25 @@ MOS_MASTERS = {"nominal": {"NMOS": "n18", "PMOS": "p18"},
                "statistical": {"NMOS": "n18_ckt", "PMOS": "p18_ckt"}}
 
 
-def core_schematic(variant, pdk, mos_family="nominal"):
+WIDTH_GROUPS = {"input_pair": ("MNINP", "MNINN"), "tail": ("MTAIL",),
+                "latch_n": ("MNQ_P", "MNQ_N"), "latch_p": ("MPQ_P", "MPQ_N"),
+                "internal_reset": ("MPR_XL", "MPR_XR"), "output_reset": ("MPR_QL", "MPR_QR")}
+
+
+def width_overrides(groups):
+    if not isinstance(groups, dict) or set(groups) - set(WIDTH_GROUPS):
+        raise ValueError("Specify candidate widths by symmetric device group: " + ", ".join(WIDTH_GROUPS))
+    widths = {}
+    for group, width in groups.items():
+        if isinstance(width, bool) or not isinstance(width, (int, float)) or not math.isfinite(width) or width <= 0:
+            raise ValueError("Expected a finite positive total width in micrometres for " + group)
+        widths.update(dict.fromkeys(WIDTH_GROUPS[group], width))
+    return widths
+
+
+def core_schematic(variant, pdk, mos_family="nominal", candidate_widths_um=None):
     ops, instances = [], {}
+    widths = width_overrides({} if candidate_widths_um is None else candidate_widths_um) if variant == "candidate" else {}
     # XY is the centre of the diffusion terminals. The symbol origin is at the gate.
     placement = {
         "MNINP": (6, 3.5, "R0"), "MNINN": (14, 3.5, "MY"),
@@ -73,7 +91,7 @@ def core_schematic(variant, pdk, mos_family="nominal"):
     for name, (x, y, orientation) in placement.items():
         device = devices[name]
         fingers, multiplier = device["fingers"], device["multiplier"]
-        fw = device["total_width_um"][variant] / (fingers * multiplier)
+        fw = widths.get(name, device["total_width_um"][variant]) / (fingers * multiplier)
         props = {"l": f'{device["length_um"] * 1000:g}n', "fw": f"{fw:g}u",
                  "fingers": str(fingers), "m": str(multiplier)}
         master = MOS_MASTERS[mos_family][device["type"]]
@@ -261,8 +279,8 @@ def view_procedure(name, cell, view, ops):
     return "\n".join(lines)
 
 
-def write_build(stage, variant, pdk, mos_family="nominal"):
-    core_ops, core = core_schematic(variant, pdk, mos_family)
+def write_build(stage, variant, pdk, mos_family="nominal", candidate_widths_um=None):
+    core_ops, core = core_schematic(variant, pdk, mos_family, candidate_widths_um)
     tb_ops, tb = testbench()
     text = "\n".join([
         (HERE / "native_helpers.il").read_text(encoding="utf-8"),

@@ -109,7 +109,7 @@ python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
 | [docs/SETUP.md](docs/SETUP.md) | 准备 Python、连接 Virtuoso、让 AI 读取 Skill |
 | [docs/TOOLS.md](docs/TOOLS.md) | 查命令、输入输出、原生 symbol 生成和常见问题 |
 | [examples/ctdsm18](examples/ctdsm18/README.md) | 看效果、学习 symbol 与父级的排布 |
-| [动态比较器前仿](examples/dynamic-comparator/README.md) | 在本机工艺中重建两套图、生成器件查表数据，逐工况比较测值 |
+| [动态比较器前仿](examples/dynamic-comparator/README.md) | 重建统计器件原理图，在同一组失配下比较尺寸、慢角延迟、能耗和反冲，并[打开指定判错样本](examples/dynamic-comparator/SIZING_STUDY.md) |
 | [AGENTS.md](AGENTS.md) 与 [SKILL.md](skills/paper-to-virtuoso/SKILL.md) | AI 的执行入口，按任务读取细则 |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | 查哪些工具和案例已经实际验证 |
 | [工程能力与后续任务](docs/ENGINEERING_AUDIT.md) | 查本轮哪些能力有电路证据、哪些条件未达标，以及下一例的验收方法 |
