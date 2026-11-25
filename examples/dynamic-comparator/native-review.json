@@ -1,0 +1,1489 @@
+{
+  "date": "2026-11-25",
+  "process": "SMIC18 V1.11_3",
+  "tools": {
+    "virtuoso": "IC6.1.8",
+    "spectre": "15.1"
+  },
+  "development_limits": {
+    "delay_ps": 500,
+    "energy_fJ": 205,
+    "kickback_mV": 3.5
+  },
+  "cases": [
+    {
+      "mos_family": "nominal",
+      "case": "nominal",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "d149f565bf6b5724c2a30fd5f9b6f43826eb6e27d9f6ac08b5487bd81d30a5d5",
+        "deck_sha256": "4b5972481fba9199b39f5c93fae2316247544c0ba5476a670bce9d884c835c1e",
+        "log_sha256": "2e3cb899eb44505f6f24b6e655181a0074f70341dd4555dec89b726ef0145a73",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 425.00000000025364,
+          "energy_fJ": 199.1305395979551,
+          "kickback_mV": 2.9631436757754415
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 425.00000000025364,
+        "energy_fJ": 199.1302794862819,
+        "kickback_mV": 2.9631437328325783,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "nominal",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "5bb0ce37b8532326cbb9c3182c6b27a6ef092a36660a2a65b3bc1adf6558e9e1",
+        "deck_sha256": "dc16cada68b58610e12c18c0b834da503bdb13894f26160ed22e46e809b6ca68",
+        "log_sha256": "adba9ae8c684ce0ea210b0d4bb2cb9ed873c6b5e055f947514a6cb4f64d6f59f",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 425.00000000025364,
+          "energy_fJ": 199.13053959885676,
+          "kickback_mV": 2.963143675768669
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 425.00000000025364,
+        "energy_fJ": 199.13027948627845,
+        "kickback_mV": 2.9631437328324672,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "nominal",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "db03d073ed8c4528ab603228f7ea2f4e881c372f83c81b899704198a2d295ba2",
+        "deck_sha256": "4e05302594abb120aac765218cf8174ab49cadb8cff97cd7f4f95920b72172ab",
+        "log_sha256": "8c7144107f646472a1afb7c1578f05cb90a99344a7be8901e050674678b2d760",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 395.0000000002626,
+          "energy_fJ": 200.29125413759184,
+          "kickback_mV": 3.2348734650976585
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 395.0000000002626,
+        "energy_fJ": 200.29099339211817,
+        "kickback_mV": 3.234873443479951,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "nominal",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "9de98b4c6b67ee7ca2d931ce7604b358c1d50332f0d15525566a9195d3e87d51",
+        "deck_sha256": "1192d95b4ba6df8719ead302ab1b69c1d3cc4aa937143d38a886febe26589862",
+        "log_sha256": "cc0d43b9ff3fce0dabf1fd479cddce1f54e649b00d67269fa0002d326f7908da",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 395.0000000002626,
+          "energy_fJ": 200.2912541384394,
+          "kickback_mV": 3.2348734651135347
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 395.0000000002626,
+        "energy_fJ": 200.2909933921003,
+        "kickback_mV": 3.2348734434793958,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "stress",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "d1e0a01a0d8f6fe5892bf47186f6c4c16741ab4b972f9b84e460645a2e3bc77f",
+        "deck_sha256": "a1bcd68fc7a38127f2c1488dde6aea73561d6411a374c75dfab904dd8e37b427",
+        "log_sha256": "ab90eb409b09bb594bd71491f37ce9008459229d49d4f74d224d23fd83585a61",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 915.000000000164,
+          "energy_fJ": 164.25061688842172,
+          "kickback_mV": 1.5021024890071741
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 915.000000000164,
+        "energy_fJ": 164.25041347677845,
+        "kickback_mV": 1.50210256593153,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "stress",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "042986a723bae2ebf86a044425664abdf54bd58d209b4c59334078a3912acc02",
+        "deck_sha256": "b587512758632d20103d5a955124661b9d281b154947db39316cea2a76a78ee9",
+        "log_sha256": "b0324562b801c3260ff25c447636358a895e73dd1d74b499569cb792af959f44",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 915.000000000164,
+          "energy_fJ": 164.2506168910804,
+          "kickback_mV": 1.5021024890009569
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 915.000000000164,
+        "energy_fJ": 164.25041347680278,
+        "kickback_mV": 1.5021025659309748,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "stress",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "0eb16b5672ad5999980bb83ef3c36035d8959e354f0a429b19db06695654d0c9",
+        "deck_sha256": "62ee3ff353792214c7297c7c01321fd916f4e7c43ef659ac124b1125bfbc357a",
+        "log_sha256": "a1d0a3bcfd0219ed331a7f5c13d0905c4e52aedf9c4bacfb2fb9eacc42016dcf",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 820.0000000001853,
+          "energy_fJ": 165.65134482466442,
+          "kickback_mV": 1.7338997225032635
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 820.0000000001853,
+        "energy_fJ": 165.6511401674837,
+        "kickback_mV": 1.7338997790603559,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "nominal",
+      "case": "stress",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "4682fac0f29aee677bb5d0a9680b480d784a747251563666e2061dc933b30e36",
+        "deck_sha256": "6785baac79464b97deaac1c959e9ae68c17b71a5815b53a1ad271425655b6939",
+        "log_sha256": "d7a99ff4f5f0d0e35c948166d4e7c7d97cf7888a179a8154c558ebd2d9fa80f2",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 820.0000000001853,
+          "energy_fJ": 165.6513448270512,
+          "kickback_mV": 1.7338997225013761
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 820.0000000001853,
+        "energy_fJ": 165.6511401674868,
+        "kickback_mV": 1.7338997790603559,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "nominal",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "32cb4d13302695b6f413854d1df13a967ae22ac2b822c6f8c522aeb84a05a0d4",
+        "deck_sha256": "7fb055272c92f6238afd40ba67ff81cb81b0c5917090495fc6ac1692dbe74906",
+        "log_sha256": "75b53e4860bcdf5a91b14514f5ab0b88fde6f6c7ca31bcde30f92036ad00733e",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 425.00000000025364,
+          "energy_fJ": 199.1305395979551,
+          "kickback_mV": 2.9631436757754415
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 425.00000000025364,
+        "energy_fJ": 199.1302794862819,
+        "kickback_mV": 2.9631437328325783,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "nominal",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "13aadb3af93be4c322b3b2f89ab84eb230c38c71d1e2281d7f81644ddfdfba86",
+        "deck_sha256": "de1de7cbe2b52741eb9475100edf472be18a7710ecae0078d082ad2c8dfe9beb",
+        "log_sha256": "67a14c741f9866c235b5f618dc47c376d9904366bac7ec6e699654f9845c4151",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 425.00000000025364,
+          "energy_fJ": 199.13053959885676,
+          "kickback_mV": 2.963143675768669
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 425.00000000025364,
+        "energy_fJ": 199.13027948627845,
+        "kickback_mV": 2.9631437328324672,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "nominal",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "a2d9ed339f8d785958c570233a6745a716489dcc58676e4b773ba15e8fe695a7",
+        "deck_sha256": "ebd6c5c34c56e56c3acabfa9b54cefd7f565c6da67d74b78eb1419e1574def21",
+        "log_sha256": "a13984cd6a62c77061963b34fb6b26224a3820e6c37dfd6b0aa19ac2977a15e3",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 395.0000000002626,
+          "energy_fJ": 200.29125413759184,
+          "kickback_mV": 3.2348734650976585
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 395.0000000002626,
+        "energy_fJ": 200.29099339211817,
+        "kickback_mV": 3.234873443479951,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "nominal",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -5,
+        "corner": "tt",
+        "temp_C": 27,
+        "vdd_V": 1.8,
+        "vcm_V": 0.9
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "1a8b315ec65e5402d0da5ab45c236496830ca6665d28434ccddd88333bea62be",
+        "deck_sha256": "39ad4b16e8ee6ffdc1222aa5a54fd08bddd84abdf898942007dd3b9e5ab94870",
+        "log_sha256": "070c0592d9a41711744323af188221bb20ab66cca1609fe9006a17ea4018544f",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 395.0000000002626,
+          "energy_fJ": 200.2912541384394,
+          "kickback_mV": 3.2348734651135347
+        },
+        "unmet": []
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 395.0000000002626,
+        "energy_fJ": 200.2909933921003,
+        "kickback_mV": 3.2348734434793958,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "stress",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "996e1ce97ea677b64263698e501484cfd9f6114252f5e4cb81ac3f052ef8b264",
+        "deck_sha256": "25842347ee451d127336472740aae65e3609b8d4dea185383239f439ce74aeda",
+        "log_sha256": "09d4c0ce131c3ca45f5f1e7e3cabd36b40972e68fe361f92361087ec5daa9857",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 915.000000000164,
+          "energy_fJ": 164.25061688842172,
+          "kickback_mV": 1.5021024890071741
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 915.000000000164,
+        "energy_fJ": 164.25041347677845,
+        "kickback_mV": 1.50210256593153,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "stress",
+      "variant": "baseline",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.7,
+      "maestro": {
+        "sha256": "3fbaabc5258b557388453bedc88a275533e9e9d0963a9094a037217684b371da",
+        "deck_sha256": "e2d8c94796d493bb72bb31a6eaff0e16e57e051222b56be2ce3caf935e34028c",
+        "log_sha256": "3159d348a2a6be363dc58308c40d6720ae4f7e7bc5cedb076bfbfed1bdc5049c",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 915.000000000164,
+          "energy_fJ": 164.2506168910804,
+          "kickback_mV": 1.5021024890009569
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 915.000000000164,
+        "energy_fJ": 164.25041347680278,
+        "kickback_mV": 1.5021025659309748,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "stress",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_pos",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": 1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "28a7898aa883232ff49e4d93b2388824a0d6ffc0e3dfe4eb53b0c5f0ccb6c97f",
+        "deck_sha256": "3a2c19b691d20ea96a1bbb4cdcc6269fb1d928f8c7296f331f258dff9336f216",
+        "log_sha256": "b494b357e4791d17b7ae04798d21d56f1046f67441fb112f63ebd2b4767a4878",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 820.0000000001853,
+          "energy_fJ": 165.65134482466442,
+          "kickback_mV": 1.7338997225032635
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 820.0000000001853,
+        "energy_fJ": 165.6511401674837,
+        "kickback_mV": 1.7338997790603559,
+        "warnings": 0
+      }
+    },
+    {
+      "mos_family": "statistical",
+      "case": "stress",
+      "variant": "candidate",
+      "conditions": {
+        "id": "nom_neg",
+        "cload_fF": 20,
+        "ramp_ns": 0.1,
+        "delta_mV": -1,
+        "corner": "ss",
+        "temp_C": 85,
+        "vdd_V": 1.62,
+        "vcm_V": 0.81
+      },
+      "gate_area_um2": 2.844,
+      "maestro": {
+        "sha256": "4149f181b0946dcdb1e52c9b6e02d17a73e6f7f54363b96d9226f33bfcff1439",
+        "deck_sha256": "ea2f21fb16389b6151324cdc5a1e59b1fdfa71b7d78b4d9bcac3ff0df29b864c",
+        "log_sha256": "a1233e571b33bd31909d7066757c1a22059f05bf0f5138d80eb4cf8b5a3808a3",
+        "samples": 7801,
+        "warnings": 1,
+        "warning_codes": [
+          "SFE-884"
+        ],
+        "decisions": 3,
+        "measurements": {
+          "delay_ps": 820.0000000001853,
+          "energy_fJ": 165.6513448270512,
+          "kickback_mV": 1.7338997225013761
+        },
+        "unmet": [
+          "delay_ps"
+        ]
+      },
+      "history": "Interactive.0",
+      "direct": {
+        "delay_ps": 820.0000000001853,
+        "energy_fJ": 165.6511401674868,
+        "kickback_mV": 1.7338997790603559,
+        "warnings": 0
+      }
+    }
+  ],
+  "mismatch": {
+    "nominal": {
+      "status": "mismatch_sensitivity_unconfirmed",
+      "seed": 5317,
+      "runs_per_sign": 16,
+      "variation": "mismatch",
+      "model_section": "mos_mc",
+      "mos_family": "nominal",
+      "variant": "candidate",
+      "conditions": {
+        "pos": {
+          "id": "nom_pos",
+          "cload_fF": 20,
+          "ramp_ns": 0.1,
+          "delta_mV": 5,
+          "corner": "tt",
+          "temp_C": 27,
+          "vdd_V": 1.8,
+          "vcm_V": 0.9
+        },
+        "neg": {
+          "id": "nom_neg",
+          "cload_fF": 20,
+          "ramp_ns": 0.1,
+          "delta_mV": -5,
+          "corner": "tt",
+          "temp_C": 27,
+          "vdd_V": 1.8,
+          "vcm_V": 0.9
+        }
+      },
+      "results": {
+        "pos": {
+          "correct": 16,
+          "within_declared_limits": 16,
+          "draws_sha256": "6972f0cf975edfebc268ac413bc716048d039a4b827b3b1ab9e01c6710f8497c",
+          "total": 16,
+          "warnings": 0,
+          "sensitivity": {
+            "distinct_draws": 16,
+            "internal_diff_spread_V": 1.1157741397482823e-13,
+            "response_observed": false
+          },
+          "samples_sha256": "eaba628e5146a527798274f0dac7b839029e8c947a7a975dd17598d331fc98ad"
+        },
+        "neg": {
+          "correct": 16,
+          "within_declared_limits": 16,
+          "draws_sha256": "6972f0cf975edfebc268ac413bc716048d039a4b827b3b1ab9e01c6710f8497c",
+          "total": 16,
+          "warnings": 0,
+          "sensitivity": {
+            "distinct_draws": 16,
+            "internal_diff_spread_V": 3.147482274812319e-14,
+            "response_observed": false
+          },
+          "samples_sha256": "1320fd6f491886778c92924bdead4eeb9ee4946d8f29387e8a8d96dda3dbdc4a"
+        }
+      },
+      "paired_draws": {
+        "total": 16,
+        "correct_both_signs": 16,
+        "within_limits_both_signs": 16
+      },
+      "per_draw": {
+        "pos": [
+          {
+            "index": 1,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211817,
+            "kickback_mV": 3.234873443479951,
+            "unmet_limits": []
+          },
+          {
+            "index": 2,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 3,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 4,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 5,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 6,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 7,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 8,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 9,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 10,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 11,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 12,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 13,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 14,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          },
+          {
+            "index": 15,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339211336,
+            "kickback_mV": 3.234873443480173,
+            "unmet_limits": []
+          },
+          {
+            "index": 16,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209355,
+            "kickback_mV": 3.234873443480062,
+            "unmet_limits": []
+          }
+        ],
+        "neg": [
+          {
+            "index": 1,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.2909933921003,
+            "kickback_mV": 3.2348734434793958,
+            "unmet_limits": []
+          },
+          {
+            "index": 2,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 3,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 4,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 5,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 6,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 7,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 8,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 9,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 10,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 11,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 12,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 13,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 14,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          },
+          {
+            "index": 15,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339209324,
+            "kickback_mV": 3.234873443479618,
+            "unmet_limits": []
+          },
+          {
+            "index": 16,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 395.0000000002626,
+            "energy_fJ": 200.29099339210788,
+            "kickback_mV": 3.234873443480284,
+            "unmet_limits": []
+          }
+        ]
+      }
+    },
+    "statistical": {
+      "status": "decision_failures_observed",
+      "seed": 5317,
+      "runs_per_sign": 16,
+      "variation": "mismatch",
+      "model_section": "mos_mc",
+      "mos_family": "statistical",
+      "variant": "candidate",
+      "conditions": {
+        "pos": {
+          "id": "nom_pos",
+          "cload_fF": 20,
+          "ramp_ns": 0.1,
+          "delta_mV": 5,
+          "corner": "tt",
+          "temp_C": 27,
+          "vdd_V": 1.8,
+          "vcm_V": 0.9
+        },
+        "neg": {
+          "id": "nom_neg",
+          "cload_fF": 20,
+          "ramp_ns": 0.1,
+          "delta_mV": -5,
+          "corner": "tt",
+          "temp_C": 27,
+          "vdd_V": 1.8,
+          "vcm_V": 0.9
+        }
+      },
+      "results": {
+        "pos": {
+          "correct": 10,
+          "within_declared_limits": 7,
+          "draws_sha256": "6bbdf9d9bd890a7c35a69d2d04c754e71eb5cfeabf3c48d88653eb676733ef52",
+          "total": 16,
+          "warnings": 0,
+          "sensitivity": {
+            "distinct_draws": 16,
+            "internal_diff_spread_V": 0.36887035230898035,
+            "response_observed": true
+          },
+          "samples_sha256": "ff77a87b937da93443cb317503966bd49c15ae9efec032cd32d76cb87aa60335"
+        },
+        "neg": {
+          "correct": 11,
+          "within_declared_limits": 9,
+          "draws_sha256": "6bbdf9d9bd890a7c35a69d2d04c754e71eb5cfeabf3c48d88653eb676733ef52",
+          "total": 16,
+          "warnings": 0,
+          "sensitivity": {
+            "distinct_draws": 16,
+            "internal_diff_spread_V": 0.3614083136890353,
+            "response_observed": true
+          },
+          "samples_sha256": "c20cffc23ddb139616ae32d5e013a496ad00fd7342bb452aa1c50fc4a42f361a"
+        }
+      },
+      "paired_draws": {
+        "total": 16,
+        "correct_both_signs": 5,
+        "within_limits_both_signs": 0
+      },
+      "per_draw": {
+        "pos": [
+          {
+            "index": 1,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 212.8164224074297,
+            "kickback_mV": 3.318443324505367,
+            "unmet_limits": [
+              "delay_ps",
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 2,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 189.12263827309698,
+            "kickback_mV": 3.2140536733999925,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 3,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 345.0000000002754,
+            "energy_fJ": 187.26312143917735,
+            "kickback_mV": 3.234437539937356,
+            "unmet_limits": []
+          },
+          {
+            "index": 4,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 365.000000000265,
+            "energy_fJ": 193.63402369573782,
+            "kickback_mV": 3.32946902094045,
+            "unmet_limits": []
+          },
+          {
+            "index": 5,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 375.00000000026307,
+            "energy_fJ": 194.86060110608403,
+            "kickback_mV": 3.2987191605731203,
+            "unmet_limits": []
+          },
+          {
+            "index": 6,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 187.54203008849353,
+            "kickback_mV": 3.1971692292547216,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 7,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 315.00000000027444,
+            "energy_fJ": 179.14725715788134,
+            "kickback_mV": 3.4036449829560844,
+            "unmet_limits": []
+          },
+          {
+            "index": 8,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 445.0000000002531,
+            "energy_fJ": 214.61731294960896,
+            "kickback_mV": 3.1369773809508716,
+            "unmet_limits": [
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 9,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 455.00000000025454,
+            "energy_fJ": 217.08588851682245,
+            "kickback_mV": 3.2581851438108256,
+            "unmet_limits": [
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 10,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 325.00000000027256,
+            "energy_fJ": 181.21931945849556,
+            "kickback_mV": 3.2922370695626046,
+            "unmet_limits": []
+          },
+          {
+            "index": 11,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 345.0000000002754,
+            "energy_fJ": 185.35913041248043,
+            "kickback_mV": 3.190678864852363,
+            "unmet_limits": []
+          },
+          {
+            "index": 12,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 214.4507202125229,
+            "kickback_mV": 3.28728629555874,
+            "unmet_limits": [
+              "delay_ps",
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 13,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 335.000000000274,
+            "energy_fJ": 185.23574848856677,
+            "kickback_mV": 3.2689479234928553,
+            "unmet_limits": []
+          },
+          {
+            "index": 14,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 204.1472977458408,
+            "kickback_mV": 3.2250362636834184,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 15,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 198.37013550530477,
+            "kickback_mV": 3.2584876724979184,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 16,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 410.00000000026307,
+            "energy_fJ": 205.39721598430188,
+            "kickback_mV": 3.2178390309245453,
+            "unmet_limits": [
+              "energy_fJ"
+            ]
+          }
+        ],
+        "neg": [
+          {
+            "index": 1,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 345.0000000002754,
+            "energy_fJ": 186.8320234125479,
+            "kickback_mV": 3.306399159330291,
+            "unmet_limits": []
+          },
+          {
+            "index": 2,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 310.0000000002754,
+            "energy_fJ": 178.8327295172011,
+            "kickback_mV": 3.314799184644164,
+            "unmet_limits": []
+          },
+          {
+            "index": 3,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 212.17297814335484,
+            "kickback_mV": 3.243238067150318,
+            "unmet_limits": [
+              "delay_ps",
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 4,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 440.0000000002541,
+            "energy_fJ": 215.04111025683937,
+            "kickback_mV": 3.2557562859038036,
+            "unmet_limits": [
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 5,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 430.00000000025267,
+            "energy_fJ": 210.94006885089513,
+            "kickback_mV": 3.3326836314738806,
+            "unmet_limits": [
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 6,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 310.0000000002754,
+            "energy_fJ": 177.88387303865747,
+            "kickback_mV": 3.2753472036117737,
+            "unmet_limits": []
+          },
+          {
+            "index": 7,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 189.5990655412393,
+            "kickback_mV": 3.340502822691933,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 8,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 365.000000000265,
+            "energy_fJ": 192.76355293709756,
+            "kickback_mV": 3.251905495869183,
+            "unmet_limits": []
+          },
+          {
+            "index": 9,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 365.000000000265,
+            "energy_fJ": 192.27761551504213,
+            "kickback_mV": 3.2277878349531397,
+            "unmet_limits": []
+          },
+          {
+            "index": 10,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 194.551017011981,
+            "kickback_mV": 3.2868158979362194,
+            "unmet_limits": [
+              "delay_ps"
+            ]
+          },
+          {
+            "index": 11,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 208.02551400564735,
+            "kickback_mV": 3.2040271887610006,
+            "unmet_limits": [
+              "delay_ps",
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 12,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 340.000000000273,
+            "energy_fJ": 187.08350548388708,
+            "kickback_mV": 3.2692515175661896,
+            "unmet_limits": []
+          },
+          {
+            "index": 13,
+            "valid_decisions": 0,
+            "all_cycles_correct": false,
+            "delay_ps": null,
+            "energy_fJ": 205.9606372298706,
+            "kickback_mV": 3.256662850448895,
+            "unmet_limits": [
+              "delay_ps",
+              "energy_fJ"
+            ]
+          },
+          {
+            "index": 14,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 340.000000000273,
+            "energy_fJ": 184.16148201811282,
+            "kickback_mV": 3.218629700269986,
+            "unmet_limits": []
+          },
+          {
+            "index": 15,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 330.00000000027495,
+            "energy_fJ": 182.84135236886382,
+            "kickback_mV": 3.279317903940089,
+            "unmet_limits": []
+          },
+          {
+            "index": 16,
+            "valid_decisions": 3,
+            "all_cycles_correct": true,
+            "delay_ps": 375.00000000026307,
+            "energy_fJ": 195.52023485290135,
+            "kickback_mV": 3.1647072687083178,
+            "unmet_limits": []
+          }
+        ]
+      }
+    }
+  },
+  "matched_device_control": {
+    "method": "Four actual four-terminal OA masters netlisted by SI, two identical instances per type, 16 mismatch DC trials. Signed (abs(IA)-abs(IB))/mean(abs(IA),abs(IB)) at |VGS|=0.8 V and |VDS|=0.6 V, model-section mos_mc, seed 5317. Default geometry within each pair.",
+    "range_by_master": {
+      "n18": [
+        0.0,
+        0.0
+      ],
+      "p18": [
+        1.7961435129797662e-14,
+        1.7961435129797662e-14
+      ],
+      "n18_ckt": [
+        -0.21867186365393515,
+        0.2215971856290602
+      ],
+      "p18_ckt": [
+        -0.25901474507274835,
+        0.08854558075588928
+      ]
+    }
+  },
+  "visual_review": {
+    "native_views": 12,
+    "mos_terminal_connections_per_variant": 44,
+    "outward_parent_leads_per_variant": 7,
+    "schematic_changes": "The input transistor size label is the only pixel difference between the baseline and candidate native schematic captures.",
+    "symbol_and_parent": "Identical image pixels across variants; left inputs extend left, bottom CLK/VSS extend down.",
+    "images": {
+      "schematic.png": "dedf6b79aa601af4f81c386d7829e7e2a1ff05642418b67b642e04c682cca1cf",
+      "testbench.png": "db9a3c9887f3177da549045b0eaef34c722769c5fa735edb06087834f91fbdca"
+    }
+  },
+  "release_scope": {
+    "direct_transients": 16,
+    "maestro_transients": 16,
+    "mismatch_transients": 64,
+    "gm_id_dc_sweeps": 4,
+    "paired_device_mc_dc_trials": 16,
+    "gm_id_rows_per_sweep": 1629,
+    "new_user_interventions_in_eda": 0,
+    "blind_novice_trials": 0,
+    "review": "Independent process re-read both raw histories and reproduced the saved reports and exit codes.",
+    "open": [
+      "slow-corner delay",
+      "observed wrong decisions with statistical devices",
+      "input noise and offset distribution",
+      "full application PVT and reliability",
+      "layout and postlayout"
+    ]
+  },
+  "commissioning_including_release": {
+    "completed_analyses": {
+      "direct_tran": 32,
+      "maestro_tran": 28,
+      "gm_id_dc": 8,
+      "mismatch_tran": 256,
+      "calibration_dc": 16
+    },
+    "scope_start_utc": "2026-11-25T07:22:22.440684+00:00",
+    "checked_utc": "2026-11-25T08:24:51.476648+00:00",
+    "scope": "All completed analyses in the isolated lab workspace, including diagnostic, repeat and final runs. The time window includes development and review; it is not solver CPU time.",
+    "model_tokens": null
+  }
+}

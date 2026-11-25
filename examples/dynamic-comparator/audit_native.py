@@ -3,11 +3,18 @@
 import math
 import re
 
-from schematic import CORE, TB, PORTS
+from schematic import CORE, TB, PORTS, TOPOLOGY, MOS_MASTERS
 
 
 OUTWARD = {"INP": (-1, 0), "INN": (-1, 0), "OUTP": (1, 0), "OUTN": (1, 0),
            "VDD": (0, 1), "CLK": (0, -1), "VSS": (0, -1)}
+
+
+def check_family(netlist, family):
+    models = {d["instance"]: MOS_MASTERS[family][d["type"]] for d in TOPOLOGY["devices"]}
+    actual = re.findall(r"(?m)^\s*(M\w+)\s+\([^)\n]+\)\s+(\w+)", netlist)
+    if len(actual) != len(models) or dict(actual) != models:
+        raise ValueError("Saved comparator MOS masters differ from the configured mos_family")
 
 
 def outward_leads(shapes, instance):
@@ -85,7 +92,11 @@ def audit(expected, views, netlist, pdk):
             values = dict(re.findall(r"\b(\w+)=([^\s]+)", line[3]))
             fw, nf, mult = spice_number(sizes["fw"]), int(sizes["fingers"]), int(sizes["m"])
             length = spice_number(sizes["l"])
-            for key, value in {"w": fw * nf, "l": length, "nf": nf, "m": mult}.items():
+            statistical = actual["cell"] in ("n18_ckt", "p18_ckt")
+            if statistical and ("mismod" not in values or spice_number(values["mismod"]) != 1):
+                raise ValueError(name + " native statistical device has mismatch disabled")
+            multiplier_key = "mr" if statistical else "m"
+            for key, value in {"w": fw * nf, "l": length, "nf": nf, multiplier_key: mult}.items():
                 if key not in values or not math.isclose(spice_number(values[key]), value, rel_tol=1e-9):
                     raise ValueError(name + " SI geometry differs for " + key)
             if "fw" in props and not math.isclose(spice_number(props["fw"]), fw, rel_tol=1e-9):

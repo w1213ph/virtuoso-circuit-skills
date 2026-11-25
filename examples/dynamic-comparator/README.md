@@ -49,6 +49,48 @@ python examples/dynamic-comparator/measure_psf.py work/comparator/tran.tran.tran
 
 ## 实际结果
 
+### 打开和复跑可编辑的 ADE Maestro 测试台
+
+在同一配置中填好本机工具和模型，从仓库根目录运行。每个版本单独建库。若只想先熟悉操作，在 `scenarios` 中保留 `nom` 一组，就会得到 `NOM_POS` 和 `NOM_NEG` 两个测试。
+
+```sh
+python3 examples/dynamic-comparator/run_native.py --config comparator.local.json --out work/cmp-ade --maestro
+python3 examples/dynamic-comparator/maestro.py --config comparator.local.json --out work/cmp-ade
+```
+
+第一条命令生成工程，保存 Maestro 后用另一个 Virtuoso 进程重新打开并启动测试。第二条命令单独复核已保存的结果，无需重仿。按 `RESULTS.md` 的命令启动所选版本的 Virtuoso，在 Library Manager 中打开 `CMP18_BENCH / TB_CMP18_CMP_DYNAMIC / maestro`。在 Tests 中选一个输入方向，查看设计变量 `VDIFF`、每端负载 `CLVAL` 和分析 `tran`，打开该测试的历史即可查看输出波形。更改设计条件时另存工程或选新输出目录，以保留原始对照。
+
+复核器按原配置核对测试清单、DUT 和父级各实例端序及参数、实际加载的模型及工艺角、温度、仿真精度与输出网格。随后从直接运行与 ADE 历史各读取一次原始波形，重新计算三个指标。原始采样为 0–39 ns、间隔 5 ps。每条波形要求三个完整的预充电和有符号判决，两条路径的同指标差异限为 1%。测量详情、原生历史名及警告保存在 `maestro-evidence/maestro-report.json`。复核退出码 0 表示已声明的候选上限均满足，1 表示候选超限，2 表示证据无效。
+
+下图是原生父级测试台。两路输入向左引出，CLK 与 VSS 向下，VDD 向上，输出向右。[晶体管级原图](schematic.png)
+
+![动态比较器原生测试台](testbench.png)
+
+### 失配抽样与有效性
+
+先在本地配置选择器件。原例和旧配置默认使用 `"mos_family": "nominal"`，生成 `n18/p18`。研究 SMIC18 V1.11_3 的器件失配时，另存一份配置为 `comparator-stat.local.json`，设 `"mos_family": "statistical"`，用同一组尺寸重建为原生四端 `n18_ckt/p18_ckt`。生成器回读 SI 的有效宽度、沟道长度、每指宽度、栅指数量、倍率 `mr` 及 `mismod=1`。工艺表、标称和慢角均须按所选器件重跑。模型段名按本机 PDK 核实，本例为 `mos_mc`。
+
+```sh
+python3 examples/dynamic-comparator/run_native.py --config comparator-stat.local.json --out work/cmp-stat --maestro
+python3 examples/dynamic-comparator/mismatch.py --config comparator-stat.local.json --run work/cmp-stat --variant candidate --scenario nom --model-section mos_mc --runs 16 --seed 5317 --out work/cmp-mismatch
+```
+
+先看 `summary.json`，再按极性查看 `samples.json`。每个样本核对实际激励、预充电、判决、延迟、能量和反冲。脚本再检查 Spectre 保存的失配向量，并比较第二个判决沿后 100、200、300 ps 的内部差分节点 XP−XN。在本案例固定的 0.1 µV 电压绝对容差下，以 1 µV 跨样本变化作为诊断下限。即使 16 次判决全部正确，只要抽样没有产生可分辨的电路响应，结果仍为 `mismatch_sensitivity_unconfirmed`。统计段、抽样次数、两种极性和噪声分析各有不同含义。该检查单独使用时无法估算产品良率。
+
+本次预设开发上限为延迟 500 ps、DUT 能量 205 fJ/次、差分反冲 3.5 mV。每端负载 20 fF，上电 0.1 ns。TT、27 °C、1.80 V、±5 mV 时，候选三项均在限内。SS、85 °C、1.62 V、±1 mV 时，正负输入均得到 820 ps，延迟超限 320 ps。ADE 各运行有一条 `SFE-884`，来自默认 `gmin` 与模型设置重复；两条求解路径在这些工况给出相同的工程结论。此次 `n18/p18` 统计试验每个方向有 16 个不同抽样向量，内部节点的最大跨样本变化约为 1.12 × 10⁻¹³ V。这个结果保留为失配敏感性未证实。[逐工况验收数据](native-review.json)
+
+同工艺的一组成对器件对照先验证了 `_ckt` 器件的失配响应。随后在同一比较器中使用这组统计器件，两种几何、TT/SS 的确定性前仿在表中精度内复现。再以 TT、±5 mV、每端 20 fF 对候选抽样。每个输入方向的分母为 16 组器件抽样，每组要求三个时钟周期全部判对。
+
+| 条件 | 正输入 | 负输入 |
+|---|---:|---:|
+| 三个周期判决均正确 | 10/16 | 11/16 |
+| 判决正确且三个开发预算均满足 | 7/16 | 9/16 |
+| 内部再生节点跨样本的最大变化 | 0.369 V | 0.361 V |
+
+同种子两次运行的实际失配向量摘要相同。以同一组器件同时满足正负输入为条件，16 组中有 5 组两种极性都判对，0 组同时满足两种极性的全部预算。逐样本判决、超限项和原始结果摘要留在报告中。这个样本量用于复现故障，产品的失调分布、误码率和良率仍需专门测试。
+
+### 以往负载扫描
+
 Virtuoso IC6.1.8、Spectre 15.1、SMIC18、TT、27°C。表中延迟取两种极性和各三个完整判决周期的最坏值，能量取相应周期平均，反冲取差分峰值。
 
 | 每端输出负载 | 延迟 ps，基线 → 候选 | DUT 能量 fJ/次，基线 → 候选 | 差分反冲 mV，基线 → 候选 |

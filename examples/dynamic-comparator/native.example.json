@@ -2,6 +2,7 @@
   "cds_lib": "/path/to/project/cds.lib",
   "model_file": "/path/to/smic18/models/spectre/model.lib",
   "pdk_library": "smic18mmrf",
+  "mos_family": "nominal",
   "virtuoso": "virtuoso",
   "si": "si",
   "spectre": "spectre",

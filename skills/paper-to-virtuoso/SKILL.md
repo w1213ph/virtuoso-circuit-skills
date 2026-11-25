@@ -45,6 +45,8 @@ description: 在 Cadence Virtuoso 中按功能需求或论文设计模拟、RF �
 
 ## 可复用工具
 
+设计动态比较器时，可以直接交付可编辑的 Maestro 测试台。按同一配置复核已保存历史、网表、两种输入极性及原始测值。统计抽样另检查真实器件响应，保留超限项和未证实的失配结果。[原生案例与运行入口](../../examples/dynamic-comparator/README.md#打开和复跑可编辑的-ade-maestro-测试台)
+
 `scripts/render_symbols.py` 生成 18 个参考 SVG。`scripts/emit_symbols.py` 生成只在新专用库创建原生 symbol 的 SKILL。`scripts/new_task.py` 建立任务记录。`scripts/check_prelayout.py` 核对前仿记录和候选。`scripts/audit_electrical.py` 比较回读。`scripts/compare_netlists.py` 比较保留子电路范围、端序与模型加载顺序的网表文本。
 
 先看 `--help`。这些工具不提供连接凭据，不代替电气设计，也不代表在当前使用者的环境已经验收。最终报告引用实际文件和截图，列出未完成项；不要沿用参考案例的成功结论。

@@ -12,7 +12,7 @@ from pathlib import Path
 from audit_native import audit
 from characterize import characterize, phase_lookup, sizing_example
 from measure_psf import analyze, sample, scalar_sweep
-from schematic import CORE, TB, LIB, HERE, write_build
+from schematic import CORE, TB, LIB, HERE, MOS_MASTERS, write_build
 from spectre_run import TRANSIENT, execute, read_json, run_spectre, save_json, sha256
 
 SCRIPTS = HERE.parents[1] / "skills/paper-to-virtuoso/scripts"
@@ -39,7 +39,7 @@ def load_config(path):
     config = read_json(path)
     if not isinstance(config, dict):
         raise ValueError("The configuration must be a JSON object")
-    defaults = {"pdk_library": "smic18mmrf", "pdk_revision": None, "virtuoso": "virtuoso",
+    defaults = {"pdk_library": "smic18mmrf", "pdk_revision": None, "mos_family": "nominal", "virtuoso": "virtuoso",
                 "si": "si", "spectre": "spectre", "corner": "tt", "temp_C": 27,
                 "vdd_V": 1.8, "vcm_V": 0.9, "diff_mV": 5, "scenarios": DEFAULT_SCENARIOS,
                 "limits": {}}
@@ -48,6 +48,8 @@ def load_config(path):
         raise ValueError("Unknown configuration keys: " + ", ".join(sorted(extra)))
     defaults.update(config)
     config = defaults
+    if not isinstance(config["mos_family"], str) or config["mos_family"] not in MOS_MASTERS:
+        raise ValueError("mos_family must be nominal or statistical")
     for key in ("cds_lib", "model_file"):
         if not isinstance(config.get(key), str) or not config[key].strip():
             raise ValueError("Set " + key + " in the local configuration")
@@ -115,7 +117,7 @@ def build(stage, variant, config):
                pdk_library=config["pdk_library"], process_version=config["pdk_revision"],
                supply_v=config["vdd_V"], electrical_changes_authorized=True, new_simulations_authorized=True)
     save_json(stage / "requirements.json", req)
-    expected = write_build(stage, variant, config["pdk_library"])
+    expected = write_build(stage, variant, config["pdk_library"], config["mos_family"])
     execute([config["virtuoso"], "-nograph", "-log", stage / "build.log", "-restore", stage / "build.il"],
             stage, "build.stdout", 240)
     log = (stage / "build.log").read_text(encoding="utf-8", errors="replace")
@@ -303,10 +305,16 @@ def write_report(out, config, conditions, comparison, status):
                   for variant in ("baseline", "candidate")])
     lines.extend(["```", "", "各版本目录保存原生 OA、网表、仿真前输入摘要、PSF 和日志。"
                   "打开原理图、symbol 与测试台检查全图和局部后，再填写目视验收。", ""])
+    if "maestro" in status:
+        lines.extend(["## 在 ADE Maestro 中复跑", "",
+                      "在所选版本的 Library Manager 中打开 `{}/{}/maestro`。".format(LIB, TB),
+                      "正负输入各是一个可编辑测试。原生历史、逐项测值、超限项与警告见下列记录。", "",
+                      "- [基线历史核查](baseline/maestro-evidence/maestro-report.json)",
+                      "- [候选历史核查](candidate/maestro-evidence/maestro-report.json)", ""])
     (out / "RESULTS.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def run(config, conditions, out, reuse):
+def run(config, conditions, out, reuse, maestro=False):
     common = out / "common"
     common.mkdir()
     shutil.copyfile(str(HERE / "measure_psf.py"), str(common / "measure_psf.py"))
@@ -314,7 +322,7 @@ def run(config, conditions, out, reuse):
     execute([config["spectre"], "-W"], common, "version.txt", 30)
     version = (common / "version.txt").read_text(encoding="utf-8", errors="replace").strip()
     save_json(common / "tool.json", {"spectre": config["spectre"], "version": version})
-    warnings = {}
+    warnings, native_histories = {}, {}
     for variant in ("baseline", "candidate"):
         stage = out / variant
         native, models = build(stage, variant, config)
@@ -326,6 +334,9 @@ def run(config, conditions, out, reuse):
                       sizing_example(out / "characterization/table.csv", config["vdd_V"]))
             print("Device table:", lut["mode"], lut["points"], "points", flush=True)
         warnings[variant] = simulate_variant(stage, config, conditions, native, dependencies)
+        if maestro:
+            from maestro import run_view
+            native_histories[variant] = run_view(stage, config, conditions, measure, METRICS)
     reports = {variant: check_variant(out / variant) for variant in ("baseline", "candidate")}
     comparison = check_prelayout.compare(reports["baseline"], reports["candidate"])
     save_json(out / "comparison.json", comparison)
@@ -334,11 +345,16 @@ def run(config, conditions, out, reuse):
     ok = comparison["status"] == "COMPARABLE" and not unmet
     comparable = {row["id"] for row in comparison.get("tests", []) if row["status"] == "COMPARABLE"}
     matched = sum(all(case["id"] + "." + metric[0] in comparable for metric in METRICS) for case in conditions)
-    status = {"status": "completed" if ok else "review_required", "requested_conditions": len(conditions),
+    status = {"status": "completed" if ok else "review_required", "mos_family": config["mos_family"],
+              "requested_conditions": len(conditions),
               "matched_conditions": matched, "comparable_metrics": len(comparable),
               "candidate_limits_met": comparison.get("candidate_limits_met", False),
               "candidate_unmet_limits": unmet, "candidate_metrics_without_limits": pending,
               "spectre_warnings": warnings, "table_mode": lut["mode"]}
+    if maestro:
+        status["maestro"] = {variant: report["status"] for variant, report in native_histories.items()}
+        if any(row["unmet"] for row in native_histories["candidate"]["tests"].values()):
+            status["status"] = "review_required"
     write_report(out, config, conditions, comparison, status)
     return status
 
@@ -348,6 +364,7 @@ def main():
     parser.add_argument("--config", type=Path, required=True, help="Local tool and SMIC18 configuration")
     parser.add_argument("--out", type=Path, required=True, help="New output directory on the Cadence host")
     parser.add_argument("--reuse-lut", type=Path, help="Characterization directory from a previous run")
+    parser.add_argument("--maestro", action="store_true", help="Save, reopen and run an editable ADE Maestro testbench")
     args = parser.parse_args()
     try:
         if os.name != "posix":
@@ -360,7 +377,8 @@ def main():
         parser.error(str(exc))
     save_json(out / "status.json", {"status": "running"})
     try:
-        result = run(config, conditions, out, args.reuse_lut.expanduser().resolve() if args.reuse_lut else None)
+        result = run(config, conditions, out, args.reuse_lut.expanduser().resolve() if args.reuse_lut else None,
+                     args.maestro)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:
         result = {"status": "failed", "reason": str(exc)}
     save_json(out / "status.json", result)

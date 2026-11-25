@@ -52,7 +52,11 @@ def place(operations, instances, name, library, master, origin, orient, connecti
             operations.append(f'cmpProperty({q(name)} {q(key)} {q(value)})')
 
 
-def core_schematic(variant, pdk):
+MOS_MASTERS = {"nominal": {"NMOS": "n18", "PMOS": "p18"},
+               "statistical": {"NMOS": "n18_ckt", "PMOS": "p18_ckt"}}
+
+
+def core_schematic(variant, pdk, mos_family="nominal"):
     ops, instances = [], {}
     # XY is the centre of the diffusion terminals. The symbol origin is at the gate.
     placement = {
@@ -72,7 +76,7 @@ def core_schematic(variant, pdk):
         fw = device["total_width_um"][variant] / (fingers * multiplier)
         props = {"l": f'{device["length_um"] * 1000:g}n', "fw": f"{fw:g}u",
                  "fingers": str(fingers), "m": str(multiplier)}
-        master = {"NMOS": "n18", "PMOS": "p18"}[device["type"]]
+        master = MOS_MASTERS[mos_family][device["type"]]
         origin = (x + 0.25 if orientation == "MY" else x - 0.25, y)
         place(ops, instances, name, pdk, master, origin, orientation,
               device["terminals"], props, use_cdf=True)
@@ -257,8 +261,8 @@ def view_procedure(name, cell, view, ops):
     return "\n".join(lines)
 
 
-def write_build(stage, variant, pdk):
-    core_ops, core = core_schematic(variant, pdk)
+def write_build(stage, variant, pdk, mos_family="nominal"):
+    core_ops, core = core_schematic(variant, pdk, mos_family)
     tb_ops, tb = testbench()
     text = "\n".join([
         (HERE / "native_helpers.il").read_text(encoding="utf-8"),

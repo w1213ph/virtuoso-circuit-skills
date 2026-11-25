@@ -18,7 +18,7 @@
 | 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
 | 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
 | 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
-| 在已有 Cadence 环境复跑 | 在 SMIC18 建动态比较器，复测改宽输入对的速度、能耗和反冲 | [Virtuoso + Spectre](examples/dynamic-comparator/README.md#从空目录复跑) |
+| 在已有 Cadence 环境复跑 | 在 SMIC18 建动态比较器，打开 Maestro 改测试条件，查看改尺寸后的延迟、能耗、反冲与慢角超限项 | [Virtuoso、Maestro 和 Spectre](examples/dynamic-comparator/README.md#打开和复跑可编辑的-ade-maestro-测试台) |
 | 不熟悉电路设计 | 解释论文和指标，补齐偏置、参考、共模、时钟与控制，逐模块检查 | [新手入口](docs/BEGINNER.md) |
 | 整理已有电路 | 紧凑排版、功能 symbol、规范命名、同步父级连线 | [整理电路提示](docs/AI_START.md#整理已有原理图和-symbol) |
 | 搬迁仿真环境 | 迁移 Maestro 的测试、模型、变量、分析和输出 | [迁移环境提示](docs/AI_START.md#只迁移-maestro-环境) |
@@ -112,6 +112,7 @@ python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
 | [动态比较器前仿](examples/dynamic-comparator/README.md) | 在本机工艺中重建两套图、生成器件查表数据，逐工况比较测值 |
 | [AGENTS.md](AGENTS.md) 与 [SKILL.md](skills/paper-to-virtuoso/SKILL.md) | AI 的执行入口，按任务读取细则 |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | 查哪些工具和案例已经实际验证 |
+| [工程能力与后续任务](docs/ENGINEERING_AUDIT.md) | 查本轮哪些能力有电路证据、哪些条件未达标，以及下一例的验收方法 |
 
 ## 能复现到什么程度？
 
