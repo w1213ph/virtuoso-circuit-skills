@@ -1,0 +1,24 @@
+v {xschem version=3.4.4 file_version=1.2}
+G {}
+K {type=primitive
+format="@name @pinlist sky130_fd_pr__pfet_01v8 w=@w l=@l nf=1 ad=@ad as=@ad pd=@pd ps=@pd m=@mult"
+template="name=X1 w=1 l=1 ad=0.3 pd=2.6 mult=1"}
+V {}
+S {}
+E {}
+L 4 0 -40 0 -20 {}
+L 4 -4 -20 0 -20 {}
+L 4 -4 -20 -4 20 {}
+L 4 -4 20 0 20 {}
+L 4 0 20 0 40 {}
+L 4 -12 -18 -12 18 {}
+L 4 -40 0 -19 0 {}
+A 4 -15 0 4 0 360 {}
+L 4 -3 0 30 0 {}
+L 4 5 0 -3 -4 {}
+L 4 5 0 -3 4 {}
+B 5 -2.5 37.5 2.5 42.5 {name=D dir=inout}
+B 5 -42.5 -2.5 -37.5 2.5 {name=G dir=in}
+B 5 -2.5 -42.5 2.5 -37.5 {name=S dir=inout}
+B 5 27.5 -2.5 32.5 2.5 {name=B dir=inout}
+T {@name} 9 -23 0 0 0.20 0.20 {}

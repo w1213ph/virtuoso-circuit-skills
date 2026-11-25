@@ -1,0 +1,11 @@
+{
+  "purpose": "给 7 位、量化范围 1 V 的单端 ADC 驱动 1 pF 采样电容。输入在 0.85 V 和 1.05 V 间跳变，100 ns 内采好，断开后 20 ns 内仍要在半个 LSB 内。",
+  "adc_bits": 7,
+  "full_scale_span_V": 1.0,
+  "input_low_V": 0.85,
+  "input_high_V": 1.05,
+  "sample_cap_pF": 1.0,
+  "track_ns": 100.0,
+  "hold_ns": 20.0,
+  "min_phase_margin_deg": 60.0
+}

@@ -1,14 +1,16 @@
-name: SKY130 current mirror pre-layout simulation
+name: SKY130 mirror and ADC driver pre-layout simulation
 on:
   workflow_dispatch:
   push:
     paths:
       - 'examples/sky130-current-mirror/**'
+      - 'examples/sky130-adc-driver/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
       - '.github/workflows/sky130-prelayout.yml'
   pull_request:
     paths:
       - 'examples/sky130-current-mirror/**'
+      - 'examples/sky130-adc-driver/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
       - '.github/workflows/sky130-prelayout.yml'
 permissions:
@@ -141,3 +143,39 @@ jobs:
         with:
           name: sky130-adc-bias
           path: work/adc-bias/
+      - name: Drive a switched ADC input and verify both clock states and step directions
+        run: |
+          ex=examples/sky130-adc-driver
+          python3 "$ex/run.py" --models work/mirror/models --reuse-lut work/mirror/characterization --out work/adc-driver
+          python3 "$ex/verify_results.py" work/adc-driver > work/driver-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          read = lambda p: json.loads(Path(p).read_text())
+          result = read("work/driver-check.json")
+          assert result["selected"] == "candidate" and result["pass_counts"] == {"baseline": 14, "candidate": 18}
+          for c in ("tt", "ss", "ff"):
+              assert read("work/adc-driver/characterization/" + c + "/manifest.json")["mode"] == "reused"
+          r = read("examples/sky130-adc-driver/requirements.example.json")
+          r.update(adc_bits=8, purpose="Check the same sampling step against an eight-bit error budget")
+          Path("work/eight-bit.json").write_text(json.dumps(r))
+          PY
+          cat work/adc-driver/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+          status=0
+          python3 "$ex/run.py" --models work/mirror/models --reuse-lut work/mirror/characterization --requirements work/eight-bit.json --out work/driver-8bit || status=$?
+          test "$status" = 1
+          python3 "$ex/verify_results.py" work/driver-8bit > work/driver-8bit-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("work/driver-8bit-check.json").read_text())
+          assert result["status"] == "review_required" and result["selected"] is None
+          assert all(0 < n < 18 for n in result["pass_counts"].values())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-adc-sampling-driver
+          path: |
+            work/adc-driver/
+            work/driver-8bit/
