@@ -14,7 +14,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 SOURCE = {
     "examples/sky130-adc-driver": ("run.py", "driver.py", "bench.py", "precision.py", "verify_results.py", "driver_review.py",
-        "requirements.example.json", "ADRV_NMOS.sym", "ADRV_PMOS.sym", "ADRV_SOURCE.sym", "ADRV_OTA.sch",
+        "mismatch.py", "mismatch_bench.py", "requirements.example.json", "ADRV_NMOS.sym", "ADRV_PMOS.sym", "ADRV_SOURCE.sym", "ADRV_OTA.sch",
         "ADRV_OTA.sym", "ADRV_SAMPLER.sch", "ADRV_SAMPLER.sym", "TB_ADRV_SAMPLE.sch"),
     "examples/sky130-current-mirror": ("fetch_models.py", "models.lock.json", "mos_table.py", "mos_model.py",
                                        "native.py", "measure.py", "replay_lut.py"),
@@ -47,7 +47,18 @@ def evidence_names(source, result):
             yield path / name
 
 
-def build(source, dest, revision, xschem):
+def include_mismatch(source, project):
+    from mismatch import verify as verify_mismatch
+    verify_mismatch(source, project/"evidence")
+    target=project/"mismatch"
+    names=list(read(source/"evidence.sha256.json"))+["evidence.sha256.json","summary.json","RESULTS.md","samples.csv"]
+    for name in names:
+        (target/name).parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(source/name,target/name)
+    return verify_mismatch(target, project/"evidence")
+
+
+def build(source, dest, revision, xschem, mismatch=None):
     if not re.fullmatch("[0-9a-f]{40}", revision):
         raise ValueError("Supply the complete source commit")
     if dest.exists() or dest == source or source in dest.parents:
@@ -75,7 +86,8 @@ def build(source, dest, revision, xschem):
             shutil.copyfile(ROOT/name,project/name)
         shutil.copyfile(evidence/"requirements.json",project/"my-driver.json")
         shutil.copyfile(HERE/"starter/sample.py",project/"sample.py")
-        write_review(delivered, evidence, project, revision, xschem)
+        sampling=include_mismatch(mismatch,project) if mismatch is not None else None
+        write_review(delivered, evidence, project, revision, xschem, sampling)
         project.rename(dest)
 
 
@@ -85,8 +97,9 @@ if __name__ == "__main__":
     cli.add_argument("--project", type=Path, required=True)
     cli.add_argument("--revision", required=True)
     cli.add_argument("--xschem", default="xschem")
+    cli.add_argument("--mismatch", type=Path, help="Include local mismatch measured on this exact selected driver")
     args = cli.parse_args()
     try:
-        build(args.run.resolve(), args.project.resolve(), args.revision, args.xschem)
+        build(args.run.resolve(), args.project.resolve(), args.revision, args.xschem, args.mismatch)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
         cli.exit(2,str(exc) + "\n")

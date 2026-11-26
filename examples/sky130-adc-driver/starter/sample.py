@@ -13,6 +13,9 @@ def main():
     args = sys.argv[1:]
     if args[:1] == ["run"]:
         return designer.main(args[1:], default_requirements=root / "my-driver.json")
+    if args[:1] == ["mismatch"]:
+        import mismatch
+        return mismatch.main(args[1:] or ["verify"], default_driver=root / "evidence", default_evidence=root / "mismatch")
     parser = argparse.ArgumentParser(description=__doc__, epilog="For a new design use: python sample.py run --out my-design")
     parser.add_argument("action", nargs="?", choices=["verify"], default="verify")
     parser.add_argument("--out", type=Path, default=root / "evidence", help="Driver measurement directory")

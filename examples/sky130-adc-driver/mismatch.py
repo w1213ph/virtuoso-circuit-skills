@@ -111,10 +111,25 @@ def report(recipe, summary):
     return "\n".join(lines)
 
 
-def verify(out):
+def nominal_source(driver):
+    status=verify_driver(driver)
+    variant=status["selected"]
+    require(status["status"]=="completed" and variant in status["passing_variants"],
+            "The nominal driver has no qualified variant to freeze")
+    chosen=driver/variant
+    originals=(driver/"requirements.json",chosen/"sizing.json",chosen/"views/TB_ADRV_SAMPLE.spice",
+               chosen/"ss/track/transient.dat",driver/"recipe.json",driver/"status.json")
+    return variant,dict(zip(SOURCE,originals))
+
+
+def verify(out, driver=None):
     recipe=read(out/"recipe.json")
     trials=trial_names(recipe["first_seed"],recipe["samples"])
     require(read(out/"evidence.sha256.json")==archive_files(out,trials),"A required solver file or checksum differs")
+    if driver is not None:
+        variant,originals=nominal_source(driver.resolve())
+        require(recipe["variant"]==variant and all(digest(path)==digest(out/"source"/name) for name,path in originals.items()),
+                "The mismatch inputs differ from the selected nominal project")
     summary,rows=derive(out)
     saved=read(out/"summary.json")
     # Compare floats at the precision of independent recalculation across platforms.
@@ -130,9 +145,7 @@ def verify(out):
 
 def run(args):
     driver=args.driver_run.resolve()
-    status=verify_driver(driver)
-    variant=status["selected"]
-    require(variant in ("baseline","candidate"),"The nominal driver has no qualified variant to freeze")
+    variant,originals=nominal_source(driver)
     models=(args.models or driver/"models").resolve()
     lib=verify_models(models)
     require('"' not in str(lib) and "\n" not in str(lib),"Model path cannot be represented in SPICE")
@@ -144,10 +157,7 @@ def run(args):
     out.mkdir(parents=True,exist_ok=False)
     frozen=out/"source"
     frozen.mkdir()
-    chosen=driver/variant
-    originals=(driver/"requirements.json",chosen/"sizing.json",chosen/"views/TB_ADRV_SAMPLE.spice",chosen/"ss/track/transient.dat",
-               driver/"recipe.json",driver/"status.json")
-    for name,source in zip(SOURCE,originals):
+    for name,source in originals.items():
         shutil.copyfile(str(source),str(frozen/name))
     spec,sizes,native=operating_source(out)
     command([ng,"-n","--version"],out,"ngspice-version.txt")
@@ -182,22 +192,24 @@ def run(args):
     return summary
 
 
-def main():
+def main(argv=None, default_driver=None, default_evidence=None):
     cli=argparse.ArgumentParser(description=__doc__)
     commands=cli.add_subparsers(dest="action")
     execute=commands.add_parser("run",help="Freeze the nominal driver and run local mismatch")
-    execute.add_argument("--driver-run",required=True,type=Path)
+    execute.add_argument("--driver-run",required=default_driver is None,default=default_driver,type=Path)
     execute.add_argument("--models",type=Path)
     execute.add_argument("--ngspice",default="ngspice")
     execute.add_argument("--samples",type=int,default=32)
     execute.add_argument("--seed",type=int,default=24701,help="First seed in a consecutive range")
-    for cmd in (execute,commands.add_parser("verify",help="Recompute from the saved artifact using Python")):
-        cmd.add_argument("--out",required=True,type=Path)
-    args=cli.parse_args()
+    execute.add_argument("--out",required=True,type=Path)
+    replay=commands.add_parser("verify",help="Recompute from the saved artifact using Python")
+    replay.add_argument("--out",required=default_evidence is None,default=default_evidence,type=Path)
+    replay.add_argument("--driver-run",default=default_driver,type=Path,help="Compare frozen inputs to this nominal design")
+    args=cli.parse_args(argv)
     if not args.action:
         cli.error("Choose run or verify")
     try:
-        summary=run(args) if args.action=="run" else verify(args.out)
+        summary=run(args) if args.action=="run" else verify(args.out,args.driver_run)
     except (OSError,ValueError,KeyError,TypeError,RuntimeError) as error:
         cli.exit(2,str(error)+"\n")
     print(json.dumps({k:summary[k] for k in ("status","samples","within_all_four","within_each","half_lsb_mV")}))

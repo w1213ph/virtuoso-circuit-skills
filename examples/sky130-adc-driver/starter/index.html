@@ -24,7 +24,7 @@ $sections
 <p>可以用一句话告诉 agent 新的 ADC 位数、量化范围、输入电平、采样电容和跟踪／保持时间，让它更新 <a href="my-driver.json">my-driver.json</a>。在装有 Xschem 和 ngspice 的 Linux 上执行以下命令，首次运行会下载锁定的公开模型，输出目录应为新目录。</p>
 <pre><code>python3 sample.py run --optimize --out my-design
 python3 sample.py verify --out my-design</code></pre>
-<p>新结果在 <code>my-design/RESULTS.md</code>。本页覆盖指定的步阶、负载与三个确定性工况。若需验证随机失配，仓库另有使用独立样本的尺寸复验。<a href="https://github.com/w1213ph/virtuoso-circuit-skills/blob/$revision/examples/sky130-adc-driver/MATCHING.md">失配与面积实测</a></p>
+<p>新结果在 <code>my-design/RESULTS.md</code>。要检查新尺寸对器件偏差的敏感程度，可在同一环境执行 <code>python3 sample.py mismatch run --driver-run my-design --out my-mismatch</code>，再用 <code>python3 sample.py mismatch verify --driver-run my-design --out my-mismatch</code> 核对电路和波形。若设计时使用外部模型，运行失配前仿时加 <code>--models</code> 指向该模型目录。<a href="https://github.com/w1213ph/virtuoso-circuit-skills/blob/$revision/examples/sky130-adc-driver/MATCHING.md">从样本结果调整器件面积的案例</a></p>
 </section></main>
 <footer><a href="https://github.com/w1213ph/virtuoso-circuit-skills/commit/$revision">本次源码版本</a> · <a href="LICENSE">项目许可证</a> · <a href="NOTICE">项目来源说明</a> · <a href="source/examples/sky130-current-mirror/models.lock.json">公开工艺版本与校验值</a></footer>
 </html>

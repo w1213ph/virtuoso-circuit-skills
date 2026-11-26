@@ -102,10 +102,14 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         run: |
           python3 -IB work/project/sample.py run --optimize --requirements work/altered.json --models work/measured/models --reuse-lut work/measured/characterization --out work/optimized
-          xvfb-run -a python3 examples/sky130-adc-driver/pack_project.py --run work/optimized --project work/optimized-project --revision "$GITHUB_SHA"
+          status=0
+          python3 -IB work/project/sample.py mismatch run --driver-run work/optimized --models work/measured/models --samples 32 --seed 126701 --out work/optimized-mismatch || status=$?
+          test "$status" -le 1
+          xvfb-run -a python3 examples/sky130-adc-driver/pack_project.py --run work/optimized --mismatch work/optimized-mismatch --project work/optimized-project --revision "$GITHUB_SHA"
           python3 -IB work/optimized-project/sample.py
-          python3 - <<'PY'
-          import json
+          python3 -IB work/optimized-project/sample.py mismatch
+          python3 - "$status" <<'PY'
+          import json, subprocess, sys
           from pathlib import Path
           out = Path("work/optimized-project/evidence")
           search = json.loads((out/"optimization.json").read_text())
@@ -115,6 +119,16 @@ jobs:
           assert search[picked]["pass_count"] == 18 and search[picked]["gate_um2"] == min(v["gate_um2"] for v in search.values() if v["passed"])
           native = json.loads((out/picked/"readback.json").read_text())["native_sections"]
           assert native["ADRV_SAMPLER"]["CSH"] == ["SAMPLE","VSS","1.25P","M=1"]
+          local = out.parent/"mismatch"
+          summary = json.loads((local/"summary.json").read_text())
+          recipe = json.loads((local/"recipe.json").read_text())
+          assert recipe["variant"] == picked and recipe["first_seed"] == 126701 and summary["samples"] == 32
+          assert int(sys.argv[1]) == int(summary["within_all_four"] < summary["samples"])
+          for args, error in ((["work/altered-project/sample.py","mismatch","run","--models","work/measured/models","--out","work/unqualified"],"no qualified variant"),
+                              (["work/project/sample.py","mismatch","verify","--out",str(local)],"differ from the selected nominal project")):
+              replay = subprocess.run([sys.executable,"-IB",*args],capture_output=True,text=True)
+              assert replay.returncode == 2 and error in replay.stderr, (replay.returncode,replay.stderr)
+          assert not Path("work/unqualified").exists()
           PY
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'workflow_dispatch'

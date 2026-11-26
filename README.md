@@ -17,7 +17,7 @@
 | 按论文搭新电路 | 理解拓扑、映射工艺器件、建立分层电路和测试台、验证指标 | [新电路提示](docs/AI_START.md#搭建新论文电路) |
 | 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
 | 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
-| 让放大器驱动 ADC | 先定位静态误差，再比较镜像负载和传输门。按自己的负载与时序重新设计，在达标方案中选择放大器与开关总栅面积较小的一组 | [下载优化后的 8 位工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-precision-v1/adc-driver-8bit-optimized.zip) · [按需求建图](examples/sky130-adc-driver/README.md) · [失配复验](examples/sky130-adc-driver/MATCHING.md) |
+| 让放大器驱动 ADC | 按采样精度和负载选择镜像与开关尺寸，在选中电路上复算三工况误差，检查随机失配后还有多少样本达标 | [下载含 32 个失配样本的 8 位工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-8bit-mismatch-v1/adc-driver-8bit-mismatch.zip) · [按需求建图](examples/sky130-adc-driver/README.md) · [按失配改尺寸](examples/sky130-adc-driver/MATCHING.md) |
 | 设计可编程增益级 | 从控制位追到传输门，在后级输入测四档增益和切码建立时间，同时比较电流和器件面积 | [可直接复跑的 SKY130 增益级](examples/sky130-programmable-gain/README.md) |
 | 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
 | 按自己的规格跨工艺选尺寸 | 给出参考电流、负载和时限，在 SKY130、GF180 分别测 gm/ID、选栅面积最小的达标者；可在线生成原理图与波形 | [按实际需求运行 ADC 偏置设计](examples/cross-pdk-current-mirror/README.md#用你自己的电流负载和时限选尺寸) |

@@ -158,7 +158,7 @@ def search_review(result):
     return grid, detail
 
 
-def write_review(result, out, project, revision, xschem):
+def write_review(result, out, project, revision, xschem, mismatch=None):
     images = project / "images"
     images.mkdir()
     grid, names = search_review(result)
@@ -167,9 +167,20 @@ def write_review(result, out, project, revision, xschem):
     template = Template(Path(__file__).with_name("starter").joinpath("index.html").read_text(encoding="utf-8"))
     selected = result["selected"]
     conclusion = ("选中" + design_title(selected,result["variants"][selected]["sizing"]) + "。") if selected else "本次实测尺寸均有超限项。"
+    local=""
+    if mismatch is not None:
+        limits=mismatch["spread"]
+        local=('<section><h2>选中电路的慢角局部失配</h2><p>在 SS、1.62 V、85 °C 固定原理图和时序后，'
+               '<strong>{} / {} 个样本</strong>同时满足上升、下降步阶的跟踪和保持要求。'
+               '样本中最大跟踪误差为 {:.3f} mV，最大保持误差为 {:.3f} mV。'
+               '这些计数仅覆盖这批局部 MOS 失配样本。</p><p>运行 <code>python sample.py mismatch</code> '
+               '可核对选中的网表并从各样本波形复算。复算返回 0 表示数据一致，达标个数见上方。<a href="mismatch/samples.csv">逐样本测值</a> · '
+               '<a href="mismatch/RESULTS.md">测量报告</a> · <a href="mismatch/summary.json">统计与器件校准</a></p></section>').format(
+                   mismatch["within_all_four"],mismatch["samples"],max(limits[e+"_track_mV"]["max"] for e in ("up","down")),
+                   max(limits[e+"_hold_mV"]["max"] for e in ("up","down")))
     page = template.substitute(
         purpose=escape(req["purpose"]), bits=req["adc_bits"], span=format(req["full_scale_span_V"],"g"),
         half=format(result["budget"]["half_lsb_mV"],"g"), load=format(req["sample_cap_pF"],"g"),
         track=format(req["track_ns"],"g"), hold=format(req["hold_ns"],"g"), decision=conclusion,
-        sections=grid+"\n"+"\n".join(sections), revision=revision)
+        sections=local+grid+"\n"+"\n".join(sections), revision=revision)
     (project/"index.html").write_text(page,encoding="utf-8")
