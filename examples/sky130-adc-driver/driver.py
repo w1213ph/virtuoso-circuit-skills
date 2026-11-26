@@ -58,8 +58,15 @@ def materialize(folder, sizing, r):
     repl.update(sources(r))
     def label(name):
         return "W/L {:g}/{:g} um, {} parallel".format(*sizing["devices"][name])
+    load_note = "Mirror load per side: " + label("XLA") + ". Both wells connect to VDD."
+    if sizing["devices"]["XLA"] != sizing["devices"]["XLB"]:
+        wa, la, ma = sizing["devices"]["XLA"]
+        wb, lb, mb = sizing["devices"]["XLB"]
+        if (wa, la) != (wb, lb):
+            raise ValueError("Use identical unit W/L for both ratioed mirror branches")
+        load_note = "PMOS mirror: W/L {:g}/{:g} um per unit, {} at VX and {} at OUT.".format(wa, la, ma, mb)
     repl.update(INPUT_NOTE="Input pair per side: " + label("XIP") + ". Tail: " + label("XTAIL") + ".",
-                LOAD_NOTE="Mirror load per side: " + label("XLA") + ". Both wells connect to VDD.",
+                LOAD_NOTE=load_note,
                 CAP_NOTE="Sampling capacitor: {:g} pF. VSS returns the stored charge.".format(r["sample_cap_pF"]),
                 TB_NOTE="{:g} to {:g} V input, {:g} ns track, {:g} ns hold. Read SAMPLE at the sampling capacitor.".format(
                     r["input_low_V"],r["input_high_V"],r["track_ns"],r["hold_ns"]),

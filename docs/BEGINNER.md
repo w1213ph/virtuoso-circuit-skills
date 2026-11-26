@@ -10,7 +10,7 @@
 
 真正生成 Virtuoso 电路需要可用的 Cadence、合法可访问的 PDK、仿真模型和连接工具。连接入口见 [SETUP.md](SETUP.md)。只有聊天环境时，可以先完成论文分析和设计计划；agent 应说明还缺哪些能力。
 
-如果原理图在工艺角刚好达标，可以继续问：“器件之间有失配时，多少个样本还能同时采准上升和下降的输入？把误差最大的一次指给我看。”本仓库的 7 位驱动器在同一个慢角加入局部失配后，32 个样本只有 14 个同时达标。[误差分布、失败波形与复算方法](../examples/sky130-adc-driver/README.md#slow-corner-mismatch)
+如果原理图在工艺角刚好达标，可以继续问“器件失配时还能采准吗？如果不行，告诉我该改哪只管，多大的面积才够，再用一批新样本证明”。本仓库的 7 位驱动器在慢角加入局部失配后，原图的 32 个样本只有 14 个同时达标。你可以打开最差波形，也可以让 agent 完成尺寸改型和独立复验。[原图的失败波形](../examples/sky130-adc-driver/README.md#slow-corner-mismatch) · [改型与复验入口](../examples/sky130-adc-driver/MATCHING.md)
 
 想先看一次完整交付，可以把这句话发给 agent：“请运行 SKY130 电流镜案例。给我可以打开的原理图、测试台和第一次运行的报告，解释为什么加长沟道会改变输出误差，以及面积和速度的代价。”在有 Python、Xschem 和 ngspice 的 Linux 上可以复跑这个开源案例。[环境、命令与读图示例](../examples/sky130-current-mirror/README.md)
 

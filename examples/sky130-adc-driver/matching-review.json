@@ -1,0 +1,995 @@
+{
+  "model_revision": "f62031a1be9aefe902d6d54cddd6f59b57627436",
+  "specifications": {
+    "purpose": "给 7 位、量化范围 1 V 的单端 ADC 驱动 1 pF 采样电容。输入在 0.85 V 和 1.05 V 间跳变，100 ns 内采好，断开后 20 ns 内仍要在半个 LSB 内。",
+    "adc_bits": 7,
+    "full_scale_span_V": 1.0,
+    "input_low_V": 0.85,
+    "input_high_V": 1.05,
+    "sample_cap_pF": 1.0,
+    "track_ns": 100.0,
+    "hold_ns": 20.0,
+    "min_phase_margin_deg": 60.0
+  },
+  "half_lsb_mV": 3.90625,
+  "preferred_training_reserve_percent": 10,
+  "original_diagnosis": {
+    "seed": 24722,
+    "groups": {
+      "input_pair": {
+        "up_track_mV": 6.550546097000121,
+        "up_hold_mV": 5.8368777470001465,
+        "down_track_mV": 3.700778229200008,
+        "down_hold_mV": 3.8239307392999855,
+        "input_offset_mV": 5.536624940485901,
+        "track_pm_deg": 99.58809454184552,
+        "hold_pm_deg": 75.70027500861998
+      },
+      "active_load": {
+        "up_track_mV": 4.509658012000095,
+        "up_hold_mV": 3.786703434000005,
+        "down_track_mV": 1.5539304803999787,
+        "down_hold_mV": 1.6689139058999602,
+        "input_offset_mV": 3.4273220805681737,
+        "track_pm_deg": 99.44165982581197,
+        "hold_pm_deg": 75.90770516256323
+      },
+      "bias": {
+        "up_track_mV": 3.6904276970000094,
+        "up_hold_mV": 2.963582016999977,
+        "down_track_mV": 0.558773804399948,
+        "down_hold_mV": 0.6703657626999648,
+        "input_offset_mV": 2.5860605197649544,
+        "track_pm_deg": 98.3124366698187,
+        "hold_pm_deg": 75.7465279938471
+      },
+      "switch": {
+        "up_track_mV": 3.7256301010000215,
+        "up_hold_mV": 2.948656225999935,
+        "down_track_mV": 1.032095864699989,
+        "down_hold_mV": 1.115160267399995,
+        "input_offset_mV": 2.639579075541465,
+        "track_pm_deg": 97.85197239698081,
+        "hold_pm_deg": 75.71760487809254
+      }
+    }
+  },
+  "designs": {
+    "original": {
+      "core_gate_area_um2": 172.6,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          1,
+          3
+        ],
+        "XIM": [
+          6,
+          1,
+          3
+        ],
+        "XLA": [
+          7.5,
+          1.0,
+          8
+        ],
+        "XLB": [
+          7.5,
+          1.0,
+          8
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 14,
+        "worst_error_mV": 7.306440765999955,
+        "worst_seed": 24722,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 75.1675447864096,
+        "offset_sd_mV": 2.0733336100553763
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 2.75995249499994,
+          "up_hold_mV": 2.585748586000136,
+          "down_track_mV": 0.973446558000024,
+          "down_hold_mV": 1.5852695925999694,
+          "track_pm_deg": 101.21133215459912,
+          "hold_pm_deg": 75.2638012755468,
+          "track_quiescent_uA": 43.09303987365,
+          "hold_quiescent_uA": 43.09303982724
+        },
+        "ss": {
+          "up_track_mV": 3.7315008130001104,
+          "up_hold_mV": 3.0050353710000532,
+          "down_track_mV": 0.7884161493999509,
+          "down_hold_mV": 0.9004291856999913,
+          "track_pm_deg": 99.25921951698227,
+          "hold_pm_deg": 75.71760484536634,
+          "track_quiescent_uA": 20.21127010374,
+          "hold_quiescent_uA": 20.21127015803
+        },
+        "ff": {
+          "up_track_mV": 3.060262812000003,
+          "up_hold_mV": 3.163535179000032,
+          "down_track_mV": 1.3302763689999608,
+          "down_hold_mV": 2.093934733400027,
+          "track_pm_deg": 96.37747496076365,
+          "hold_pm_deg": 75.04939177832541,
+          "track_quiescent_uA": 24.171412647369998,
+          "hold_quiescent_uA": 24.17141259979
+        }
+      },
+      "nominal_ss_offset_mV": 2.639579075541465,
+      "first_independent": {
+        "samples": 32,
+        "passed": 20,
+        "worst_error_mV": 8.517167980000018,
+        "worst_seed": 54704,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 75.38301885422956,
+        "offset_sd_mV": 2.4048088718723233
+      },
+      "final_independent": {
+        "samples": 64,
+        "passed": 33,
+        "worst_error_mV": 7.4467815320000685,
+        "worst_seed": 84751,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 75.20415948221677,
+        "offset_sd_mV": 2.255126540300258
+      }
+    },
+    "equal-units": {
+      "core_gate_area_um2": 172.6,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          1,
+          3
+        ],
+        "XIM": [
+          6,
+          1,
+          3
+        ],
+        "XLA": [
+          2.5,
+          1,
+          24
+        ],
+        "XLB": [
+          2.5,
+          1,
+          24
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 16,
+        "worst_error_mV": 7.110854758999974,
+        "worst_seed": 24722,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 75.13924060468328,
+        "offset_sd_mV": 2.0758111676634337
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 2.5413003500001086,
+          "up_hold_mV": 2.3661672520001176,
+          "down_track_mV": 0.7847626449000167,
+          "down_hold_mV": 1.3959306195999721,
+          "track_pm_deg": 101.0835114112396,
+          "hold_pm_deg": 75.14856598146042,
+          "track_quiescent_uA": 43.09495278521,
+          "hold_quiescent_uA": 43.094952738500005
+        },
+        "ss": {
+          "up_track_mV": 3.51624593800004,
+          "up_hold_mV": 2.78881613899995,
+          "down_track_mV": 0.6167951050999321,
+          "down_hold_mV": 0.7281495080999623,
+          "track_pm_deg": 99.21394637052697,
+          "hold_pm_deg": 75.68890273470123,
+          "track_quiescent_uA": 20.211777488200003,
+          "hold_quiescent_uA": 20.211777540499998
+        },
+        "ff": {
+          "up_track_mV": 2.7810527050000644,
+          "up_hold_mV": 2.883308834999987,
+          "down_track_mV": 1.0879144170999888,
+          "down_hold_mV": 1.8508911886999657,
+          "track_pm_deg": 96.1073226050877,
+          "hold_pm_deg": 74.78510251655281,
+          "track_quiescent_uA": 24.17235058316,
+          "hold_quiescent_uA": 24.172350537550003
+        }
+      },
+      "nominal_ss_offset_mV": 2.451698045622619
+    },
+    "ratio": {
+      "core_gate_area_um2": 175.1,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          1,
+          3
+        ],
+        "XIM": [
+          6,
+          1,
+          3
+        ],
+        "XLA": [
+          2.5,
+          1,
+          24
+        ],
+        "XLB": [
+          2.5,
+          1,
+          25
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 24,
+        "worst_error_mV": 5.766599449800069,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 74.27485622033964,
+        "offset_sd_mV": 2.077491961657154
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.10867599999997424,
+          "up_hold_mV": 0.07698266800004738,
+          "down_track_mV": 1.6186703743999997,
+          "down_hold_mV": 1.0159853958999765,
+          "track_pm_deg": 100.56422515599779,
+          "hold_pm_deg": 74.28509101870931,
+          "track_quiescent_uA": 43.10786140117,
+          "hold_quiescent_uA": 43.10786135237
+        },
+        "ss": {
+          "up_track_mV": 1.134492957999944,
+          "up_hold_mV": 0.39633909100000864,
+          "down_track_mV": 1.692222646200059,
+          "down_hold_mV": 1.5900208764000334,
+          "track_pm_deg": 98.36610184416884,
+          "hold_pm_deg": 74.82577065746153,
+          "track_quiescent_uA": 20.215304932539997,
+          "hold_quiescent_uA": 20.21530498348
+        },
+        "ff": {
+          "up_track_mV": 0.9631904339999497,
+          "up_hold_mV": 1.058816648000116,
+          "down_track_mV": 0.7289483621000237,
+          "down_hold_mV": 0.028921849099972086,
+          "track_pm_deg": 95.739331314739,
+          "hold_pm_deg": 73.8921515335384,
+          "track_quiescent_uA": 24.1760324981,
+          "hold_quiescent_uA": 24.17603244924
+        }
+      },
+      "nominal_ss_offset_mV": 0.051887637305791934
+    },
+    "pair-2": {
+      "core_gate_area_um2": 283.1,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          6
+        ],
+        "XIM": [
+          6,
+          2,
+          6
+        ],
+        "XLA": [
+          2.5,
+          1,
+          24
+        ],
+        "XLB": [
+          2.5,
+          1,
+          25
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 29,
+        "worst_error_mV": 5.0228513723000745,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 82.17691605100399,
+        "offset_sd_mV": 1.331405198001568
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.009443067000125538,
+          "up_hold_mV": 0.17586756200005382,
+          "down_track_mV": 1.5863883380000665,
+          "down_hold_mV": 0.9836078977000229,
+          "track_pm_deg": 103.87150452025742,
+          "hold_pm_deg": 82.59625786375544,
+          "track_quiescent_uA": 43.32752937294,
+          "hold_quiescent_uA": 43.327529324530005
+        },
+        "ss": {
+          "up_track_mV": 0.9920392330000638,
+          "up_hold_mV": 0.2551547450000413,
+          "down_track_mV": 1.7306861653000327,
+          "down_hold_mV": 1.628548638400007,
+          "track_pm_deg": 101.16301453964074,
+          "hold_pm_deg": 82.85819074617478,
+          "track_quiescent_uA": 20.28680465442,
+          "hold_quiescent_uA": 20.28680470655
+        },
+        "ff": {
+          "up_track_mV": 0.8688546090001026,
+          "up_hold_mV": 0.96447911599995,
+          "down_track_mV": 0.6951503044000384,
+          "down_hold_mV": 0.06248186969992631,
+          "track_pm_deg": 98.89140161065816,
+          "hold_pm_deg": 82.32542501473768,
+          "track_quiescent_uA": 24.2460054632,
+          "hold_quiescent_uA": 24.24600541449
+        }
+      },
+      "nominal_ss_offset_mV": -0.033592971187990095
+    },
+    "pair-3": {
+      "core_gate_area_um2": 355.1,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          9
+        ],
+        "XIM": [
+          6,
+          2,
+          9
+        ],
+        "XLA": [
+          2.5,
+          1,
+          24
+        ],
+        "XLB": [
+          2.5,
+          1,
+          25
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 31,
+        "worst_error_mV": 4.518335061300061,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 87.05495736290261,
+        "offset_sd_mV": 1.1815822360552106
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.19673338500014736,
+          "up_hold_mV": 0.012742315000036086,
+          "down_track_mV": 1.386966766400044,
+          "down_hold_mV": 0.7835016850000764,
+          "track_pm_deg": 106.17943859108637,
+          "hold_pm_deg": 87.54844020888123,
+          "track_quiescent_uA": 43.50375246849,
+          "hold_quiescent_uA": 43.5037524197
+        },
+        "ss": {
+          "up_track_mV": 1.1647120980000647,
+          "up_hold_mV": 0.4296519219999517,
+          "down_track_mV": 1.4973682484000772,
+          "down_hold_mV": 1.3945023111000543,
+          "track_pm_deg": 103.15504752663163,
+          "hold_pm_deg": 87.80916439732142,
+          "track_quiescent_uA": 20.3426535121,
+          "hold_quiescent_uA": 20.342653566659997
+        },
+        "ff": {
+          "up_track_mV": 1.0229864460000737,
+          "up_hold_mV": 1.119341435000143,
+          "down_track_mV": 0.5642439670999755,
+          "down_hold_mV": 0.19359138480001814,
+          "track_pm_deg": 101.04129041823144,
+          "hold_pm_deg": 87.6750462248368,
+          "track_quiescent_uA": 24.304986529060002,
+          "hold_quiescent_uA": 24.30498648176
+        }
+      },
+      "nominal_ss_offset_mV": 0.13634293570985445
+    },
+    "pair-4": {
+      "core_gate_area_um2": 427.1,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          12
+        ],
+        "XIM": [
+          6,
+          2,
+          12
+        ],
+        "XLA": [
+          2.5,
+          1,
+          24
+        ],
+        "XLB": [
+          2.5,
+          1,
+          25
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 31,
+        "worst_error_mV": 4.234449285899999,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 92.10808830393933,
+        "offset_sd_mV": 1.0948509431047155
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.3197550319999909,
+          "up_hold_mV": 0.1365932190000585,
+          "down_track_mV": 1.271694571600035,
+          "down_hold_mV": 0.6678334470000546,
+          "track_pm_deg": 108.46748838196726,
+          "hold_pm_deg": 92.8777553085762,
+          "track_quiescent_uA": 43.607046746900004,
+          "hold_quiescent_uA": 43.607046697790004
+        },
+        "ss": {
+          "up_track_mV": 1.291324225999979,
+          "up_hold_mV": 0.5576453910001167,
+          "down_track_mV": 1.3685472723000691,
+          "down_hold_mV": 1.2652459009000472,
+          "track_pm_deg": 105.05503908380479,
+          "hold_pm_deg": 92.92632364052069,
+          "track_quiescent_uA": 20.378176687649997,
+          "hold_quiescent_uA": 20.378176783249998
+        },
+        "ff": {
+          "up_track_mV": 1.1281978449999563,
+          "up_hold_mV": 1.225070463000133,
+          "down_track_mV": 0.4842496903000315,
+          "down_hold_mV": 0.27367837579994614,
+          "track_pm_deg": 103.12770417748374,
+          "hold_pm_deg": 93.26830963979853,
+          "track_quiescent_uA": 24.34281153995,
+          "hold_quiescent_uA": 24.342811490749998
+        }
+      },
+      "nominal_ss_offset_mV": 0.24968335078534576
+    },
+    "long-load": {
+      "core_gate_area_um2": 476.35,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          9
+        ],
+        "XIM": [
+          6,
+          2,
+          9
+        ],
+        "XLA": [
+          2.5,
+          1.5,
+          32
+        ],
+        "XLB": [
+          2.5,
+          1.5,
+          33
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 32,
+        "passed": 32,
+        "worst_error_mV": 3.289383507000032,
+        "worst_seed": 24722,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 84.2572976300485,
+        "offset_sd_mV": 1.0193211583515969
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.652775178000109,
+          "up_hold_mV": 0.47076421700009696,
+          "down_track_mV": 0.802175331899968,
+          "down_hold_mV": 0.19668089260005406,
+          "track_pm_deg": 98.3692590498312,
+          "hold_pm_deg": 85.07077330654411,
+          "track_quiescent_uA": 43.50135684783,
+          "hold_quiescent_uA": 43.50135679903
+        },
+        "ss": {
+          "up_track_mV": 1.5330575309999706,
+          "up_hold_mV": 0.8002995710001404,
+          "down_track_mV": 0.5696314870999863,
+          "down_hold_mV": 0.46431970570004477,
+          "track_pm_deg": 95.86110167551321,
+          "hold_pm_deg": 84.69391361359666,
+          "track_quiescent_uA": 20.34194004855,
+          "hold_quiescent_uA": 20.341940102659997
+        },
+        "ff": {
+          "up_track_mV": 1.3717554079999417,
+          "up_hold_mV": 1.4693960389999816,
+          "down_track_mV": 0.10296206210003156,
+          "down_hold_mV": 0.6561355617999975,
+          "track_pm_deg": 93.27054420046245,
+          "hold_pm_deg": 85.07656420018893,
+          "track_quiescent_uA": 24.30403660283,
+          "hold_quiescent_uA": 24.30403655594
+        }
+      },
+      "nominal_ss_offset_mV": 0.6079635140130435,
+      "first_independent": {
+        "samples": 32,
+        "passed": 31,
+        "worst_error_mV": 3.915303647999968,
+        "worst_seed": 54704,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 84.45192019601113,
+        "offset_sd_mV": 1.2121349214422097
+      },
+      "final_independent": {
+        "samples": 64,
+        "passed": 64,
+        "worst_error_mV": 3.3595126559999855,
+        "worst_seed": 84751,
+        "worst_metric": "up_track_mV",
+        "minimum_pm_deg": 84.24666085393575,
+        "offset_sd_mV": 1.1035203683945474
+      }
+    },
+    "fine-ratio": {
+      "core_gate_area_um2": 477.40000000000003,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          9
+        ],
+        "XIM": [
+          6,
+          2,
+          9
+        ],
+        "XLA": [
+          1.6,
+          1.5,
+          50
+        ],
+        "XLB": [
+          1.6,
+          1.5,
+          52
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 64,
+        "passed": 64,
+        "worst_error_mV": 3.53087788610007,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 84.02399658459353,
+        "offset_sd_mV": 1.1085650118586543
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.0974386159999785,
+          "up_hold_mV": 0.08706853299988992,
+          "down_track_mV": 1.338314032199972,
+          "down_hold_mV": 0.73468087509998,
+          "track_pm_deg": 98.17496783828794,
+          "hold_pm_deg": 84.83351820413563,
+          "track_quiescent_uA": 43.50371545224,
+          "hold_quiescent_uA": 43.50371540401
+        },
+        "ss": {
+          "up_track_mV": 0.922061575999944,
+          "up_hold_mV": 0.1865461950001368,
+          "down_track_mV": 1.1348357361999906,
+          "down_hold_mV": 1.0317211140999927,
+          "track_pm_deg": 95.64031633812337,
+          "hold_pm_deg": 84.45921342230484,
+          "track_quiescent_uA": 20.34277542373,
+          "hold_quiescent_uA": 20.342775478929997
+        },
+        "ff": {
+          "up_track_mV": 0.9304458609999955,
+          "up_hold_mV": 1.0264823120000877,
+          "down_track_mV": 0.5294993251999669,
+          "down_hold_mV": 0.22840291719994354,
+          "track_pm_deg": 93.03296174254326,
+          "hold_pm_deg": 84.83944927121436,
+          "track_quiescent_uA": 24.30495436967,
+          "hold_quiescent_uA": 24.30495437528
+        }
+      },
+      "nominal_ss_offset_mV": 0.015515948192268425
+    },
+    "matched-fine": {
+      "core_gate_area_um2": 549.4000000000001,
+      "switch_gate_area_um2": 1.3499999999999999,
+      "devices_W_L_um_M": {
+        "XPREF": [
+          2,
+          0.5,
+          1
+        ],
+        "XNREF": [
+          1.2,
+          1,
+          1
+        ],
+        "XTAIL": [
+          7.199999999999999,
+          1,
+          2
+        ],
+        "XIP": [
+          6,
+          2,
+          12
+        ],
+        "XIM": [
+          6,
+          2,
+          12
+        ],
+        "XLA": [
+          1.6,
+          1.5,
+          50
+        ],
+        "XLB": [
+          1.6,
+          1.5,
+          52
+        ],
+        "XSN": [
+          3,
+          0.15,
+          1
+        ],
+        "XSP": [
+          6,
+          0.15,
+          1
+        ]
+      },
+      "development": {
+        "samples": 64,
+        "passed": 64,
+        "worst_error_mV": 3.2459997285000375,
+        "worst_seed": 24713,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 89.43273975170358,
+        "offset_sd_mV": 1.0100678445319309
+      },
+      "pvt_pass": true,
+      "nominal": {
+        "tt": {
+          "up_track_mV": 0.22843658100013542,
+          "up_hold_mV": 0.04492504000008779,
+          "down_track_mV": 1.2231373933000445,
+          "down_hold_mV": 0.619107642700012,
+          "track_pm_deg": 100.53722482317318,
+          "hold_pm_deg": 90.7111698439091,
+          "track_quiescent_uA": 43.6069972731,
+          "hold_quiescent_uA": 43.606997226320004
+        },
+        "ss": {
+          "up_track_mV": 1.0585321439999795,
+          "up_hold_mV": 0.32446087100002075,
+          "down_track_mV": 0.9810371928999917,
+          "down_hold_mV": 0.8774950644000468,
+          "track_pm_deg": 97.6241340735916,
+          "hold_pm_deg": 89.89199890069769,
+          "track_quiescent_uA": 20.37828633079,
+          "hold_quiescent_uA": 20.3782863873
+        },
+        "ff": {
+          "up_track_mV": 1.0429505080000734,
+          "up_hold_mV": 1.1395280820001297,
+          "down_track_mV": 0.4459698895000752,
+          "down_hold_mV": 0.3120315935999374,
+          "track_pm_deg": 95.19175080580447,
+          "hold_pm_deg": 90.90963237162374,
+          "track_quiescent_uA": 24.342770485750002,
+          "hold_quiescent_uA": 24.34277049308
+        }
+      },
+      "nominal_ss_offset_mV": 0.13356294017419224,
+      "final_independent": {
+        "samples": 64,
+        "passed": 64,
+        "worst_error_mV": 3.2556394203999695,
+        "worst_seed": 84731,
+        "worst_metric": "down_track_mV",
+        "minimum_pm_deg": 89.41122045691662,
+        "offset_sd_mV": 0.9979750867166933
+      }
+    }
+  },
+  "original_training_seeds": [
+    24701,
+    24732
+  ],
+  "first_independent_seeds": [
+    54701,
+    54732
+  ],
+  "first_round_qualified": false,
+  "revised_development_seeds": [
+    [
+      24701,
+      24732
+    ],
+    [
+      54701,
+      54732
+    ]
+  ],
+  "final_independent_seeds": [
+    84701,
+    84764
+  ],
+  "final_candidate": "matched-fine",
+  "selected": "matched-fine",
+  "final_status": "sample_limits_met",
+  "larger_candidates_skipped": [
+    "matched-long",
+    "large-long"
+  ],
+  "ten_bit_control": {
+    "limit_mV": 0.48828125,
+    "evaluated_sizes": 11,
+    "candidate": "large-long",
+    "selected": null,
+    "confirmation": {
+      "samples": 4,
+      "passed": 1,
+      "worst_error_mV": 1.2361869120001145,
+      "worst_seed": 1004,
+      "worst_metric": "up_track_mV",
+      "minimum_pm_deg": 95.7452972192017,
+      "offset_sd_mV": 0.37738908068049354
+    }
+  }
+}

@@ -1,0 +1,68 @@
+name: ADC driver sizing and independent mismatch replay
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/adc-driver-matching.yml'
+  pull_request:
+    paths:
+      - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/adc-driver-matching.yml'
+permissions:
+  contents: read
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    timeout-minutes: 35
+    steps:
+      - name: Install Xschem and ngspice
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git python3 xschem ngspice
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build the editable candidates and test each frozen choice
+        run: |
+          rc=0
+          python3 examples/sky130-adc-driver/matching.py run --out work/matching || rc=$?
+          [ "$rc" -le 1 ]
+          test -s work/matching/frozen-choice.json
+          test -s work/matching/summary.json
+      - name: Recompute raw results and check the independent comparison
+        run: |
+          python3 examples/sky130-adc-driver/matching.py verify --out work/matching
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("work/matching")
+          training=json.loads((root/"training.json").read_text())
+          result=json.loads((root/"summary.json").read_text())
+          chosen=result["trained_candidate"]
+          assert set(training[chosen]["rows"])==set(map(str,range(24701,24733)))
+          assert set(result["validation"][chosen]["rows"])==set(map(str,range(54701,54733)))
+          assert result["validation"][chosen]["passed"]>result["validation"]["original"]["passed"]
+          assert training[chosen]["pvt_pass"] and training["original"]["passed"]<32
+          if not result["first_round_qualified"]:
+              repair=json.loads((root/"repair-training.json").read_text())
+              final=result["final_candidate"]
+              assert set(repair[final]["rows"])==set(training[chosen]["rows"]) | set(result["validation"][chosen]["rows"])
+              measured=result["confirmation"][final]
+              assert set(measured["rows"])==set(map(str,range(84701,84765)))
+              assert set(measured["rows"]).isdisjoint(repair[final]["rows"])
+              assert (result["selected"] is not None)==(measured["passed"]==64 and result["repair_reason"]!="diagnostic_only")
+          PY
+          cat work/matching/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-driver-matching
+          path: |
+            work/matching/
+            !work/matching/models/

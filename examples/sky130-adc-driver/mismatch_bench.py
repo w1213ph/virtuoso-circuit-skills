@@ -26,11 +26,16 @@ def draw(seed):
                    for k in KNOBS[DEVICES[name][1]]} for name in sorted(DEVICES)}
 
 
-def trial_names(first, count):
+def seed_range(first, count):
     require(type(first) is int and type(count) is int and 2<=count<=256 and 0<=first<=2**31-count,
             "Use 2–256 samples and a nonnegative 31-bit seed range")
+    return range(first, first+count)
+
+
+def trial_names(first, count):
+    seeds = seed_range(first, count)
     return [("reference",None,None),("zero",None,draw(None)),
-            *[("seed-"+str(s),s,draw(s)) for s in range(first,first+count)], ("repeat",first,draw(first))]
+            *[("seed-"+str(s),s,draw(s)) for s in seeds], ("repeat",first,draw(first))]
 
 
 def wrapper(name, model, geometry, values):

@@ -17,7 +17,7 @@
 | 按论文搭新电路 | 理解拓扑、映射工艺器件、建立分层电路和测试台、验证指标 | [新电路提示](docs/AI_START.md#搭建新论文电路) |
 | 从需求搭建或继续工程 | 拆分模块、设计工程辅助电路、集成真实接口并验证 | [工程搭建提示](docs/AI_START.md#从功能需求搭建或继续工程) |
 | 优化结构或参数 | 定位限制、筛选敏感变量、按成本验证候选与多指标取舍 | [优化提示](docs/AI_START.md#优化已有电路的性能) |
-| 让放大器驱动 ADC | 从位数、采样电容和时间窗口推导指标，比较双向采样误差、两种时钟状态的相位裕度和面积 | [带实际采样开关的 SKY130 放大器](examples/sky130-adc-driver/README.md) |
+| 让放大器驱动 ADC | 从位数、负载和采样时间选尺寸。遇到慢角超限可定位失配来源、改尺寸，再用独立样本验收 | [建立采样驱动器](examples/sky130-adc-driver/README.md) · [复验尺寸和面积取舍](examples/sky130-adc-driver/MATCHING.md) |
 | 设计可编程增益级 | 从控制位追到传输门，在后级输入测四档增益和切码建立时间，同时比较电流和器件面积 | [可直接复跑的 SKY130 增益级](examples/sky130-programmable-gain/README.md) |
 | 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
 | 把同一需求移到新工艺 | 在 SKY130 和 GF180 分别测 gm/ID 与电流密度，核对原理图尺寸、栅面积和实测建立时间 | [8 µA ADC 偏置的跨工艺对照](examples/cross-pdk-current-mirror/README.md) |

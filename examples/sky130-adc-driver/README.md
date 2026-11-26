@@ -8,6 +8,8 @@
 
 ## 从空目录开始
 
+已有标称设计，想知道慢角失配后该改哪只管，可以直接从公开工艺重建尺寸优化案例。它保留第一次改型失手的波形，并将最终原理图与未参与选型的样本一起交付。[按失配和面积优化采样驱动器](MATCHING.md)
+
 使用装有 Python 3、Xschem 和 ngspice 的 Linux。在 Debian 13 可安装 `git ca-certificates python3 xschem ngspice`。首次运行会下载并校验公开的 SKY130 模型。在仓库根目录运行以下命令。
 
 ```sh
