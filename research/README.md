@@ -1,5 +1,11 @@
 # 外部来源与实际采用的方法
 
+## 匹配面积与跨工艺角的尺寸比较
+
+Mosplot 的优化器在参考角确定几何，在 `_freeze` 中保存设计，再由 `recorner` 在其他角重新计算工作点与性能。核对版本 `6c4c5e1` 的 `src/mosplot/optimizer/evaluate.py` 及 Apache-2.0 许可证。本项目借鉴尺寸冻结的做法，在原生 OA 和导出网表中逐对核实 W、L、其余器件与负载，随后固定几何复验三个角、六个满摆幅工况和独立局部失配样本。工艺版本或测试接口改变时，需重新表征与仿真。[Mosplot 求值器](https://github.com/medwatt/gmid/blob/6c4c5e164295c60a8b996f9dff8a79c64456ddaf/src/mosplot/optimizer/evaluate.py) · [许可证](https://github.com/medwatt/gmid/blob/6c4c5e164295c60a8b996f9dff8a79c64456ddaf/LICENSE) · [本项目实现](../examples/smic18-ota-sizing/ota_matching.py)
+
+Pelgrom、Duinmaijer 与 Welbers 对 MOS 匹配的测量为局部随机失配随有效面积变化提供了一阶模型。这里保持 W/L 和支路结构，单独开启两只输入 MOS 的失配，先用 32 个配对样本检查面积预测，再启用其余器件测整机。验收保留输出共模、电压余量和真实负载的约束。几何引起的系统误差、空间相关及量产良率仍需相应证据。[1989 年论文](https://ewh.ieee.org/r5/denver/sscs/References/1989_10_Pelgrom.pdf) · [面积预测与原始测量的复验实现](../examples/smic18-ota-sizing/ota_match_qualify.py) · [验证结果](../examples/smic18-ota-sizing/OTA.md#匹配面积与共模偏置的取舍)
+
 ## 2026-11-27 的统计器件验证
 
 SkyWater SKY130 的器件库在顶层角段引用各 MOS 的 mismatch 文件，单管文件给出局部参数。核对的提交为 `f62031a`，许可证为 Apache-2.0。本项目据此在 SMIC18 自身的模型段和统计器件上先验证无扰动电气等价，再逐管检查抽样向量，最后用同一组抽样对照全部启用和局部关闭时的电路响应。本文 OTA 数值来自 SMIC18 Spectre，开源工艺提供了检查模型组织方式的实例。[顶层角段](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/models/sky130.lib.spice) · [单管失配文件](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/cells/nfet_01v8/sky130_fd_pr__nfet_01v8__mismatch.corner.spice) · [许可证](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/LICENSE) · [本项目验证代码](../examples/smic18-ota-sizing/ota_mismatch.py)

@@ -6,12 +6,14 @@ on:
       - 'examples/sky130-adc-driver/**'
       - 'examples/sky130-current-mirror/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - 'skills/paper-to-virtuoso/scripts/paired_outcomes.py'
       - '.github/workflows/adc-driver-matching.yml'
   pull_request:
     paths:
       - 'examples/sky130-adc-driver/**'
       - 'examples/sky130-current-mirror/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - 'skills/paper-to-virtuoso/scripts/paired_outcomes.py'
       - '.github/workflows/adc-driver-matching.yml'
 permissions:
   contents: read

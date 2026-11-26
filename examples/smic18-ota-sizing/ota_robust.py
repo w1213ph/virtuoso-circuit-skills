@@ -114,6 +114,23 @@ def show_results(report):
         print("{} at 0.95 V: ".format(corner)+", ".join("{} {}/{}".format(arm,v["passed"],v["total"]) for arm,v in group["arms"].items()))
 
 
+def fullscale_delivery(out,native,sizes,area,site,fresh):
+    project = out/"fullscale-oa"
+    bench_sizes = dict(sizes,fullscale_bench=True)
+    if fresh:
+        build(project,site,bench_sizes)
+    large,large_area = audit(project,site,bench_sizes)
+    if large_area!=area:
+        raise ValueError("The full-scale testbench changed the OTA geometry")
+    check_fullscale_bench(native,large)
+    trans = dynamic(out/"fullscale",large,site,fresh)
+    if fresh:
+        ota_ade.launch(project,site,STATES,ICM)
+    measured = {key:{k:v for k,v in row.items() if k!="raw_sha256"} for key,row in trans.items()}
+    history = ota_ade.review(project,site,STATES,measured,ICM,fullscale_metrics)
+    return trans,history
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action",choices=("run","verify","dynamic"))
@@ -128,19 +145,7 @@ def main():
     out = args.out.resolve()
     if fresh:
         out.mkdir(parents=True,exist_ok=False)
-    large_project = out/"fullscale-oa"
-    bench_sizes = dict(sizes,fullscale_bench=True)
-    if fresh:
-        build(large_project,site,bench_sizes)
-    large,large_area = audit(large_project,site,bench_sizes)
-    if large_area!=area:
-        raise ValueError("The full-scale testbench changed the OTA geometry")
-    check_fullscale_bench(native,large)
-    trans = dynamic(out/"fullscale",large,site,fresh)
-    if fresh:
-        ota_ade.launch(large_project,site,STATES,ICM)
-    measured = {key:{k:v for k,v in row.items() if k!="raw_sha256"} for key,row in trans.items()}
-    history = ota_ade.review(large_project,site,STATES,measured,ICM,fullscale_metrics)
+    trans,history = fullscale_delivery(out,native,sizes,area,site,fresh)
     report = dict(source_sha256=sha256(args.cmfb.resolve()/"midpoint/summary.json"),fullscale=trans,
                   fullscale_passed=all(r["passed"] for r in trans.values()),maestro=history)
     if args.action=="dynamic":

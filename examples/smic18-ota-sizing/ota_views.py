@@ -70,19 +70,20 @@ class Drawing:
     def device(self, name, lib, cell, xy, orientation, terms, props=None, cdf=False):
         place(self.ops, self.instances, name, lib, cell, xy, orientation, terms, props or {}, use_cdf=cdf)
 
-    def mos(self, name, kind, x, y, gate_side, nets, group):
+    def mos(self, name, kind, x, y, gate_side, nets, group, pair=None):
         # x is the channel column. Mirroring exchanges the side of the gate and body stubs.
         length = self.sizes["length_um"]
         if group=="cm_input":
             length = self.sizes.get("cm_length_um",length)
+        width,length = self.sizes.get("paired_geometry",{}).get(pair,(self.sizes[group],length))
         master = MOS_MASTERS[self.sizes.get("mos_family","nominal")][{"n":"NMOS","p":"PMOS"}[kind]]
         self.device(name, self.pdk, master, (x + 0.25 * gate_side, y), "R0" if gate_side < 0 else "MY",
                     dict(zip(("D", "G", "S", "B"), nets)),
-                    dict(l="{:g}u".format(length), fw="{:g}u".format(self.sizes[group]),
+                    dict(l="{:g}u".format(length), fw="{:g}u".format(width),
                          fingers="1", m="1"), True)
         end = (x - gate_side * 0.75, y)
         self.wire((x, y), end, net=nets[3], label=end, justify="lowerRight" if gate_side > 0 else "lowerLeft")
-        self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name, self.sizes[group], length), 0.105)
+        self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name,width,length),0.105)
 
     def resistor(self, name, xy, plus, minus, value):
         segments = math.ceil(value / 45000)
@@ -161,7 +162,7 @@ def bias(d):
 def input_stage(d):
     for side, x, sign, edge in (("P", 4, -1, 1), ("N", 12, 1, 15)):
         inp, node = "IN" + side, "X" + side
-        d.mos("MIN" + side, "n", x, 3.75, sign, (node, inp, "TAIL", "VSS"), "input")
+        d.mos("MIN" + side, "n", x, 3.75, sign, (node, inp, "TAIL", "VSS"), "input", "input_pair")
         d.mos("ML" + side, "p", x, 6.75, -sign, (node, "PG", "VDD", "VDD"), "load")
         d.wire((x, 3.9375), (x, 5), (x, 6.5625))
         d.port(node, edge, 5, "R180" if sign < 0 else "R0")
@@ -226,12 +227,12 @@ def common_mode(d):
             rail = 6 if drain == "PG" else 5.125
             d.wire((col, 4.1875), (col, rail))
         d.wire((x-2, 3.8125), (x-2, 3), (x, 3), (x+2, 3), (x+2, 3.8125), net=tail, label=(x-1, 3))
-        d.mos("MCT" + side, "n", x, 1.875, -1, (tail, "BN", "VSS", "VSS"), "reference")
+        d.mos("MCT" + side, "n", x, 1.875, -1, (tail, "BN", "VSS", "VSS"), "reference", "cm_tails")
         d.wire((x, 3), (x, 2.0625))
         d.stub((x-0.25, 1.875), LEFT, "BN")
     for name, x, drain, y in (("MCM", 3, "PG", 6), ("MDMY", 17, "RCG", 5.125)):
         sign = -1 if x == 3 else 1
-        d.mos(name, "p", x, 7.5, sign, (drain, drain, "VDD", "VDD"), "load")
+        d.mos(name, "p", x, 7.5, sign, (drain, drain, "VDD", "VDD"), "load", "cm_loads")
         d.wire((x, 7.3125), (x, y))
         d.wire((x+0.25*sign, 7.5), (x+sign, 7.5), (x+sign, 6.625), (x, 6.625))
     d.wire((3, 6), (13, 6), net="PG", label=(5, 6))

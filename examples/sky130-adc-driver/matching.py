@@ -17,6 +17,7 @@ from matching_measure import calibration, check_row, diagnose, nominal, populati
 from mismatch import validate_run
 from mismatch_bench import draw, require, seed_range
 from mos_table import FIELDS, STATES, cache_record, characterize, command, read_curves, save_json, scans
+from paired_outcomes import compare_passes
 
 
 LENGTHS = (0.5, 1.0, 1.5, 2.0)
@@ -24,6 +25,21 @@ LENGTHS = (0.5, 1.0, 1.5, 2.0)
 
 def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def paired_progress(data, spec, vectors):
+    def verdicts(rows):
+        for seed, row in rows.items():
+            identity = json.dumps(vectors[seed], sort_keys=True, separators=(",", ":"), allow_nan=False)
+            yield identity, check_row(row, spec)
+
+    result = {}
+    for phase, name in (("validation", data["trained_candidate"]), ("confirmation", data["final_candidate"])):
+        banks = data[phase]
+        if not banks or name is None:
+            continue
+        result[phase] = compare_passes(verdicts(banks["original"]["rows"]), verdicts(banks[name]["rows"]))
+    return result
 
 
 def approximately(a, b):
@@ -469,6 +485,9 @@ if __name__ == "__main__":
     try:
         args.out = args.out.resolve()
         data = run(args) if args.action == "run" else verify(args.out)
+        changes = paired_progress(data, requirements(args.out / "requirements.json"), read(args.out / "vectors.json"))
+        for phase, outcomes in changes.items():
+            print("Paired joint decisions", phase, outcomes)
         print(data["status"], "| frozen:", data["final_candidate"], "| selected:", data["selected"])
         sys.exit(int(args.action == "run" and data["selected"] is None))
     except (OSError, ValueError, KeyError, IndexError, TypeError, RuntimeError) as exc:

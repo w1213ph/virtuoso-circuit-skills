@@ -1,0 +1,608 @@
+{
+  "baseline": "3d29f4ab569bf9f1feb9822cb6c37f7dfd0456c7",
+  "status": "FAIL",
+  "scope": "Independent pre-layout SMIC18 example. Geometry and test limits are fixed across comparisons.",
+  "operating_conditions": {
+    "corners_V_degC": {
+      "tt": [
+        1.8,
+        27
+      ],
+      "ss": [
+        1.62,
+        85
+      ],
+      "ff": [
+        1.8,
+        -40
+      ]
+    },
+    "load_pF_per_side": 2,
+    "input_common_mode_endpoints_V": [
+      0.95,
+      1.1
+    ],
+    "mismatch_commands_V": [
+      -0.3,
+      0,
+      0.3
+    ],
+    "local_mos_count": 18
+  },
+  "hard_limits": {
+    "abs_tracking_mV": 1,
+    "abs_output_common_error_mV": 25,
+    "minimum_saturation_headroom_mV": 0,
+    "output_within_rails": true,
+    "positive_supply_power": true,
+    "joint_fullscale_settling_us": 1,
+    "mos_gate_area_um2": 114.19,
+    "power_uW": 25.22,
+    "input_noise_uVrms": 40,
+    "minimum_dc_gain_dB": 80,
+    "minimum_differential_and_common_PM_deg": 55
+  },
+  "original_W_L_um": {
+    "input_pair": [
+      1.3,
+      1.5
+    ],
+    "cm_tails": [
+      1.35,
+      1.5
+    ],
+    "cm_loads": [
+      5.05,
+      1.5
+    ]
+  },
+  "original_mos_gate_um2": 107.7,
+  "geometry_screen": {
+    "pair": {
+      "geometry_override_W_L_um": {
+        "input_pair": [
+          1.95,
+          2.25
+        ]
+      },
+      "mos_gate_um2": 112.575,
+      "static_endpoints_passed_out_of_18": 18,
+      "fullscale_conditions_passed_out_of_6": 5,
+      "worst_absolute_static_common_error_mV": 23.856374568343554,
+      "minimum_static_headroom_mV": 5.325613052839698,
+      "ff_950_rising_settling_us": 1.1360000000002226
+    },
+    "tail-low": {
+      "geometry_override_W_L_um": {
+        "input_pair": [
+          1.95,
+          2.25
+        ],
+        "cm_tails": [
+          1.25,
+          1.5
+        ]
+      },
+      "mos_gate_um2": 112.275,
+      "static_endpoints_passed_out_of_18": 14,
+      "fullscale_conditions_passed_out_of_6": 4,
+      "worst_absolute_static_common_error_mV": 30.26707314968702,
+      "minimum_static_headroom_mV": 17.431374574344794,
+      "ff_950_rising_settling_us": 0.7380000000001918
+    },
+    "tail-high": {
+      "geometry_override_W_L_um": {
+        "input_pair": [
+          1.95,
+          2.25
+        ],
+        "cm_tails": [
+          1.45,
+          1.5
+        ]
+      },
+      "mos_gate_um2": 112.875,
+      "static_endpoints_passed_out_of_18": 8,
+      "fullscale_conditions_passed_out_of_6": 2,
+      "worst_absolute_static_common_error_mV": 37.86343088642552,
+      "minimum_static_headroom_mV": -4.978176663556599,
+      "ff_950_rising_settling_us": null
+    },
+    "load-low": {
+      "geometry_override_W_L_um": {
+        "input_pair": [
+          1.95,
+          2.25
+        ],
+        "cm_loads": [
+          4.85,
+          1.5
+        ]
+      },
+      "mos_gate_um2": 111.975,
+      "static_endpoints_passed_out_of_18": 14,
+      "fullscale_conditions_passed_out_of_6": 4,
+      "worst_absolute_static_common_error_mV": 34.04109441489756,
+      "minimum_static_headroom_mV": 2.7221620848149053,
+      "ff_950_rising_settling_us": null
+    },
+    "load-high": {
+      "geometry_override_W_L_um": {
+        "input_pair": [
+          1.95,
+          2.25
+        ],
+        "cm_loads": [
+          5.25,
+          1.5
+        ]
+      },
+      "mos_gate_um2": 113.175,
+      "static_endpoints_passed_out_of_18": 18,
+      "fullscale_conditions_passed_out_of_6": 6,
+      "worst_absolute_static_common_error_mV": 19.672177354822075,
+      "minimum_static_headroom_mV": 8.125702810271695,
+      "ff_950_rising_settling_us": 0.7380000000001918
+    }
+  },
+  "selected_for_validation": "load-high",
+  "selected_physical_area_um2": {
+    "mos_gate_um2": 113.175,
+    "resistor_strip_um2": 4227.82,
+    "mim_plate_um2": 1512.5
+  },
+  "selected_corners": {
+    "tt": {
+      "gain_dB": 85.08014886816859,
+      "noise_uVrms_10Hz_to_100kHz": 28.601046103400872,
+      "power_uW": 23.15907861596413,
+      "differential_PM_deg": 64.24492246512186,
+      "common_PM_deg": 79.75421479593545
+    },
+    "ss": {
+      "gain_dB": 85.15484685239807,
+      "noise_uVrms_10Hz_to_100kHz": 32.34244191238515,
+      "power_uW": 16.993671151605724,
+      "differential_PM_deg": 65.9305149151181,
+      "common_PM_deg": 81.10764958572418
+    },
+    "ff": {
+      "gain_dB": 84.95590487827789,
+      "noise_uVrms_10Hz_to_100kHz": 24.7917636212034,
+      "power_uW": 23.994741752756767,
+      "differential_PM_deg": 60.35834321587695,
+      "common_PM_deg": 76.87506720932912
+    }
+  },
+  "selected_fullscale_settling_us": {
+    "tt-950mV": {
+      "rising": 0.7300000000001912,
+      "falling": 0.7310000000003425
+    },
+    "tt-1100mV": {
+      "rising": 0.7260000000001909,
+      "falling": 0.7270000000003422
+    },
+    "ss-950mV": {
+      "rising": 0.9860000000002105,
+      "falling": 0.9870000000003609
+    },
+    "ss-1100mV": {
+      "rising": 0.9820000000002101,
+      "falling": 0.9810000000003612
+    },
+    "ff-950mV": {
+      "rising": 0.7380000000001918,
+      "falling": 0.737000000000342
+    },
+    "ff-1100mV": {
+      "rising": 0.7360000000001925,
+      "falling": 0.7350000000003419
+    }
+  },
+  "selected_joint_dc_grid": {
+    "conditions": 693,
+    "passed": 693,
+    "both_sweep_directions": true,
+    "worst_abs_common_mV": 19.672075957987367,
+    "minimum_saturation_headroom_mV": 8.125609375132099
+  },
+  "matched_device_curves": {
+    "before": {
+      "tt-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 10.06052172974166,
+        "quiescent_gm_over_Id_per_V": 15.23246169881983
+      },
+      "tt-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 36.07548660086188,
+        "quiescent_gm_over_Id_per_V": 14.93463462189432
+      },
+      "ss-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 9.693112364971766,
+        "quiescent_gm_over_Id_per_V": 13.994758772110053
+      },
+      "ss-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 34.547462483120306,
+        "quiescent_gm_over_Id_per_V": 14.713406746016084
+      },
+      "ff-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 10.15481853649106,
+        "quiescent_gm_over_Id_per_V": 18.560121670685476
+      },
+      "ff-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 36.982285872633376,
+        "quiescent_gm_over_Id_per_V": 16.598527495259496
+      }
+    },
+    "after": {
+      "tt-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 21.82246737731009,
+        "quiescent_gm_over_Id_per_V": 15.160243059694238
+      },
+      "tt-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 37.48416451873073,
+        "quiescent_gm_over_Id_per_V": 14.934445491523892
+      },
+      "ss-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 21.21986350105631,
+        "quiescent_gm_over_Id_per_V": 13.931591654811882
+      },
+      "ss-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 35.901254687239195,
+        "quiescent_gm_over_Id_per_V": 14.711271435593297
+      },
+      "ff-MINP": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 22.48985946957838,
+        "quiescent_gm_over_Id_per_V": 18.502798299390097
+      },
+      "ff-MCM": {
+        "sweep_points": 181,
+        "cgg_fF_at_nearest_swept_current": 38.42014405630969,
+        "quiescent_gm_over_Id_per_V": 16.600955458068878
+      }
+    }
+  },
+  "area_only": {
+    "development_seed": 64211,
+    "isolated_input_pair": {
+      "before": {
+        "total": 32,
+        "passed": 8,
+        "passed_per_gate": {
+          "tracking": 8,
+          "common": 31,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 10.697860338014841,
+        "signed_center_sigma_mV": 3.823235043665283
+      },
+      "after": {
+        "total": 32,
+        "passed": 12,
+        "passed_per_gate": {
+          "tracking": 12,
+          "common": 32,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 7.134648702953827,
+        "signed_center_sigma_mV": 2.547198643519129
+      },
+      "samples_with_lower_worst_tracking_error": 32
+    },
+    "all_mos": {
+      "before": {
+        "total": 32,
+        "passed": 1,
+        "passed_per_gate": {
+          "tracking": 11,
+          "common": 11,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 11.319202164266128,
+        "signed_center_sigma_mV": 4.166369234589041
+      },
+      "after": {
+        "total": 32,
+        "passed": 3,
+        "passed_per_gate": {
+          "tracking": 12,
+          "common": 11,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 8.070659844198468,
+        "signed_center_sigma_mV": 3.00592607578274
+      },
+      "samples_with_lower_worst_tracking_error": 28
+    },
+    "first_order_projection": {
+      "original_pair_um2": 3.9000000000000004,
+      "larger_pair_um2": 8.775,
+      "maximum_pair_um2_at_fixed_others": 10.389999999999995,
+      "predicted_sigma_ratio": 0.6666666666666667,
+      "measured_sigma_ratio": 0.6662417074617428,
+      "estimated_peak_mV_at_area_ceiling": 6.554226620247344
+    }
+  },
+  "batches": {
+    "64211": {
+      "before": {
+        "total": 32,
+        "passed": 1,
+        "passed_per_gate": {
+          "tracking": 11,
+          "common": 11,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 11.319202164266128,
+        "signed_center_sigma_mV": 4.166369234589041
+      },
+      "after": {
+        "total": 32,
+        "passed": 2,
+        "passed_per_gate": {
+          "tracking": 12,
+          "common": 8,
+          "saturation": 27,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 8.070655830897888,
+        "signed_center_sigma_mV": 3.0059262013745656
+      },
+      "samples_with_lower_worst_tracking_error": 28,
+      "paired_joint_verdicts": {
+        "kept_pass": 0,
+        "gained_pass": 2,
+        "lost_pass": 1,
+        "both_failed": 29
+      },
+      "draws_that_changed_joint_verdict": [
+        {
+          "native_draw_number": 12,
+          "before_passed": false,
+          "after_passed": true,
+          "worst_abs_tracking_mV": [
+            2.078722052665294,
+            0.9158045972251228
+          ],
+          "worst_abs_common_mV": [
+            22.689816844270073,
+            22.633991515604635
+          ]
+        },
+        {
+          "native_draw_number": 15,
+          "before_passed": false,
+          "after_passed": true,
+          "worst_abs_tracking_mV": [
+            0.6577780842489944,
+            0.4560234120873363
+          ],
+          "worst_abs_common_mV": [
+            28.745027424097678,
+            21.85091978990328
+          ]
+        },
+        {
+          "native_draw_number": 24,
+          "before_passed": true,
+          "after_passed": false,
+          "worst_abs_tracking_mV": [
+            0.554310322649354,
+            0.6578345372933447
+          ],
+          "worst_abs_common_mV": [
+            22.752253326351777,
+            35.315143170623564
+          ]
+        }
+      ]
+    },
+    "152219": {
+      "before": {
+        "total": 32,
+        "passed": 3,
+        "passed_per_gate": {
+          "tracking": 5,
+          "common": 13,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 8.963442091539708,
+        "signed_center_sigma_mV": 4.358440773955521
+      },
+      "after": {
+        "total": 32,
+        "passed": 1,
+        "passed_per_gate": {
+          "tracking": 6,
+          "common": 9,
+          "saturation": 27,
+          "rails": 32,
+          "supply": 32
+        },
+        "maximum_tracking_error_mV": 6.7530345441478286,
+        "signed_center_sigma_mV": 3.1953484835781483
+      },
+      "samples_with_lower_worst_tracking_error": 27,
+      "paired_joint_verdicts": {
+        "kept_pass": 0,
+        "gained_pass": 1,
+        "lost_pass": 3,
+        "both_failed": 28
+      },
+      "draws_that_changed_joint_verdict": [
+        {
+          "native_draw_number": 6,
+          "before_passed": true,
+          "after_passed": false,
+          "worst_abs_tracking_mV": [
+            0.06001315731113399,
+            0.48089271936008204
+          ],
+          "worst_abs_common_mV": [
+            24.09350652177178,
+            36.639793111429064
+          ]
+        },
+        {
+          "native_draw_number": 13,
+          "before_passed": true,
+          "after_passed": false,
+          "worst_abs_tracking_mV": [
+            0.9748252989165151,
+            0.31971547218917484
+          ],
+          "worst_abs_common_mV": [
+            17.309840146751743,
+            27.202433904823685
+          ]
+        },
+        {
+          "native_draw_number": 20,
+          "before_passed": false,
+          "after_passed": true,
+          "worst_abs_tracking_mV": [
+            0.2697289032085881,
+            0.20098159364639878
+          ],
+          "worst_abs_common_mV": [
+            32.63645612581978,
+            22.213655223168093
+          ]
+        },
+        {
+          "native_draw_number": 31,
+          "before_passed": true,
+          "after_passed": false,
+          "worst_abs_tracking_mV": [
+            0.2504626093534079,
+            0.24696690657027842
+          ],
+          "worst_abs_common_mV": [
+            19.584002922226063,
+            29.11573245066701
+          ]
+        }
+      ]
+    }
+  },
+  "development_seed": 64211,
+  "held_out_seed": 152219,
+  "arithmetic_diagnostic": {
+    "reference": "TT 0.95 V input common mode, 0 V differential command on the same draw",
+    "scope": "Numerical subtraction of the reference tracking error; no physical calibration circuit",
+    "batches": {
+      "64211": {
+        "before": {
+          "draws": 32,
+          "reference_offset_range_mV": [
+            -10.55859987861163,
+            11.136454380391125
+          ],
+          "worst_residual_mV": 0.36128136185192794,
+          "within_1mV_after_arithmetic_subtraction": 32
+        },
+        "after": {
+          "draws": 32,
+          "reference_offset_range_mV": [
+            -7.010776049011347,
+            7.915972390125203
+          ],
+          "worst_residual_mV": 0.36711869891176097,
+          "within_1mV_after_arithmetic_subtraction": 32
+        }
+      },
+      "152219": {
+        "before": {
+          "draws": 32,
+          "reference_offset_range_mV": [
+            -8.170861911396376,
+            8.746281158981017
+          ],
+          "worst_residual_mV": 0.3967556790127058,
+          "within_1mV_after_arithmetic_subtraction": 32
+        },
+        "after": {
+          "draws": 32,
+          "reference_offset_range_mV": [
+            -6.134268156224421,
+            6.55444421726048
+          ],
+          "worst_residual_mV": 0.38563414263942386,
+          "within_1mV_after_arithmetic_subtraction": 32
+        }
+      }
+    }
+  },
+  "raw_replay": {
+    "dc_grid": 693,
+    "dc_grid_passed": 693,
+    "sampled_dc_points": 3456,
+    "device_characterization_points": 2172,
+    "transient_points": 210042,
+    "largest_maestro_voltage_delta_V": 0,
+    "noise_integrals": 3,
+    "maximum_noise_relative_error": 1.2786428227329338e-07
+  },
+  "checks": {
+    "nominal": true,
+    "joint_grid": true,
+    "fullscale": true,
+    "development": false,
+    "independent": false
+  },
+  "sky130_adc_driver_existing_waveform_replay": {
+    "ngspice_version": "39",
+    "seven_bit": {
+      "validation": {
+        "kept_pass": 20,
+        "gained_pass": 11,
+        "lost_pass": 0,
+        "both_failed": 1
+      },
+      "confirmation": {
+        "kept_pass": 33,
+        "gained_pass": 31,
+        "lost_pass": 0,
+        "both_failed": 0
+      }
+    },
+    "ten_bit": {
+      "validation": {
+        "kept_pass": 0,
+        "gained_pass": 0,
+        "lost_pass": 0,
+        "both_failed": 2
+      },
+      "confirmation": {
+        "kept_pass": 0,
+        "gained_pass": 1,
+        "lost_pass": 0,
+        "both_failed": 3
+      }
+    }
+  }
+}

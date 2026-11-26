@@ -293,27 +293,30 @@ def midpoint_needed(first):
             and any(r["headroom_V"]<0 and r["limiting_device"] in ("XDUT.XC.MCTN","XDUT.XC.MCTP") for r in slow))
 
 
+def joint_grid(folder,native,site,fresh):
+    grid = {}
+    for state in STATES:
+        for mv in range(950,1101,15):
+            label = "{}-{:04d}".format(state[0],mv)
+            scans = [exact_swing(folder/("joint-"+label+"-"+direction),native,state,site,fresh,icm=mv/1000,
+                                 points=21,reverse=direction=="down") for direction in ("up","down")]
+            conditions = []
+            for a,b in zip(*scans):
+                if abs(a["command_V"]-b["command_V"])>1e-8:
+                    raise ValueError("Forward and reverse joint sweeps do not contain the same stimuli")
+                difference = 1000*max(abs(a[k]-b[k]) for k in ("output_p_V","output_n_V"))
+                conditions.append(dict(command_V=a["command_V"],cm_magnitude_mV=max(abs(r["cm_error_mV"]) for r in (a,b)),
+                        tracking_mV=max(r["tracking_mV"] for r in (a,b)),headroom_V=min(r["headroom_V"] for r in (a,b)),
+                        direction_difference_mV=difference,passed=a["passed"] and b["passed"] and difference<=.5))
+            grid[label] = conditions
+    return grid
+
+
 def refine(out,site,ref,fresh):
     if fresh:
         out.mkdir()
     name,native,record = physical_trial(out,.45,3.75,site,ref,fresh)
-    grid = {}
-    if record["passed"]:
-        for state in STATES:
-            for mv in range(950,1101,15):
-                label = "{}-{:04d}".format(state[0],mv)
-                folder = out/name
-                scans = [exact_swing(folder/("joint-"+label+"-"+direction),native,state,site,fresh,icm=mv/1000,
-                                     points=21,reverse=direction=="down") for direction in ("up","down")]
-                conditions = []
-                for a,b in zip(*scans):
-                    if abs(a["command_V"]-b["command_V"])>1e-8:
-                        raise ValueError("Forward and reverse joint sweeps do not contain the same stimuli")
-                    difference = 1000*max(abs(a[k]-b[k]) for k in ("output_p_V","output_n_V"))
-                    conditions.append(dict(command_V=a["command_V"],cm_magnitude_mV=max(abs(r["cm_error_mV"]) for r in (a,b)),
-                            tracking_mV=max(r["tracking_mV"] for r in (a,b)),headroom_V=min(r["headroom_V"] for r in (a,b)),
-                            direction_difference_mV=difference,passed=a["passed"] and b["passed"] and difference<=.5))
-                grid[label] = conditions
+    grid = joint_grid(out/name,native,site,fresh) if record["passed"] else {}
     points = [r for rows in grid.values() for r in rows]
     passed = len(points)==693 and all(r["passed"] for r in points)
     report = dict(name=name,candidate=record,grid=grid,passed=passed,unique_conditions=len(points),
