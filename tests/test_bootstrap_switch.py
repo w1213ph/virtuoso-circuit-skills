@@ -9,10 +9,17 @@ sys.path.insert(0,str(CASE))
 from switch_design import CYCLES, TONE_BIN, circuit, requirements
 from switch_measure import harmonics, stress
 from switch_views import parent_check, view_sources
-from switch import largest_terminal_failure, refined_limits
+from switch import comparable, largest_terminal_failure, refined_limits
 
 
 class BootstrapSwitch(unittest.TestCase):
+    def test_cross_platform_source_residual_only(self):
+        a,b = -226.08493131516235,-226.08481133966205
+        self.assertTrue(comparable({"source_thd_dBc":a},{"source_thd_dBc":b}))
+        self.assertFalse(comparable({"source_thd_dBc":a},{"source_thd_dBc":-222.0}))
+        self.assertFalse(comparable({"thd_dBc":a},{"thd_dBc":b}))
+        self.assertFalse(comparable({"checks":{"source":True}},{"checks":{"source":False}}))
+
     def test_harmonics_use_held_amplitudes_and_exclude_dc(self):
         phase=[2*math.pi*TONE_BIN*k/CYCLES for k in range(CYCLES)]
         bins,thd=harmonics([.95+.5*math.sin(t)+.0005*math.cos(3*t) for t in phase])

@@ -21,9 +21,16 @@ def libs_at(folder,root):
     return ["../"*depth+"models/"+part for part in ("core/mirror.lib.spice","switch/switch.lib.spice")]
 
 
-def comparable(a,b):
-    if type(b) is float:return type(a) in (int,float) and math.isclose(a,b,rel_tol=2e-9,abs_tol=2e-8)
-    if isinstance(b,dict):return isinstance(a,dict) and a.keys()==b.keys() and all(comparable(a[k],v) for k,v in b.items())
+def comparable(a,b,field=None):
+    if type(b) is float:
+        if type(a) not in (int,float) or not math.isfinite(a) or not math.isfinite(b):
+            return False
+        # A nearly ideal input sine has harmonics close to floating-point cancellation.
+        # Compare this stimulus diagnostic in linear amplitude near zero.
+        if field=="source_thd_dBc" and max(a,b)<-180:
+            return abs(10**(a/20) - 10**(b/20)) <= 8*sys.float_info.epsilon
+        return math.isclose(a,b,rel_tol=2e-9,abs_tol=2e-8)
+    if isinstance(b,dict):return isinstance(a,dict) and a.keys()==b.keys() and all(comparable(a[k],v,k) for k,v in b.items())
     if isinstance(b,list):return isinstance(a,list) and len(a)==len(b) and all(comparable(x,y) for x,y in zip(a,b))
     return type(a) is type(b) and a==b
 
