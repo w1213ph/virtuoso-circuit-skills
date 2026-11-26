@@ -1,16 +1,18 @@
-name: SKY130 mirror and ADC driver pre-layout simulation
+name: SKY130 mirror, ADC driver and programmable gain pre-layout simulation
 on:
   workflow_dispatch:
   push:
     paths:
       - 'examples/sky130-current-mirror/**'
       - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-programmable-gain/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
       - '.github/workflows/sky130-prelayout.yml'
   pull_request:
     paths:
       - 'examples/sky130-current-mirror/**'
       - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-programmable-gain/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
       - '.github/workflows/sky130-prelayout.yml'
 permissions:
@@ -183,3 +185,42 @@ jobs:
           path: |
             work/adc-driver/
             work/driver-8bit/
+      - name: Measure four gain codes at the receiver and settle both control transitions
+        run: |
+          ex=examples/sky130-programmable-gain
+          python3 "$ex/run.py" --models work/mirror/models --reuse-lut work/mirror/characterization --out work/gain
+          python3 "$ex/verify_results.py" work/gain > work/gain-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          read = lambda p: json.loads(Path(p).read_text(encoding="utf-8"))
+          result = read("work/gain-check.json")
+          assert result["selected"] == "candidate" and result["pass_counts"] == {"baseline":34,"candidate":42}
+          checked = read("work/gain/baseline/checked.json")
+          assert [(x["planned"], x["missing"]) for x in checked["coverage"]] == [(12,0),(6,0)]
+          rows = {t["id"]:t for t in checked["tests"]}
+          assert abs(rows["ss.00.drive_high_dB"]["value"]) < 1.5 and rows["ss.00.max_gain_error_dB"]["status"] == "FAIL"
+          for corner in ("tt","ss","ff"):
+              assert read("work/gain/characterization/"+corner+"/manifest.json")["mode"] == "reused"
+          r = read("examples/sky130-programmable-gain/requirements.example.json")
+          r.update(purpose="Honor a tighter supply-current budget on the same loaded gain stage",max_supply_uA=20)
+          Path("work/gain-20ua.json").write_text(json.dumps(r))
+          PY
+          status=0
+          python3 "$ex/run.py" --requirements work/gain-20ua.json --models work/mirror/models --reuse-lut work/mirror/characterization --out work/gain-20ua || status=$?
+          test "$status" = 1
+          python3 "$ex/verify_results.py" work/gain-20ua > work/gain-20ua-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("work/gain-20ua-check.json").read_text())
+          assert result["status"] == "review_required" and not result["passing_variants"] and result["selected"] is None
+          PY
+          cat work/gain/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-programmable-gain
+          path: |
+            work/gain/
+            work/gain-20ua/

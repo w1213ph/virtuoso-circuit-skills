@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import itertools
 import json
 import math
 import operator
@@ -33,6 +34,60 @@ def finite_number(value):
 def check_paths(paths, label):
     if not isinstance(paths, list) or not all(text_present(path) for path in paths):
         raise ValueError(f"{label} must be an array of file paths")
+
+
+def condition_value(value):
+    # JSON booleans and numbers have distinct meanings for a mode selector.
+    if type(value) is bool or text_present(value):
+        return json.dumps(value, ensure_ascii=False)
+    if finite_number(value):
+        return str(int(value)) if type(value) is int or value.is_integer() else repr(value)
+    return None
+
+
+def required_sweeps(plan):
+    sweeps = plan.get("required_sweeps", [])
+    if not isinstance(sweeps, list):
+        raise ValueError("required_sweeps must be a list")
+    for sweep in sweeps:
+        if not isinstance(sweep, dict) or not text_present(sweep.get("metric")):
+            raise ValueError("Each required sweep needs a metric")
+        axes = sweep.get("axes")
+        if not isinstance(axes, dict) or not axes or not all(text_present(k) for k in axes):
+            raise ValueError("A required sweep needs named condition axes")
+        for key, values in axes.items():
+            if not isinstance(values, list) or not values:
+                raise ValueError(f"Empty or invalid sweep axis: {key}")
+            keys = [condition_value(v) for v in values]
+            if None in keys or len(keys) != len(set(keys)):
+                raise ValueError(f"Sweep values must be distinct finite scalars: {key}")
+    return sweeps
+
+
+def sweep_coverage(plan):
+    reports = []
+    for group in required_sweeps(plan):
+        keys = sorted(group["axes"])
+        values = {k: {condition_value(v): v for v in group["axes"][k]} for k in keys}
+        needed = 1
+        for axis in values.values():
+            needed *= len(axis)
+        planned = set()
+        for test in plan["tests"]:
+            if test["metric"] != group["metric"] or test.get("role") == "diagnostic":
+                continue
+            point = tuple(condition_value(test["conditions"].get(k)) for k in keys)
+            if all(v in values[k] for k, v in zip(keys, point)):
+                planned.add(point)
+        missing = needed - len(planned)
+        examples = []
+        if missing:
+            absent = (pt for pt in itertools.product(*(values[k] for k in keys)) if pt not in planned)
+            examples = [{k: values[k][v] for k, v in zip(keys, pt)} for pt in itertools.islice(absent, 8)]
+        contract = [group["metric"], {k: sorted(values[k]) for k in keys}]
+        reports.append({"metric": group["metric"], "contract_sha256": record_hash(contract), "required": needed,
+                        "planned": len(planned), "missing": missing, "missing_examples": examples})
+    return reports
 
 
 def load_plan(path):
@@ -73,6 +128,7 @@ def load_plan(path):
             raise ValueError(f"{test_id}: invalid operator or limit")
     if plan["results"].keys() - ids:
         raise ValueError("Every result must reference a test ID in the plan")
+    required_sweeps(plan)
     return plan
 
 
@@ -181,14 +237,24 @@ def check(plan, directory, contexts, hashes):
         })
     required = [row for row in results if row.get("role") != "diagnostic"]
     passed = bool(required) and all(test["status"] == "PASS" for test in required)
-    return {
+    report = {
         "status": "RECORDED_LIMITS_MET" if passed else "REVIEW_REQUIRED",
         "tests": results,
         "scope": "Declared input files, evidence digests and recorded measurements.",
     }
+    if plan.get("required_sweeps"):
+        report["coverage"] = sweep_coverage(plan)
+        if any(group["missing"] for group in report["coverage"]):
+            report["status"] = "REVIEW_REQUIRED"
+    return report
 
 
 def compare(baseline, candidate):
+    base_sweeps, trial_sweeps = (r.get("coverage", []) for r in (baseline, candidate))
+    if (any(s["missing"] for s in base_sweeps + trial_sweeps) or
+            {s["contract_sha256"] for s in base_sweeps} != {s["contract_sha256"] for s in trial_sweeps}):
+        return {"status": "INCOMPARABLE", "passing_variants": [], "candidate_limits_met": False,
+                "detail": "Both plans must cover the same required operating conditions."}
     base_tests = {test["id"]: test for test in baseline["tests"] if test.get("role") != "diagnostic"}
     candidate_tests = {test["id"]: test for test in candidate["tests"] if test.get("role") != "diagnostic"}
     if not base_tests or base_tests.keys() != candidate_tests.keys():
@@ -245,6 +311,9 @@ def main():
     if args.operation == "snapshot":
         report = {"tests": contexts}
         complete = bool(contexts) and all("error" not in context for context in contexts.values())
+        if plan.get("required_sweeps"):
+            report["coverage"] = sweep_coverage(plan)
+            complete = complete and all(not s["missing"] for s in report["coverage"])
     else:
         records = check(plan, args.plan.parent, contexts, hashes)
         if args.operation == "compare":

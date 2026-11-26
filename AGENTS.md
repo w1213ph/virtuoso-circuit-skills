@@ -17,6 +17,8 @@
 
 开源工艺练习按用途选择。复制外部参考电流，用[SKY130 电流镜](examples/sky130-current-mirror/README.md)；需要放大器驱动 ADC 的采样节点，用[带传输门和采样电容的闭环驱动器](examples/sky130-adc-driver/README.md)。先按实际位数、输入步幅和采样时序估算，再检查电容上双向采样及保持误差。首次使用模型先表征器件，给出与温度、工艺角、端电压和几何对应的电流密度。复用表时验证来源与原始结果，改尺寸后重新建图、回读网表、实测整个电路并记录代价。
 
+可编程增益电路从最低码追到实际导通支路，明确位序、后级偏置与接收节点。按码和工况测增益，再单独测切码建立时间。四档码表、带载测试台和失败工况见[可编程增益案例](examples/sky130-programmable-gain/README.md)。
+
 维护公开文档时，README 面向第一次使用的人，先说明用途、准备信息、开始步骤和可见成果；AI 的执行细节放在 Skill 与相关 references。命令注明运行位置、输入、输出和成功标志，避免要求新用户先读完所有文件。实际使用入口见 [AI_START.md](docs/AI_START.md)，命令见 [TOOLS.md](docs/TOOLS.md)。
 
 离线工具用于生成文件和核对证据。`emit_symbols.py` 生成的 SKILL 仅在明确指定的新专用库创建 symbol。用户要实际复跑 SMIC18 动态比较器时，按[案例入口](examples/dynamic-comparator/README.md#从空目录复跑)调用 `run_native.py`，使用本机配置和新目录，对两版执行原生建图、器件表征与瞬态。命令执行完后另查实际父级、原理图全图和局部。

@@ -117,6 +117,21 @@ python skills/paper-to-virtuoso/scripts/check_prelayout.py compare --plan work/a
 
 在 `prelayout.json` 中，正式指标沿用默认设置。用于观察内部节点或用理想替代定位问题时，可将该条测试标记为 `"role": "diagnostic"`。`check` 显示诊断值及证据状态，`compare` 用两份计划中相同的正式指标选型。只有诊断的计划返回 `REVIEW_REQUIRED`。[模式与测试用途](../skills/paper-to-virtuoso/references/simulation.md#模式负载与测试用途)
 
+### 检查控制码和工况是否跑全
+
+需要逐码验收时，可在 `prelayout.json` 顶层加入以下字段。这里要求在 `RXIN` 节点记录四个码和三个工艺角，共 12 种组合。每条正式测试的 `metric` 和 `conditions` 应填写对应的指标、端口、码位和工况。
+
+```json
+{
+  "required_sweeps": [{
+    "metric": "max_gain_error_dB",
+    "axes": {"port": ["RXIN"], "code_B1_B0": ["00", "01", "10", "11"], "corner": ["tt", "ss", "ff"]}
+  }]
+}
+```
+
+`snapshot` 可在仿真前发现少列的组合。`check` 返回需要的组合数、正式测试已列的组合数和最多八个缺项示例，并继续核对每一项的原始证据与限值。相同工况重复登记只计一次。只测内部端口或只登记诊断项时，相应的正式组合仍缺失。`compare` 要求两版声明相同的范围并列齐组合。可以给温度等条件填数值，保留前导零的码字用字符串。[可执行案例](../examples/sky130-programmable-gain/README.md)
+
 ## 比较重排前后的电气数据
 
 先用你的连接工具或原生 SKILL，从修改前后的 OA 数据库导出完整快照，保存为 `work/afe/before.json` 和 `work/afe/after.json`。本仓库的比较器不负责自动采集 OA；字段与示例见[回读格式](../skills/paper-to-virtuoso/references/acceptance.md#电气回读-json)。

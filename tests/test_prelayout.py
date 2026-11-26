@@ -144,6 +144,40 @@ class PrelayoutCommands(unittest.TestCase):
         evidence.unlink()
         self.assertEqual(self.invoke("check", path, expected=1)["tests"][0]["status"], "MISSING_EVIDENCE")
 
+    def test_unplanned_mode_and_diagnostic_replacement_cannot_pass(self):
+        path, plan = self.plan("modes", self.comparator)
+        self.measure(path, plan, 2)
+        plan["required_sweeps"] = [{"metric":self.comparator["metric"],"axes":{"corner":["TT","SS"],"temperature_C":[25]}}]
+        plan["tests"].append(dict(self.comparator, id="internal", role="diagnostic",
+                                  conditions={"corner":"SS","temperature_C":25}))
+        self.save(path,plan)
+        snap = self.invoke("snapshot",path,expected=1)
+        self.assertEqual(snap["coverage"][0]["missing_examples"], [{"corner":"SS","temperature_C":25}])
+        checked = self.invoke("check",path,expected=1)
+        self.assertEqual(checked["tests"][0]["status"], "PASS")
+        self.assertEqual(checked["coverage"][0]["planned"], 1)
+        self.assertEqual(self.invoke("compare",path,baseline=path,expected=1)["status"], "INCOMPARABLE")
+
+    def test_coverage_compares_conditions_and_requires_distinct_values(self):
+        a, left = self.plan("left",self.comparator)
+        b, right = self.plan("right",self.comparator)
+        for path,record in ((a,left),(b,right)):
+            self.measure(path,record,2)
+            record["required_sweeps"]=[{"metric":self.comparator["metric"],"axes":{"temperature_C":[25]}}]
+            self.save(path,record)
+        right["required_sweeps"][0]["axes"]={"temperature_C":[25.0]}
+        self.save(b,right)
+        self.assertEqual(self.invoke("compare",b,baseline=a)["passing_variants"],["baseline","candidate"])
+        right["required_sweeps"][0]["axes"]["corner"]=["TT"]
+        self.save(b,right)
+        self.assertEqual(self.invoke("check",b)["coverage"][0]["missing"],0)
+        self.assertEqual(self.invoke("compare",b,baseline=a,expected=1)["status"],"INCOMPARABLE")
+        right["required_sweeps"][0]["axes"]["temperature_C"]=[25,25.0]
+        self.save(b,right)
+        failed=subprocess.run([sys.executable,str(SCRIPT),"check","--plan",str(b)],capture_output=True)
+        self.assertEqual(failed.returncode,2)
+        self.assertIn(b"distinct",failed.stderr)
+
     def test_bad_unit_and_unconfirmed_target_require_review(self):
         self.comparator["target"]["confirmed"] = False
         path, plan = self.plan("candidate", self.comparator)

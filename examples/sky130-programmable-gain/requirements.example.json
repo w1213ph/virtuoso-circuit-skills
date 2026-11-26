@@ -1,0 +1,13 @@
+{
+  "purpose": "在真实接收输入端测量四个增益码，选择满足带内增益、静态电流和双向切换建立时间的较小电路。",
+  "gain_targets_V_V": [1, 2, 3, 4],
+  "low_Hz": 10000,
+  "high_Hz": 1000000,
+  "max_gain_error_dB": 1.5,
+  "max_supply_uA": 100,
+  "input_common_mode_fraction": 0.4,
+  "receiver_cap_pF": 5,
+  "transition_input_offset_mV": 8,
+  "settling_band_mV": 1,
+  "max_settling_ns": 500
+}
