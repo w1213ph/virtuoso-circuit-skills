@@ -85,4 +85,28 @@ python3 examples/smic18-ota-sizing/ota_noise.py evaluate --config cadence.local.
 python3 skills/paper-to-virtuoso/scripts/check_prelayout.py check --plan work/fdota-noise/portable/plan.json
 ```
 
-最后一条可在只有 Python 的机器上运行，输入为整个 `portable` 目录。该计划核验全部候选的噪声，有超限项即返回 1；具体选中哪组还取决于完整电路的其他硬指标，见 `summary.json`。保存的 Maestro 覆盖原有五类分析，新增噪声使用同一原生 SI 网表直接运行 Spectre。完整输入共模范围、大摆幅失真、OTA 失配和产品指定的全部 PVT 组合，仍需按实际应用补测。
+最后一条可在只有 Python 的机器上运行，输入为整个 `portable` 目录。该计划核验全部候选的噪声，有超限项即返回 1。完整的选型见 `summary.json`。保存的 Maestro 覆盖原有五类分析，新增噪声使用同一原生 SI 网表直接运行 Spectre。
+
+## 从输入共模和输出摆幅检查接口
+
+选用 40 µV RMS 方案 `l150-i06-c275` 后，再要求输入共模覆盖 0.95–1.10 V、差分输出覆盖 ±0.30 V。三个工况均覆盖输入要求，快角的差分输出范围超限。把输出要求收窄到 ±0.20 V，三组工况均通过本次静态检查。[各边界、相邻失败点和判据](range-review.json)
+
+| 工况 | 输入共模连续通过的采样区间 | 差分输出指令连续通过的采样区间 | 间隔 |
+|---|---:|---:|---:|
+| TT，27 °C，1.80 V | 0.630–1.800 V | −0.360 至 +0.360 V | 22.50 mV |
+| SS，85 °C，1.62 V | 0.66825–1.620 V | −0.78975 至 +0.78975 V | 20.25 mV |
+| FF，−40 °C，1.80 V | 0.6075–1.800 V | −0.225 至 +0.225 V | 22.50 mV |
+
+输入共模下限首先受尾电流源 `XDUT.XI.MTAIL` 的饱和余量限制。快角输出端的限制来自另一项测量。输出指令为 +0.2475 V 时差分跟踪误差仅 0.0144 mV，但输出平均电平比目标低 28.54 mV，超过允许的 25 mV。下一次有针对性的实验是检查共模检测级在差分输出变化时产生的净控制电流，以及 CMFB 对输出平均电平的调节能力。该实验可区分检测非线性和环路余量不足。
+
+输入共模扫描时差模开环、CMFB 闭合，使用 ±100 nV、±50 nV 的两种差分微扰估计增益。两种斜率须在 1% 内一致，标称点另核对原生 1 Hz AC 增益。输出摆幅扫描时输入共模固定在 0.6 VDD，差模单位负反馈和 CMFB 同时闭合。测量要求所有 MOS 的饱和余量非负、输出留在电源轨内、输出共模误差不超过 25 mV。差分跟踪误差上限为 1 mV，正反向扫点的同一输出偏差上限为 0.5 mV。共计 24 条原生 DC 扫描、2,424 个工作点。对导出的 726 组输入或输出条件另行重算，得到相同边界。
+
+从仓库根目录在已有站点配置和原生 OTA 工程上运行。首次运行写入新目录，各角保存原始 PSF 和逐点 `*-points.csv`。名义要求在快角失败会返回 1。最后一条只读回放较小摆幅，返回 0。证据错误返回 2。
+
+```sh
+python3 examples/smic18-ota-sizing/ota_range.py run --config cadence.local.json --ota work/fdota --out work/fdota-range --candidate l150-i06-c275
+python3 examples/smic18-ota-sizing/ota_range.py verify --config cadence.local.json --ota work/fdota --out work/fdota-range
+python3 examples/smic18-ota-sizing/ota_range.py evaluate --config cadence.local.json --ota work/fdota --out work/fdota-range --vdiff-v -0.20 0.20
+```
+
+以上是两条分别扫描的静态范围。输出差分范围指 OUTP − OUTN，实际边界落在最后通过点与相邻失败点之间。输入上限量到电源轨。两轴同时贴近边界时的工作区、大信号动态失真、此 OTA 的器件失配和产品完整 PVT 仍需单独验收。

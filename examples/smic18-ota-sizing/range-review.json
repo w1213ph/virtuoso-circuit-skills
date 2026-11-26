@@ -1,0 +1,191 @@
+{
+  "candidate": "l150-i06-c275",
+  "native_sweeps": 24,
+  "solved_sweep_points": 2424,
+  "independently_reviewed_operating_points": 726,
+  "original_analyses_replayed": 15,
+  "load_pF_per_output": 2,
+  "input_cm_request_V": [
+    0.95,
+    1.1
+  ],
+  "output_diff_request_V": [
+    -0.3,
+    0.3
+  ],
+  "static_checks": {
+    "min_differential_gain_dB_exclusive": 80,
+    "max_tracking_error_mV": 1,
+    "max_output_cm_error_mV": 25,
+    "min_abs_vds_minus_abs_vdsat_V": 0,
+    "max_direction_difference_mV": 0.5
+  },
+  "corners": {
+    "tt": {
+      "grid_mV": 22.5,
+      "dc_gain_dB": 84.806226,
+      "ac_gain_dB": 84.805861,
+      "input_cm": {
+        "bounds_V": [
+          0.63,
+          1.8
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": 0.6075,
+            "failed": [
+              "saturation"
+            ],
+            "output_cm_error_mV": -10.754985,
+            "worst_headroom_device": "XDUT.XI.MTAIL",
+            "worst_headroom_mV": -15.563081
+          },
+          null
+        ],
+        "passed_points": 53,
+        "points_per_direction": 81
+      },
+      "output_diff": {
+        "bounds_V": [
+          -0.36,
+          0.36
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": -0.3825,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -29.532217,
+            "worst_headroom_device": "XDUT.XC.MCTP",
+            "worst_headroom_mV": 210.013699,
+            "differential_tracking_error_mV": 0.022068
+          },
+          {
+            "test_value_V": 0.3825,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -29.532217,
+            "worst_headroom_device": "XDUT.XC.MCTN",
+            "worst_headroom_mV": 210.013699,
+            "differential_tracking_error_mV": 0.022068
+          }
+        ],
+        "passed_points": 33,
+        "points_per_direction": 161
+      }
+    },
+    "ss": {
+      "grid_mV": 20.25,
+      "dc_gain_dB": 84.818543,
+      "ac_gain_dB": 84.817729,
+      "input_cm": {
+        "bounds_V": [
+          0.66825,
+          1.62
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": 0.648,
+            "failed": [
+              "saturation"
+            ],
+            "output_cm_error_mV": -1.98927,
+            "worst_headroom_device": "XDUT.XI.MTAIL",
+            "worst_headroom_mV": -0.665891
+          },
+          null
+        ],
+        "passed_points": 48,
+        "points_per_direction": 81
+      },
+      "output_diff": {
+        "bounds_V": [
+          -0.78975,
+          0.78975
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": -0.81,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -25.327039,
+            "worst_headroom_device": "XDUT.XC.MCTP",
+            "worst_headroom_mV": 125.509505,
+            "differential_tracking_error_mV": 0.047609
+          },
+          {
+            "test_value_V": 0.81,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -25.327137,
+            "worst_headroom_device": "XDUT.XC.MCTN",
+            "worst_headroom_mV": 125.509505,
+            "differential_tracking_error_mV": 0.047609
+          }
+        ],
+        "passed_points": 79,
+        "points_per_direction": 161
+      }
+    },
+    "ff": {
+      "grid_mV": 22.5,
+      "dc_gain_dB": 84.71383,
+      "ac_gain_dB": 84.713634,
+      "input_cm": {
+        "bounds_V": [
+          0.6075,
+          1.8
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": 0.585,
+            "failed": [
+              "saturation"
+            ],
+            "output_cm_error_mV": -14.663157,
+            "worst_headroom_device": "XDUT.XI.MTAIL",
+            "worst_headroom_mV": -11.53878
+          },
+          null
+        ],
+        "passed_points": 54,
+        "points_per_direction": 81
+      },
+      "output_diff": {
+        "bounds_V": [
+          -0.225,
+          0.225
+        ],
+        "neighbour_failures": [
+          {
+            "test_value_V": -0.2475,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -28.542465,
+            "worst_headroom_device": "XDUT.XC.MCTP",
+            "worst_headroom_mV": 230.849547,
+            "differential_tracking_error_mV": 0.014399
+          },
+          {
+            "test_value_V": 0.2475,
+            "failed": [
+              "output_common_mode"
+            ],
+            "output_cm_error_mV": -28.542465,
+            "worst_headroom_device": "XDUT.XC.MCTN",
+            "worst_headroom_mV": 230.849547,
+            "differential_tracking_error_mV": 0.014399
+          }
+        ],
+        "passed_points": 21,
+        "points_per_direction": 161
+      }
+    }
+  },
+  "request_pass": false
+}
