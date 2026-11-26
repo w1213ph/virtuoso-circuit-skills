@@ -4,6 +4,8 @@
 
 ## 先准备什么
 
+要做低功耗全差分运放，可以直接说“用 180 nm、1.8 V 给我的传感器做高增益全差分 OTA”。agent 会从工程确认 PDK，优先向你确认负载和有效信号频带。若系统已有噪声预算，可再给出带内允许的输入电压噪声。已有 SMIC18 示例展示了同一台电路在 60、40、30 µV RMS 三个预算下如何选择尺寸、报告功耗和面积，以及何时应告诉你全部候选都超限。[查看实测、原理图与运行命令](../examples/smic18-ota-sizing/OTA.md#输入噪声会怎样改变选型)
+
 想看 agent 怎样把一个原本超限的电路改到达标，可以下载 8 位 ADC 采样驱动器。解压后打开 `index.html`，先看选中电路的采样波形，再展开尺寸表，比较只改电流镜、只改开关和两者都改时的结果。把自己的精度、负载和采样时间告诉 agent，即可用包内的 `--optimize` 入口重新设计。[下载优化工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-precision-v1/adc-driver-8bit-optimized.zip) · [复跑命令](../examples/sky130-adc-driver/README.md#precision)
 
 如果已有 SMIC18 和 Cadence，可以直接说「给我一个 1.8 V 两级全差分运放，每侧带 2 pF，增益超过 80 dB，尽量省电」。Agent 可以从器件扫描一直做到可编辑的测试台。这个例子还保留了增益够、补偿却不足的一版，便于你对着波形理解为什么要换电容。[原理图、三工况读数和打开方法](../examples/smic18-ota-sizing/OTA.md)

@@ -1,0 +1,348 @@
+{
+  "backend": "Spectre 15.1, independent OTA example",
+  "frequency_unit": "Hz",
+  "band_Hz": [
+    10.0,
+    100000.0
+  ],
+  "source": "Differential input, CMFB closed, named independent source VD",
+  "load_pF_per_output": 2,
+  "corners": {
+    "tt": [
+      27,
+      1.8
+    ],
+    "ss": [
+      85,
+      1.62
+    ],
+    "ff": [
+      -40,
+      1.8
+    ]
+  },
+  "temperature_supply_order": [
+    "temperature_C",
+    "supply_V"
+  ],
+  "native_noise_runs": 24,
+  "points_per_spectrum": 541,
+  "original_analyses_replayed": 120,
+  "independent_replay_max_relative_difference": 1.5220189488556002e-07,
+  "budget_uVrms": {
+    "60": {
+      "selected": "l100-i06-c275",
+      "passing_candidates": 4
+    },
+    "40": {
+      "selected": "l150-i06-c275",
+      "passing_candidates": 2
+    },
+    "30": {
+      "selected": null,
+      "passing_candidates": 0
+    }
+  },
+  "candidates": {
+    "l100-i06-c160": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 54.940761,
+      "worst_power_uW": 22.300878,
+      "area_um2": {
+        "mos_gate_um2": 49.05,
+        "resistor_strip_um2": 4193.7,
+        "mim_plate_um2": 512.0
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 52.029946,
+          "power_uW": 22.04684,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 86.1073,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ss": {
+          "input_noise_uVrms": 54.940761,
+          "power_uW": 16.418702,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 83.2402,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ff": {
+          "input_noise_uVrms": 47.619749,
+          "power_uW": 22.300878,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 88.3419,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        }
+      }
+    },
+    "l100-i06-c275": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 54.947146,
+      "worst_power_uW": 22.300878,
+      "area_um2": {
+        "mos_gate_um2": 49.05,
+        "resistor_strip_um2": 4193.7,
+        "mim_plate_um2": 1512.5
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 52.032746,
+          "power_uW": 22.04684,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 86.0981,
+          "other_failed_limits": []
+        },
+        "ss": {
+          "input_noise_uVrms": 54.947143,
+          "power_uW": 16.418702,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 83.2208,
+          "other_failed_limits": []
+        },
+        "ff": {
+          "input_noise_uVrms": 47.621235,
+          "power_uW": 22.300878,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 88.3364,
+          "other_failed_limits": []
+        }
+      }
+    },
+    "l100-i10-c160": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 42.859324,
+      "worst_power_uW": 39.634001,
+      "area_um2": {
+        "mos_gate_um2": 81.55,
+        "resistor_strip_um2": 2516.2,
+        "mim_plate_um2": 512.0
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 40.710577,
+          "power_uW": 38.123334,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 86.4438,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ss": {
+          "input_noise_uVrms": 42.859327,
+          "power_uW": 27.849832,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 83.5095,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ff": {
+          "input_noise_uVrms": 37.289328,
+          "power_uW": 39.634001,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 88.7911,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        }
+      }
+    },
+    "l100-i10-c275": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 42.86106,
+      "worst_power_uW": 39.634001,
+      "area_um2": {
+        "mos_gate_um2": 81.55,
+        "resistor_strip_um2": 2516.2,
+        "mim_plate_um2": 1512.5
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 40.71132,
+          "power_uW": 38.123334,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 86.4407,
+          "other_failed_limits": []
+        },
+        "ss": {
+          "input_noise_uVrms": 42.861054,
+          "power_uW": 27.849832,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 83.5027,
+          "other_failed_limits": []
+        },
+        "ff": {
+          "input_noise_uVrms": 37.289703,
+          "power_uW": 39.634001,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 88.7894,
+          "other_failed_limits": []
+        }
+      }
+    },
+    "l150-i06-c160": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 39.847921,
+      "worst_power_uW": 24.017795,
+      "area_um2": {
+        "mos_gate_um2": 108.75,
+        "resistor_strip_um2": 4227.82,
+        "mim_plate_um2": 512.0
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 36.581617,
+          "power_uW": 23.182432,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 81.1916,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ss": {
+          "input_noise_uVrms": 39.847917,
+          "power_uW": 17.015423,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 77.2163,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ff": {
+          "input_noise_uVrms": 32.6835,
+          "power_uW": 24.017795,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 84.4125,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        }
+      }
+    },
+    "l150-i06-c275": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 39.854729,
+      "worst_power_uW": 24.017795,
+      "area_um2": {
+        "mos_gate_um2": 108.75,
+        "resistor_strip_um2": 4227.82,
+        "mim_plate_um2": 1512.5
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 36.584442,
+          "power_uW": 23.182432,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 81.1791,
+          "other_failed_limits": []
+        },
+        "ss": {
+          "input_noise_uVrms": 39.854733,
+          "power_uW": 17.015423,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 77.1899,
+          "other_failed_limits": []
+        },
+        "ff": {
+          "input_noise_uVrms": 32.684844,
+          "power_uW": 24.017795,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 84.4055,
+          "other_failed_limits": []
+        }
+      }
+    },
+    "l150-i10-c160": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 31.012978,
+      "worst_power_uW": 41.047157,
+      "area_um2": {
+        "mos_gate_um2": 181.275,
+        "resistor_strip_um2": 2536.87,
+        "mim_plate_um2": 512.0
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 28.480356,
+          "power_uW": 38.845207,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 81.2746,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ss": {
+          "input_noise_uVrms": 31.012976,
+          "power_uW": 28.129842,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 77.1668,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        },
+        "ff": {
+          "input_noise_uVrms": 25.447019,
+          "power_uW": 41.047157,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 84.6538,
+          "other_failed_limits": [
+            "dm_stability",
+            "cm_stability"
+          ]
+        }
+      }
+    },
+    "l150-i10-c275": {
+      "worst_corner": "ss",
+      "worst_input_noise_uVrms": 31.015016,
+      "worst_power_uW": 41.047157,
+      "area_um2": {
+        "mos_gate_um2": 181.275,
+        "resistor_strip_um2": 2536.87,
+        "mim_plate_um2": 1512.5
+      },
+      "corners": {
+        "tt": {
+          "input_noise_uVrms": 28.481177,
+          "power_uW": 38.845207,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 81.2699,
+          "other_failed_limits": []
+        },
+        "ss": {
+          "input_noise_uVrms": 31.015011,
+          "power_uW": 28.129842,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 77.1566,
+          "other_failed_limits": []
+        },
+        "ff": {
+          "input_noise_uVrms": 25.447399,
+          "power_uW": 41.047157,
+          "largest_noise_source": "input_pair",
+          "largest_source_power_pct": 84.6513,
+          "other_failed_limits": []
+        }
+      }
+    }
+  }
+}

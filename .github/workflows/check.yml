@@ -10,5 +10,10 @@ jobs:
           python-version: '3.11'
       - run: python scripts/check_repo.py
       - run: python -m unittest discover -s tests -v
+      - name: Calibrate integrated noise against two thermal RC circuits
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ngspice
+          python scripts/check_noise_reference.py
       - run: python skills/paper-to-virtuoso/scripts/render_symbols.py --out build/reference
       - run: python skills/paper-to-virtuoso/scripts/emit_symbols.py --library DEMO_CIRCUIT_SYMBOLS --lib-path /path/to/isolated/DEMO_CIRCUIT_SYMBOLS --tech-library YOUR_TECH_LIBRARY --out build/reference-symbols.il

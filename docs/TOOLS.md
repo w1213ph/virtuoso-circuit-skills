@@ -2,6 +2,22 @@
 
 以下命令从仓库根目录运行，离线工具使用 Python 3.9+ 标准库。原生 symbol 的 SKILL 在 Virtuoso 内执行。动态比较器的原生入口在已配置 Cadence 和 SMIC18 的 Linux 主机上直接启动 Virtuoso、SI 和 Spectre。
 
+## 从一份噪声谱复算带内电压
+
+在已有测试的 `measurement` 说明旁增加 `recompute`。例如对差分输入噪声，可使用下列配置，将该测试的 `unit` 设为 `uV RMS`，并在结果的 `evidence` 中记录同名 CSV 的 SHA-256。
+
+```json
+{"method":"band_noise_rms","file":"spectrum.csv","axis":"frequency_Hz","density":"input_V_per_sqrt_Hz","density_unit":"V/sqrt(Hz)","band_Hz":[10,100000]}
+```
+
+CSV 第一行为列名。幅度谱密度列以 `_V_per_sqrt_Hz` 结尾，功率谱密度列以 `_V2_per_Hz` 结尾并配 `V2/Hz`。程序将单边幅度谱平方，在实际频率轴上线性插值功率，积分后开方，再换算到指定的 RMS 单位。测量频率须严格递增并覆盖整个频带。只给输出端频谱时，先按同一工况每个频点的差分增益折回输入端，再核验输入等效指标。
+
+`MEASUREMENT_MISMATCH` 会同时给出原报告数值和复算值。`INVALID_SPECTRUM` 给出缺失频带、列名、单位或数据行原因。通过数值一致性核对后，以复算值判定硬指标；修改频带、端口或密度类型会使旧测量失效。已有只含摘要的计划仍能按原字段核验。仿真出处和端口接法需由原生回读建立。[可运行的原生示例](../examples/smic18-ota-sizing/OTA.md#输入噪声会怎样改变选型)
+
+从仓库根目录运行 `python scripts/benchmark_noise_replay.py` 可重放 12 个固定用例。另有 `python scripts/check_noise_reference.py --ngspice ngspice`，它实际仿真两个 RC 电路，将带内输出噪声和全扫频积分分别与解析式核对。
+
+报告用 `status` 保留具体原因，`disposition` 给出 PASS、FAIL、BLOCKED、NOT_RUN 或 NOT_APPLICABLE。只有未运行的诊断项可以用 `role: diagnostic` 和 `not_applicable_reason` 说明为何不适用，例如没有共模环路的单端测试电路。应测硬指标缺数据时保持未运行或阻塞，不能通过豁免变成达标。
+
 ## 先选工具
 
 | 工具 | 输入 | 得到什么 |
@@ -10,7 +26,7 @@
 | `render_symbols.py` | 仓库自带参考数据 | 18 个 SVG 预览 |
 | `emit_symbols.py` | 新库名、目标库目录、真实技术库名 | 创建 18 个原生 symbol 的 `.il` 文件 |
 | `new_task.py` | 项目前缀、任务类型、新目录 | 待填写的需求、验收记录、前仿计划和分类目录 |
-| `check_prelayout.py` | 前仿计划、声明的输入与证据文件 | 输入快照、限值检查或基线和候选的指标差值 |
+| `check_prelayout.py` | 前仿计划、输入文件、证据；带内噪声可声明原始 CSV 及物理单位 | 复算积分噪声、检测过期或不相容的证据，比较同条件的候选 |
 | `audit_electrical.py` | 两份完整电气回读 JSON | 参数、master、端子网络和端口的差异报告 |
 | `compare_netlists.py` | 两份原生 Spectre 网表 | 保留子电路范围与端序的文本比较结果 |
 | `scripts/check_repo.py` | 当前仓库文件 | 本地链接、参考数据、发布文件与哈希检查 |

@@ -1,6 +1,7 @@
 """Snapshot, validate and compare pre-layout measurement records."""
 
 import argparse
+import csv
 import hashlib
 import itertools
 import json
@@ -16,6 +17,65 @@ COMPARISONS = {
     "<=": operator.le,
     "==": operator.eq,
 }
+
+NOISE_DENSITIES = {"V/sqrt(Hz)": "_V_per_sqrt_Hz", "V2/Hz": "_V2_per_Hz"}
+NOISE_RMS_UNITS = {"V RMS": 1, "mV RMS": 1e3, "uV RMS": 1e6, "nV RMS": 1e9}
+
+
+def validate_recompute(spec, unit):
+    if not isinstance(spec, dict) or set(spec) != {"method", "file", "axis", "density", "density_unit", "band_Hz"}:
+        raise ValueError("Specify method, file, axis, density, density_unit and band_Hz for raw replay")
+    if spec["method"] != "band_noise_rms" or unit not in NOISE_RMS_UNITS:
+        raise ValueError("band_noise_rms requires a voltage RMS output unit")
+    suffix = NOISE_DENSITIES.get(spec["density_unit"]) if isinstance(spec["density_unit"], str) else None
+    if (not text_present(spec["file"]) or spec["axis"] != "frequency_Hz" or not suffix
+            or not text_present(spec["density"]) or not spec["density"].endswith(suffix)):
+        raise ValueError("Declare a frequency_Hz axis and a voltage-noise density column with matching units")
+    band = spec["band_Hz"]
+    if not isinstance(band, list) or len(band) != 2 or not all(finite_number(x) for x in band) or not 0 <= band[0] < band[1]:
+        raise ValueError("band_Hz needs increasing nonnegative bounds in Hz")
+
+
+def band_noise_rms(path, spec, unit):
+    """Integrate a one-sided voltage PSD, linear in power versus Hz between samples."""
+    low, high = spec["band_Hz"]
+    square = spec["density_unit"] == "V/sqrt(Hz)"
+    first = previous = None
+    intervals = []
+    points = 0
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        rows = csv.reader(stream, strict=True)
+        columns = next(rows, [])
+        if (not columns or len(set(columns)) != len(columns) or
+                spec["axis"] not in columns or spec["density"] not in columns):
+            raise ValueError("Missing or duplicate CSV channel. Check the port and spectral density unit.")
+        axis, channel = columns.index(spec["axis"]), columns.index(spec["density"])
+        for row in rows:
+            if len(row) != len(columns):
+                raise ValueError(f"Incomplete CSV row at line {rows.line_num}")
+            frequency, density = float(row[axis]), float(row[channel])
+            power = density * density if square else density
+            if (not math.isfinite(frequency) or frequency < 0 or not math.isfinite(power) or density < 0
+                    or (previous and frequency <= previous[0])):
+                raise ValueError(f"Invalid noise sample at line {rows.line_num}. Check frequency order and finite nonnegative density.")
+            if first is None:
+                first = frequency
+            if previous:
+                f0, p0 = previous
+                left, right = max(f0, low), min(frequency, high)
+                if left < right:
+                    left_power = p0 + (power - p0) * ((left - f0) / (frequency - f0))
+                    right_power = p0 + (power - p0) * ((right - f0) / (frequency - f0))
+                    intervals.append((0.5 * left_power + 0.5 * right_power) * (right - left))
+            previous = frequency, power
+            points += 1
+    if points < 2 or first > low or previous[0] < high:
+        raise ValueError("The measured spectrum does not cover both limits. Extend the sweep or change the specified band.")
+    value = math.sqrt(math.fsum(intervals)) * NOISE_RMS_UNITS[unit]
+    if not math.isfinite(value):
+        raise ValueError("Integrated noise exceeds the representable numeric range")
+    return value, {"method": spec["method"], "file": spec["file"], "density": spec["density"],
+                   "band_Hz": [low, high], "spectrum_points": points, "integrated_intervals": len(intervals)}
 
 
 def text_present(value):
@@ -109,6 +169,10 @@ def load_plan(path):
         test_id = test["id"]
         if test.get("role", "acceptance") not in ("acceptance", "diagnostic"):
             raise ValueError(f"{test_id}: role must be acceptance or diagnostic")
+        if "not_applicable_reason" in test:
+            if (test.get("role") != "diagnostic" or not text_present(test["not_applicable_reason"])
+                    or test_id in plan["results"]):
+                raise ValueError(f"{test_id}: only an unrun diagnostic may be declared inapplicable, with a reason")
         if test_id in ids:
             raise ValueError(f"Duplicate test ID: {test_id}")
         ids.add(test_id)
@@ -116,6 +180,8 @@ def load_plan(path):
             raise ValueError(f"{test_id}: describe the test conditions")
         check_paths(test.get("inputs", []), f"{test_id}.inputs")
         check_paths(test.get("reference_inputs", []), f"{test_id}.reference_inputs")
+        if "recompute" in test:
+            validate_recompute(test["recompute"], test["unit"])
         target = test.get("target")
         if target is None:
             continue
@@ -179,6 +245,8 @@ def snapshot(plan, directory, hashes):
 
 
 def review_measurement(test, context, result, directory, hashes):
+    if test.get("role") == "diagnostic" and test.get("not_applicable_reason") and result is None:
+        return {"status": "NOT_APPLICABLE", "detail": test["not_applicable_reason"]}
     if "error" in context:
         return {"status": "INPUT_UNAVAILABLE", "detail": context["error"]}
     if result is None:
@@ -205,18 +273,32 @@ def review_measurement(test, context, result, directory, hashes):
     if result.get("status") != "measured" or not finite_number(value) or result.get("unit") != test["unit"]:
         return {"status": "INVALID_MEASUREMENT"}
 
+    replay = {}
+    if "recompute" in test:
+        spec = test["recompute"]
+        if spec["file"] not in evidence:
+            return {"status": "MISSING_EVIDENCE", "file": spec["file"], "detail": "Bind the measured spectrum to this result."}
+        try:
+            computed, record = band_noise_rms(directory / spec["file"], spec, test["unit"])
+        except (OSError, csv.Error, ValueError, OverflowError) as error:
+            return {"status": "INVALID_SPECTRUM", "file": spec["file"], "detail": str(error)}
+        if not math.isclose(computed, value, rel_tol=1e-6):
+            return {"status": "MEASUREMENT_MISMATCH", "reported": value, "recomputed": computed,
+                    "replay": record, "detail": "Check the selected port, band and ASD versus PSD representation."}
+        value = computed
+        replay["replay"] = record
     target = test.get("target")
     if test.get("role") == "diagnostic":
-        review = {"status": "DIAGNOSTIC_MEASURED", "value": value}
+        review = {"status": "DIAGNOSTIC_MEASURED", "value": value, **replay}
         if target and target["confirmed"]:
             review["limits"] = target["limits"]
             review["within_limits"] = all(COMPARISONS[op](value, limit) for op, limit in target["limits"].items())
         return review
     if target is None or not target["confirmed"]:
-        return {"status": "TARGET_UNCONFIRMED", "value": value}
+        return {"status": "TARGET_UNCONFIRMED", "value": value, **replay}
     limits = target["limits"]
     passed = all(COMPARISONS[op](value, threshold) for op, threshold in limits.items())
-    return {"status": "PASS" if passed else "FAIL", "value": value, "limits": limits}
+    return {"status": "PASS" if passed else "FAIL", "value": value, "limits": limits, **replay}
 
 
 def check(plan, directory, contexts, hashes):
@@ -226,6 +308,9 @@ def check(plan, directory, contexts, hashes):
         review = review_measurement(
             test, contexts[test_id], plan["results"].get(test_id), directory, hashes
         )
+        status = review["status"]
+        if status != "DIAGNOSTIC_MEASURED":
+            review["disposition"] = status if status in ("PASS", "FAIL", "NOT_RUN", "NOT_APPLICABLE") else "BLOCKED"
         if test.get("role") == "diagnostic":
             review["role"] = "diagnostic"
         results.append({

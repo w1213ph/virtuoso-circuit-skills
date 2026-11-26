@@ -1,5 +1,21 @@
 # 外部来源与实际采用的方法
 
+## 2026-11-26 的复核与转化
+
+本轮通过 GitHub API 枚举 Arcadia-1 的 33 个公开仓库和 131 个公开 Star，并查阅 iic-jku、idea-fasoc、bluecheetah、cascode-ai、Nova-Silicon 的公开目录。针对 17 个候选核对实际仓库、版本、许可证元数据及可见 issue/PR，9 个在索引里有具体代码位置和筛选评分。累计索引有 296 个唯一仓库。下面的 288 个是上一轮的历史清单。[可搜索的逐项记录](sources.jsonl)
+
+| 实际阅读的实现 | 纳入本项目的决定与核验 |
+|---|---|
+| [iic-jku 的五管 OTA 噪声测试台](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/cace/templates/ota-5t-noise.sch) | 原例明确了输出、输入源和 1 kHz 至 100 MHz 频带，读取输出积分。我们将测量参考写进合同，并在全差分 OTA 上逐点核对输入折算和输出功率。原例的数值、带宽和器件尺寸不用作本项目的验收目标。 |
+| [CACE 的 ngspice 参数执行器](https://github.com/fossi-foundation/cace/blob/dedb5e0d30f5c286d36a1511b61fc81795bd24cf/cace/parameter/parameter_ngspice.py) | 学习把参数、仿真作业和后处理分开。合同固定测试条件和限值，独立复算器读取保存的证据；两个 RC 电路用 ngspice 和解析式校准。 |
+| [BAG 的 MeasurementManager](https://github.com/bluecheetah/bag/blob/a496368ad8fc92ff0f5bf3bfb4ebaa45c540a104/src/bag/simulation/measure.py) | 借鉴让下一步测量取决于已得结果。原生运行、只读复验和更换噪声预算分别有入口。本站保留现有 Virtuoso / SI 使用方式。 |
+| [analog-canvas 的几何投影](https://github.com/cascode-ai/analog-canvas/blob/5fbe58523a3b047d0c41a91a066296fdc393df89/packages/edit-engine/src/routing-geometry-projection.ts) | 确认存在可调用的导线几何操作，记录 AGPL-3.0。跨编辑器的 OA 连通性、旋转后引脚方向和父级图仍需实测。本轮仅阅读。 |
+| [analog-agent-flow 的 Virtuoso 适配器](https://github.com/w1213ph/analog-agent-flow/blob/a2fa4268033804f52dd49a9b5d5f2ff451c9586c/src/analog_agent_flow/adapters/virtuoso_bridge.py) | 核对到示例网表入口含占位代码。此项目的网表证据来自自己实际运行的 SI、逐端子比对和 Spectre。 |
+
+筛选按理论、实现、复现、可移植、自动化、维护、文档、许可分别占 20、20、20、15、10、5、5、5。各项以 0、1、2 表示缺证、局部证据、在所审范围内有直接证据，再按权重折算。iic-jku 82.5、CACE 80，均优先学习方法。上游本身的完整测试本轮未重跑，项目内的数值校准独立执行。BAG 的许可证元数据为 NOASSERTION，AutoCkt 未声明标准许可，本轮采用自主实现。ngspice 的默认幅度谱、平方谱开关和积分总量定义见其官方手册。[ngspice 手册，第 11.3 节](https://ngspice.sourceforge.io/docs/ngspice-manual.pdf)
+
+## 2026-11-25 的初次清单
+
 按 2026-11-25 的 GitHub 公开数据合并去重，共有 **288** 个仓库。Arcadia-1 所有者仓库 33 个（1 页），Star 130 个（2 页），iic-jku 仓库 94 个（2 页）。每页 75 条，逐页检查数量和重复项。账户公开展示的组织成员关系为 0。另解析 37 个 Fork 的根上游，加入指定参考项目与导航目录条目。[完整逐库索引](sources.jsonl)
 
 每行记录仓库、版本、许可证、说明、来源集合与分级。Fork 另列直接父级、根仓库和上游提交。源码路径相对该行提交。近期 issue 与 PR 提供调查线索，固定提交对应实际阅读的版本。

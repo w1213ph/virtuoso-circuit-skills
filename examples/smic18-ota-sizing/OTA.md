@@ -62,4 +62,27 @@ sh work/fdota/open.sh
 
 ![原生带载测试台，输入在左，输出线先向右引出再分别垂直接到负载，VCM 与 VSS 从底部直出](bench.png)
 
-数据覆盖以上三组确定性前仿条件。失配、噪声、全输入共模范围、大摆幅失真和使用方的完整 PVT 组合仍需按照具体产品要求验证。
+## 输入噪声会怎样改变选型
+
+如果传感器允许 OTA 在 10 Hz 到 100 kHz 内贡献 40 µV RMS 的输入等效噪声，原先的低功耗选型会超限。将管长从 1.00 µm 改为 1.50 µm，再按实测电流密度重新取宽度，三工况最差噪声从 54.95 降到 39.85 µV RMS。总 MOS 栅面积从 49.05 增至 108.75 µm²，最高功耗从 22.30 增至 24.02 µW。两版最差噪声都在 SS、85 °C、1.62 V；该工况的功耗分别为 16.42 和 17.02 µW。表内噪声上限是可替换的示例设计预算。[八种几何的逐角测量和器件面积](noise-review.json)
+
+| 输入等效噪声上限，10 Hz 至 100 kHz | 同时满足已有硬指标和噪声预算 | 在达标者中选择 |
+|---|---:|---|
+| 60 µV RMS | 4 / 8 | 1.00 µm 管长，低电流，大补偿，最差 54.95 µV RMS |
+| 40 µV RMS | 2 / 8 | 1.50 µm 管长，低电流，大补偿，最差 39.85 µV RMS |
+| 30 µV RMS | 0 / 8 | 搜索范围内没有可交付候选 |
+
+每组尺寸在 TT、SS、FF 运行一次原生 Spectre noise。差模反馈打开、CMFB 闭合，实际输入共模为 0.6 VDD，每侧负载 2 pF。噪声输出为 OUTP 减 OUTN，输入参考为测试台的 VD。每条频谱从 1 Hz 到 1 GHz 共 541 点。程序逐点将输出电压噪声除以独立 AC 分析得到的差分增益，与 Spectre 输入等效噪声核对，并将全部器件噪声功率加总核对输出。用另一套计算从输出频谱和 AC 增益复算 24 个积分结果，最大相对差为 1.53 × 10⁻⁷。
+
+原低功耗方案在最差角的输入差分对占带内总噪声功率的 83.22%。这支持把下一次尺寸实验放在输入级。本轮两种管长改变了多个器件，只能把整机的下降量归于整组尺寸变化。单独改变输入对、保持其它器件固定，才能量出输入对几何的独立收益。
+
+从仓库根目录在已完成的原生工程上运行。首次运行写入新目录，`verify` 从原生证据复算；`evaluate` 可更换频带和预算。命令返回 0 表示存在满足全部硬指标的候选，1 表示本次搜索全超限，2 表示证据或执行异常。
+
+```sh
+python3 examples/smic18-ota-sizing/ota_noise.py run --config cadence.local.json --ota work/fdota --out work/fdota-noise
+python3 examples/smic18-ota-sizing/ota_noise.py verify --config cadence.local.json --ota work/fdota --out work/fdota-noise
+python3 examples/smic18-ota-sizing/ota_noise.py evaluate --config cadence.local.json --ota work/fdota --out work/fdota-noise --band-hz 10 100000 --limit-uv 40
+python3 skills/paper-to-virtuoso/scripts/check_prelayout.py check --plan work/fdota-noise/portable/plan.json
+```
+
+最后一条可在只有 Python 的机器上运行，输入为整个 `portable` 目录。该计划核验全部候选的噪声，有超限项即返回 1；具体选中哪组还取决于完整电路的其他硬指标，见 `summary.json`。保存的 Maestro 覆盖原有五类分析，新增噪声使用同一原生 SI 网表直接运行 Spectre。完整输入共模范围、大摆幅失真、OTA 失配和产品指定的全部 PVT 组合，仍需按实际应用补测。

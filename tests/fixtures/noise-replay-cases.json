@@ -1,0 +1,456 @@
+[
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.5627160471052324e-07\n100,1.5627160471052324e-07\n300,1.5627160471052324e-07\n500,1.5627160471052324e-07\n1000,1.5627160471052324e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          48,
+          767
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 4.399808922396776
+        }
+      }
+    },
+    "reported": 4.190294211806453,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "flat-asd",
+    "expected": "PASS"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V2_per_Hz\n1,3.848874139319183e-14\n100,4.8584031358291895e-14\n300,6.897855654031224e-14\n500,8.937308172233256e-14\n1000,1.4035939467738341e-13\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V2_per_Hz",
+        "density_unit": "V2/Hz",
+        "band_Hz": [
+          51,
+          696
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 7.37436732506907
+        }
+      }
+    },
+    "reported": 7.023206976256256,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "sloped-psd",
+    "expected": "PASS"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.253365673403561e-07\n100,1.253365673403561e-07\n300,1.253365673403561e-07\n500,1.253365673403561e-07\n1000,1.253365673403561e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          29,
+          515
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 2.072321793647024
+        }
+      }
+    },
+    "reported": 2.7630957248626986,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "true-fail",
+    "expected": "FAIL"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.9680734961308509e-07\n100,1.9680734961308509e-07\n300,1.9680734961308509e-07\n500,1.9680734961308509e-07\n1000,1.9680734961308509e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          52,
+          520
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 3.193195456881658
+        }
+      }
+    },
+    "reported": 2.1287969712544386,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "forged-low",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_A_per_sqrt_Hz\n1,1.995688030039118e-07\n100,1.995688030039118e-07\n300,1.995688030039118e-07\n500,1.995688030039118e-07\n1000,1.995688030039118e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          59,
+          932
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 6.191403001749587
+        }
+      }
+    },
+    "reported": 5.8965742873805596,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "wrong-physical-unit",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n65.0,1.384978667634538e-07\n100,1.384978667634538e-07\n300,1.384978667634538e-07\n500,1.384978667634538e-07\n1000,1.384978667634538e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          64,
+          810
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 3.9719319291824604
+        }
+      }
+    },
+    "reported": 3.782792313507105,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "cutoff",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.340585807663902e-07\n100,1.340585807663902e-07\n100,1.340585807663902e-07\n500,1.340585807663902e-07\n1000,1.340585807663902e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          75,
+          526
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 2.9893184828265
+        }
+      }
+    },
+    "reported": 2.8469699836442857,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "duplicate",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.5733374198421765e-07\n100,1.5733374198421765e-07\n300,-1.5733374198421765e-07\n500,1.5733374198421765e-07\n1000,1.5733374198421765e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          46,
+          721
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 4.292033049070162
+        }
+      }
+    },
+    "reported": 4.087650522923964,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "negative",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.710565976035121e-07\n100,1.710565976035121e-07\n300,1.710565976035121e-07\n500,nan\n1000,1.710565976035121e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          89,
+          803
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 4.799303716049539
+        }
+      }
+    },
+    "reported": 4.570765443856703,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "nan",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.5100596617345422e-07\n100,1.5100596617345422e-07\n300,1.5100596617345422e-07\n500,1.5100596617345422e-07\n1000,1.5100596617345422e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          37,
+          595
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 3.7454198250185007
+        }
+      }
+    },
+    "reported": 3.5670665000176194,
+    "evidence": [
+      "dut.txt"
+    ],
+    "name": "missing-binding",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.1515765337163362e-07\n100,1.1515765337163362e-07\n300,1.1515765337163362e-07\n500,1.1515765337163362e-07\n1000,1.1515765337163362e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          91,
+          823
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 3.487737321545682
+        }
+      }
+    },
+    "reported": 3.3216545919482687,
+    "evidence": [
+      "spectrum.csv"
+    ],
+    "name": "different-window",
+    "expected": "BLOCKED"
+  },
+  {
+    "spectrum": "frequency_Hz,port_V_per_sqrt_Hz\n1,1.495434939491385e-07\n100,1.495434939491385e-07\n300,1.495434939491385e-07\n500,1.495434939491385e-07\n1000,1.495434939491385e-07\n",
+    "test": {
+      "id": "x",
+      "metric": "integrated_noise",
+      "unit": "uV RMS",
+      "testbench": "held-out fixture",
+      "analysis": "noise",
+      "measurement": "one sided",
+      "conditions": {
+        "bias": 0.71
+      },
+      "recompute": {
+        "method": "band_noise_rms",
+        "file": "spectrum.csv",
+        "axis": "frequency_Hz",
+        "density": "port_V_per_sqrt_Hz",
+        "density_unit": "V/sqrt(Hz)",
+        "band_Hz": [
+          78,
+          847
+        ]
+      },
+      "target": {
+        "source": "fixed diagnostic",
+        "confirmed": true,
+        "limits": {
+          "<=": 4.354316491015575
+        }
+      }
+    },
+    "reported": null,
+    "evidence": [],
+    "name": "no-history",
+    "expected": "NOT_RUN"
+  }
+]
