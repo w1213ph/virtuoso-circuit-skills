@@ -11,7 +11,7 @@ from pathlib import Path
 
 from switch_models import HERE, LOCK, check_extra, fetch_models, prepare_extra
 from switch_design import STATES, budget, char_deck, char_results, design_set, require, requirements
-from switch_measure import BASE_STEP_NS, measure, transient
+from switch_measure import BASE_STEP_NS, limits, measure, transient
 from switch_views import OPENER, audit, build, parent_check, view_sources
 from mos_table import save_json, simulate
 
@@ -95,6 +95,20 @@ def compact(m):
     return {k:m[k] for k in ("corner","input_vpp_V","thd_dBc","gain","phases","checks","violations","passed")}
 
 
+def largest_terminal_failure(m,d,junction_budget):
+    failures=[]
+    for label in m["violations"]:
+        part,pair=label.split(".")
+        if pair=="plate":lo,hi=-5.,5.;observed=m["plates"][part]
+        else:
+            lo,hi=limits(d["devices"][part][1],pair,junction_budget);observed=m["terminals"][part][pair]
+        low,high=lo-observed["min_V"],observed["max_V"]-hi
+        edge="min" if low>=high else "max"
+        failures.append(dict(terminal=label,observed_V=observed[edge+"_V"],time_ns=observed[edge+"_at_ns"],
+                             bound_V=lo if edge=="min" else hi,excess_V=max(low,high)))
+    return max(failures,key=lambda item:item["excess_V"]) if failures else None
+
+
 def refine(root,r,d,native,cases,coarse,solver):
     """Resolve sharp switching edges in every swing and corner before a design can be selected."""
     result={}
@@ -113,10 +127,12 @@ def refine(root,r,d,native,cases,coarse,solver):
             outside=m["published_model_excursions"]
             pin=max(outside,key=lambda p:outside[p]["excess_V"]) if outside else None
             body=max(m["dc_model_forward_vbs"],key=lambda n:m["dc_model_forward_vbs"][n]["excess_V"])
+            edge="max_at_ns" if d["devices"][body][1].startswith("N") else "min_at_ns"
             steps.append(dict(step_ns=step,thd_dBc=m["thd_dBc"],thd_change_dB=dd,max_terminal_extrema_change_V=dv,
                               limiting_terminal=where,checks=m["checks"],violations=m["violations"],stable=stable,passed=m["passed"] and stable,
+                              terminal_failure=largest_terminal_failure(m,d,r["max_forward_V"]),
                               published_excursion=dict(terminal=pin,**outside[pin]) if pin else None,
-                              max_forward_vbs=dict(device=body,**m["dc_model_forward_vbs"][body])))
+                              max_forward_vbs=dict(device=body,time_ns=m["terminals"][body]["BS"][edge],**m["dc_model_forward_vbs"][body])))
             if stable:break
             previous=m
         result[key]=steps
@@ -165,8 +181,15 @@ def evaluate(root,r,solver=None,xschem=None):
         if refined[name]["passed"] and name in passing:
             selected=name;break
     if not selected:
-        diagnostic=min(refined,key=lambda n:(-refined[n]["passed_cases"],refined[n]["thd_dBc"],area_key(n,designs)))
+        diagnostic=min(refined,key=lambda n:(-refined[n]["passed_cases"],area_key(n,designs)))
     return dict(requirements=r,sizing=sizing,variants=variants,refinement=refined,selected=selected,diagnostic=selected or diagnostic)
+
+
+def refined_limits(fine):
+    last=[(key,rows[-1]) for key,rows in fine["cases"].items()]
+    forward=max((dict(case=k,**m["max_forward_vbs"]) for k,m in last),key=lambda e:e["excess_V"])
+    outside=[dict(case=k,**m["published_excursion"]) for k,m in last if m["published_excursion"]]
+    return forward,dict(cases_outside=len(outside),worst=max(outside,key=lambda e:e["excess_V"]) if outside else None)
 
 
 def overview(summary):
@@ -178,21 +201,32 @@ def overview(summary):
          "|---|---:|---:|---|---:|---:|"]
     for n,v in variants.items():
         out.append("| {} | {}/{} | {:.2f} | {} | {:.2f} | {:g} |".format(n,v["passed_cases"],v["cases_total"],v["worst_thd_dBc"],v["worst_thd_case"],v["gate_um2"],v["plate_um2"]))
-    v=variants[ref];out+=["","## 各工况与失真","","| 工况 | 输入 Vpp | THD (dBc) | 基波增益 | 超限项 |","|---|---:|---:|---:|---|"]
+    v=variants[ref];out+=["","## 0.25 ns 初筛的各工况","","| 工况 | 输入 Vpp | THD (dBc) | 基波增益 | 超限项 |","|---|---:|---:|---:|---|"]
     for key,m in v["cases"].items():
         failures=[k for k,ok in m["checks"].items() if not ok]
         out.append("| {} | {:g} | {:.2f} | {:.5f} | {} |".format(key,m["input_vpp_V"],m["thd_dBc"],m["gain"],", ".join(failures+m["violations"]) or "通过"))
-    model=v["published_model"];e=model["worst"]
+    f=summary["refinement"][ref];dc,model=refined_limits(f);e=model["worst"]
     if e:
         out+=["","按网表标定的 D/G/S/B 方向逐只比较公开模型 VGS、VDS、VBS 有效范围，{} 个工况出现越界。最大一处在 {} 的 {}，{:.2f} ns 测得 {:.4f} V，有效范围为 {} V。波形中的反向导通和时钟边沿也计入。".format(
             model["cases_outside"],e["case"],e["terminal"],e["time_ns"],e["observed_V"],e["range_V"])]
-    dc=v["max_dc_vbs_excess"];f=summary["refinement"][ref];s=summary["sizing"]
+    s=summary["sizing"]
     out+=["","厚栅主开关扫描选取 W={width_um:g} µm、L=0.5 µm，选中宽度的最差导通电阻为 {ron_ohm:.2f} Ω，分配的上限为 {target_ohm:.2f} Ω。".format(**s),
         "","## 细步长复测","","{} 的 {} 个工况中有 {} 个通过复测，最终最差 H2–H5 总失真为 {:.2f} dBc。每个工况逐次减半步长，并检查相邻两次的结论、失真和端压极值。".format(ref,v["cases_total"],f["passed_cases"],f["thd_dBc"]),
         "","| 工况 | 最终步长 (ns) | THD (dBc) | 前后差 (dB) | 端压最大差 (V) | 通过 |","|---|---:|---:|---:|---:|---|"]
     for key,steps in f["cases"].items():
         last=steps[-1]
         out.append("| {} | {:g} | {:.2f} | {:.3f} | {:.4f} | {} |".format(key,last["step_ns"],last["thd_dBc"],last["thd_change_dB"],last["max_terminal_extrema_change_V"],"是" if last["passed"] else "否"))
+    for name,refinement in summary["refinement"].items():
+        for key,steps in refinement["cases"].items():
+            last=steps[-1]
+            if last["passed"]:continue
+            failure=last["terminal_failure"]
+            if failure:
+                out+=["","{} 的 {} 在 {:.3f} ns 测得 {} 为 {:.5f} V，工程界限为 {:.3f} V，超出 {:.2f} mV。".format(
+                    name,key,failure["time_ns"],failure["terminal"],failure["observed_V"],failure["bound_V"],1000*failure["excess_V"])]
+            other=[k for k,ok in last["checks"].items() if not ok and k!="terminal_and_plate_limits"]
+            if not last["stable"]:other.append("step convergence")
+            if other:out+=["","{} 的 {} 未通过 {}。".format(name,key,", ".join(other))]
     out+=[
         "","工程瞬态结压预算为 {:g} V。另行比较模型文档的正向 VBS 范围，{} 的 {} 在 {} 测得 {:.4f} V，文档正向边界为 {:g} V，超出 {:.4f} V。端压记录含上电和开关边沿。".format(r["max_forward_V"],ref,dc["device"],dc["case"],dc["forward_peak_V"],dc["published_forward_V"],dc["excess_V"]),
         "","面积分别为 MOS 的 ΣW×L×并联数和各 MIM 的 ΣW×L。规定工况以外的工作范围、可靠性寿命和成品芯片性能仍需相应证据。",
