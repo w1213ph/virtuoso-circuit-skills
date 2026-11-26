@@ -136,10 +136,12 @@ def audit(folder, site, sizes):
             terminals = {k:("0" if v=="gnd!" else v) for k,v in spec["terms"].items()}
             props = {k:v for k, _, v in actual[cell][name]["props"]}
             device = spec["cell"]
-            if device in ("n18", "p18"):
+            if device in ("n18", "p18", "n18_ckt", "p18_ckt"):
                 order = list("DGSB")
-                values = {k:spice_number(params[k]) for k in ("w","l","nf","m")}
-                if (master != device or values["nf"] != 1 or values["m"] != 1
+                mult = "mr" if device.endswith("_ckt") else "m"
+                values = {k:spice_number(params[k]) for k in ("w","l","nf",mult)}
+                if (master != device or values["nf"] != 1 or values[mult] != 1
+                        or (mult=="mr" and spice_number(params["mismod"])!=1)
                         or not all(math.isclose(values[k], cdf_value(props,k)) for k in ("w","l"))
                         or not math.isclose(values["w"], spice_number(spec["parameters"]["fw"]))
                         or not math.isclose(values["l"], spice_number(spec["parameters"]["l"]))):

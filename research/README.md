@@ -1,5 +1,9 @@
 # 外部来源与实际采用的方法
 
+## 2026-11-27 的统计器件验证
+
+SkyWater SKY130 的器件库在顶层角段引用各 MOS 的 mismatch 文件，单管文件给出局部参数。核对的提交为 `f62031a`，许可证为 Apache-2.0。本项目据此在 SMIC18 自身的模型段和统计器件上先验证无扰动电气等价，再逐管检查抽样向量，最后用同一组抽样对照全部启用和局部关闭时的电路响应。本文 OTA 数值来自 SMIC18 Spectre，开源工艺提供了检查模型组织方式的实例。[顶层角段](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/models/sky130.lib.spice) · [单管失配文件](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/cells/nfet_01v8/sky130_fd_pr__nfet_01v8__mismatch.corner.spice) · [许可证](https://github.com/google/skywater-pdk-libs-sky130_fd_pr/blob/f62031a1be9aefe902d6d54cddd6f59b57627436/LICENSE) · [本项目验证代码](../examples/smic18-ota-sizing/ota_mismatch.py)
+
 ## 2026-11-26 的复核与转化
 
 JKU 的全差分 OTA 测试台给同一设计设置独立差模与共模激励，并分别记录输出。课程还解释了用输出平均电压作检测量和分别检查环路稳定性的原因。上游版本固定为 `21b5255`，课程和测试台采用 Apache-2.0。本项目据此设计了保留实际偏置、负载、误差放大器和执行管的对照实验，并在 SMIC18 上独立实现以原始电流和两端输出诊断误差的程序。[课程原文](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/content/ota_diff/_sec_differential_ota.qmd#common-mode-regulation) · [Xschem 测试台](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/xschem/ota-diff_tb-acol.sch) · [许可证](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/LICENSE) · [本项目的实现](../examples/smic18-ota-sizing/ota_cmfb.py)

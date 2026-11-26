@@ -2,7 +2,7 @@
 import math
 from pathlib import Path
 
-from schematic import draw_wire, note, pin, place, pt, q, view_procedure
+from schematic import MOS_MASTERS, draw_wire, note, pin, place, pt, q, view_procedure
 
 
 LIB = "FDOTA18_BENCH"
@@ -75,7 +75,8 @@ class Drawing:
         length = self.sizes["length_um"]
         if group=="cm_input":
             length = self.sizes.get("cm_length_um",length)
-        self.device(name, self.pdk, kind + "18", (x + 0.25 * gate_side, y), "R0" if gate_side < 0 else "MY",
+        master = MOS_MASTERS[self.sizes.get("mos_family","nominal")][{"n":"NMOS","p":"PMOS"}[kind]]
+        self.device(name, self.pdk, master, (x + 0.25 * gate_side, y), "R0" if gate_side < 0 else "MY",
                     dict(zip(("D", "G", "S", "B"), nets)),
                     dict(l="{:g}u".format(length), fw="{:g}u".format(self.sizes[group]),
                          fingers="1", m="1"), True)
@@ -292,6 +293,10 @@ def amplifier(d):
 
 
 def bench(d):
+    large_step = d.sizes.get("fullscale_bench",False)
+    amplitude = "300m" if large_step else "50m"
+    common_step = "0" if large_step else "20m"
+    input_gain = "ICMGAIN" if large_step else "0.6"
     terms = {n: n for n in INTERFACE[CORE]}
     terms["VSS"] = "gnd!"
     d.block("XDUT", PROBED, (10, 5), terms)
@@ -308,15 +313,17 @@ def bench(d):
     ground(d, 13, 5, "D")
     for name, x, plus, props in (
         ("VSUP", 2, "VDD", dict(vdc="VDDVAL", v1="0", v2="VDDVAL", td="0", tr="1u", tf="10n", pw="20u", per="40u")),
-        ("VD", 5, "CMD", dict(vdc="0", acm="1", v1="-50m", v2="50m", td="4u", tr="5n", tf="5n", pw="2u", per="20u")),
-        ("VOFF", 8, "OFF", dict(vdc="0", v1="0", v2="20m", td="8u", tr="5n", tf="5n", pw="5u", per="20u")),
+        ("VD", 5, "CMD", dict(vdc="0", acm="1", v1="-"+amplitude, v2=amplitude, td="4u", tr="5n", tf="5n", pw="2u", per="20u")),
+        ("VOFF", 8, "OFF", dict(vdc="0", v1="0", v2=common_step, td="8u", tr="5n", tf="5n", pw="5u", per="20u")),
     ):
         d.device(name, "analogLib", "vpulse", (x, 10), "R0", {"PLUS":plus,"MINUS":"gnd!"}, props)
-        d.text(x+0.22,9.75, {"VSUP":"VSUP  power ramp", "VD":"VD  +/-50 mV", "VOFF":"VOFF  20 mV"}[name], 0.105)
+        labels = {"VSUP":"VSUP  power ramp","VD":"VD  +/-300 mV" if large_step else "VD  +/-50 mV",
+                  "VOFF":"VOFF  0 V" if large_step else "VOFF  20 mV"}
+        d.text(x+0.22,9.75,labels[name],0.105)
         d.stub((x, 10), TOP, plus)
         ground(d, x, 9.625, name)
     for name, x, y, plus, minus, sensep, sensen, gain in (
-        ("EVIC", 2, 5.25, "VIC", "gnd!", "VDD", "gnd!", "0.6"),
+        ("EVIC", 2, 5.25, "VIC", "gnd!", "VDD", "gnd!", input_gain),
         ("EVCM", 5, 5.25, "VCM", "OFF", "VDD", "gnd!", "0.5"),
         ("EFB", 2, 1.5, "SUM", "CMD", "OUTP", "OUTN", "-BETA"),
         ("EIP", 7, 1.5, "INP", "VIC", "ERR", "gnd!", "0.5"),
@@ -335,9 +342,10 @@ def bench(d):
     d.device("PDM", "analogLib", "iprobe", (4.5, 1.8125), "R0", {"PLUS":"SUM", "MINUS":"ERR"})
     d.stub((4.4375, 1.5), LEFT, "SUM", 0.625)
     d.stub((4.5625, 1.5), RIGHT, "ERR", 0.625)
-    d.text(1, 12, "Loaded differential OTA testbench", 0.22)
+    d.text(1, 12, "Full-scale differential settling" if large_step else "Loaded differential OTA testbench", 0.22)
     d.text(11, 10.5, "2 pF per output to ground. VCM target = VDD/2.", 0.14)
-    d.text(1, -0.25, "BETA = 0 for differential gain. BETA = 1 for both loops and step response.")
+    d.text(1,-0.25,"BETA = 1. ICMGAIN = input common-mode voltage / VDDVAL." if large_step else
+           "BETA = 0 for differential gain. BETA = 1 for both loops and step response.")
 
 
 def ground(d, x, y, name):

@@ -1,0 +1,595 @@
+{
+  "baseline": "w045-l375",
+  "states": [
+    [
+      "tt",
+      27,
+      1.8
+    ],
+    [
+      "ss",
+      85,
+      1.62
+    ],
+    [
+      "ff",
+      -40,
+      1.8
+    ]
+  ],
+  "scope": "Pre-layout loaded OTA. Full-scale dynamics without random variation; DC local MOS mismatch at two input common-mode levels. Finite samples; no passive-mismatch or product-yield estimate.",
+  "limits": {
+    "input_common_V": [
+      0.95,
+      1.1
+    ],
+    "differential_command_V": [
+      -0.3,
+      0,
+      0.3
+    ],
+    "load_pF_per_side": 2,
+    "absolute_tracking_mV_max": 1,
+    "absolute_common_mV_max": 25,
+    "minimum_saturation_margin_mV": 0,
+    "supply_power_positive": true,
+    "outputs_between_rails": true,
+    "fullscale_joint_settling_us_max": 1
+  },
+  "statistical_mos": 18,
+  "saved_local_fields_per_scope": 10,
+  "controls": {
+    "tt-950": {
+      "max_diff_mV": 1.4432899e-12,
+      "max_common_mV": 6.3273831e-12,
+      "max_headroom_mV": 2.5313085e-11,
+      "max_power_relative": 0.0
+    },
+    "tt-1100": {
+      "max_diff_mV": 5.5511151e-13,
+      "max_common_mV": 7.7715612e-13,
+      "max_headroom_mV": 1.7874591e-11,
+      "max_power_relative": 0.0
+    },
+    "ss-950": {
+      "max_diff_mV": 1.0991208e-11,
+      "max_common_mV": 2.220446e-12,
+      "max_headroom_mV": 1.7874591e-11,
+      "max_power_relative": 9.9920072e-16
+    },
+    "ss-1100": {
+      "max_diff_mV": 1.110223e-13,
+      "max_common_mV": 1.6653345e-12,
+      "max_headroom_mV": 1.8096635e-11,
+      "max_power_relative": 2.1094237e-15
+    },
+    "ff-950": {
+      "max_diff_mV": 2.3314684e-12,
+      "max_common_mV": 1.8317792e-11,
+      "max_headroom_mV": 3.5971226e-11,
+      "max_power_relative": 6.6613381e-16
+    },
+    "ff-1100": {
+      "max_diff_mV": 7.7715612e-13,
+      "max_common_mV": 6.6435746e-13,
+      "max_headroom_mV": 1.110223e-12,
+      "max_power_relative": 0.0
+    }
+  },
+  "fullscale": {
+    "tt-950mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.73,
+          "common_settling_us": 1.3721934e-13,
+          "joint_settling_us": 0.73,
+          "passed": true,
+          "worst_common_excursion_mV": 17.898814,
+          "final_tracking_error_mV": 0.017184767,
+          "final_common_error_mV": -8.1323585
+        },
+        "falling": {
+          "differential_settling_us": 0.729,
+          "common_settling_us": 0.001,
+          "joint_settling_us": 0.729,
+          "passed": true,
+          "worst_common_excursion_mV": 17.904119,
+          "final_tracking_error_mV": 0.017097895,
+          "final_common_error_mV": -8.0159751
+        }
+      },
+      "passed": true
+    },
+    "tt-1100mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.726,
+          "common_settling_us": 1.3721934e-13,
+          "joint_settling_us": 0.726,
+          "passed": true,
+          "worst_common_excursion_mV": 16.54497,
+          "final_tracking_error_mV": 0.017406581,
+          "final_common_error_mV": -6.2609639
+        },
+        "falling": {
+          "differential_settling_us": 0.725,
+          "common_settling_us": 0.001,
+          "joint_settling_us": 0.725,
+          "passed": true,
+          "worst_common_excursion_mV": 16.550886,
+          "final_tracking_error_mV": 0.017317438,
+          "final_common_error_mV": -6.1401393
+        }
+      },
+      "passed": true
+    },
+    "ss-950mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.986,
+          "common_settling_us": 1.3721934e-13,
+          "joint_settling_us": 0.986,
+          "passed": true,
+          "worst_common_excursion_mV": 20.6413,
+          "final_tracking_error_mV": 0.017825574,
+          "final_common_error_mV": 5.1570617
+        },
+        "falling": {
+          "differential_settling_us": 0.985,
+          "common_settling_us": 0.001,
+          "joint_settling_us": 0.985,
+          "passed": true,
+          "worst_common_excursion_mV": 19.988919,
+          "final_tracking_error_mV": 0.017222062,
+          "final_common_error_mV": 5.8527216
+        }
+      },
+      "passed": true
+    },
+    "ss-1100mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.98,
+          "common_settling_us": 1.3721934e-13,
+          "joint_settling_us": 0.98,
+          "passed": true,
+          "worst_common_excursion_mV": 22.570789,
+          "final_tracking_error_mV": 0.018250622,
+          "final_common_error_mV": 7.0204376
+        },
+        "falling": {
+          "differential_settling_us": 0.981,
+          "common_settling_us": 0.001,
+          "joint_settling_us": 0.981,
+          "passed": true,
+          "worst_common_excursion_mV": 21.898082,
+          "final_tracking_error_mV": 0.017641419,
+          "final_common_error_mV": 7.7401263
+        }
+      },
+      "passed": true
+    },
+    "ff-950mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.736,
+          "common_settling_us": 1.134,
+          "joint_settling_us": 1.134,
+          "passed": false,
+          "worst_common_excursion_mV": 33.348587,
+          "final_tracking_error_mV": 0.01735743,
+          "final_common_error_mV": -23.908115
+        },
+        "falling": {
+          "differential_settling_us": 0.735,
+          "common_settling_us": 1.135,
+          "joint_settling_us": 1.135,
+          "passed": false,
+          "worst_common_excursion_mV": 33.346563,
+          "final_tracking_error_mV": 0.017327837,
+          "final_common_error_mV": -23.872854
+        }
+      },
+      "passed": false
+    },
+    "ff-1100mV": {
+      "startup_passed": true,
+      "directions": {
+        "rising": {
+          "differential_settling_us": 0.734,
+          "common_settling_us": 0.892,
+          "joint_settling_us": 0.892,
+          "passed": true,
+          "worst_common_excursion_mV": 32.170034,
+          "final_tracking_error_mV": 0.017519933,
+          "final_common_error_mV": -21.892392
+        },
+        "falling": {
+          "differential_settling_us": 0.733,
+          "common_settling_us": 0.893,
+          "joint_settling_us": 0.893,
+          "passed": true,
+          "worst_common_excursion_mV": 32.168152,
+          "final_tracking_error_mV": 0.017488887,
+          "final_common_error_mV": -21.855056
+        }
+      },
+      "passed": true
+    }
+  },
+  "paired_batches": {
+    "64211": {
+      "total": 32,
+      "passed": 1,
+      "passed_per_gate": {
+        "tracking": 11,
+        "common": 11,
+        "saturation": 23,
+        "rails": 32,
+        "supply": 32
+      }
+    },
+    "97337": {
+      "total": 32,
+      "passed": 0,
+      "passed_per_gate": {
+        "tracking": 6,
+        "common": 8,
+        "saturation": 26,
+        "rails": 32,
+        "supply": 32
+      }
+    }
+  },
+  "all_mos_by_condition": {
+    "64211": {
+      "tt-950": {
+        "passed": 11,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 30,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "tt-1100": {
+        "passed": 11,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 31,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ss-950": {
+        "passed": 7,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 30,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ss-1100": {
+        "passed": 7,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 30,
+          "saturation": 23,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ff-950": {
+        "passed": 3,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 12,
+          "common": 13,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ff-1100": {
+        "passed": 3,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 12,
+          "common": 13,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      }
+    },
+    "97337": {
+      "tt-950": {
+        "passed": 6,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 7,
+          "common": 27,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "tt-1100": {
+        "passed": 9,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 9,
+          "common": 30,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ss-950": {
+        "passed": 4,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 6,
+          "common": 30,
+          "saturation": 26,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ss-1100": {
+        "passed": 3,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 6,
+          "common": 29,
+          "saturation": 27,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ff-950": {
+        "passed": 2,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 10,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      },
+      "ff-1100": {
+        "passed": 2,
+        "total": 32,
+        "by_requirement": {
+          "tracking": 11,
+          "common": 13,
+          "saturation": 32,
+          "rails": 32,
+          "supply": 32
+        }
+      }
+    }
+  },
+  "diagnostic_at_950mV_seed_64211": {
+    "tt": {
+      "arms": {
+        "all": {
+          "total": 32,
+          "passed": 11,
+          "passed_per_gate": {
+            "tracking": 11,
+            "common": 30,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "off": {
+          "total": 32,
+          "passed": 32,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 32,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "input_pair": {
+          "total": 32,
+          "passed": 8,
+          "passed_per_gate": {
+            "tracking": 8,
+            "common": 32,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "cmfb": {
+          "total": 32,
+          "passed": 30,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 30,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        }
+      },
+      "active_response_spread_mV": 41.326902,
+      "disabled_response_spread_mV": 8.8817842e-12
+    },
+    "ss": {
+      "arms": {
+        "all": {
+          "total": 32,
+          "passed": 7,
+          "passed_per_gate": {
+            "tracking": 11,
+            "common": 30,
+            "saturation": 23,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "off": {
+          "total": 32,
+          "passed": 32,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 32,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "input_pair": {
+          "total": 32,
+          "passed": 9,
+          "passed_per_gate": {
+            "tracking": 9,
+            "common": 32,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "cmfb": {
+          "total": 32,
+          "passed": 22,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 32,
+            "saturation": 22,
+            "rails": 32,
+            "supply": 32
+          }
+        }
+      },
+      "active_response_spread_mV": 40.064788,
+      "disabled_response_spread_mV": 2.1094237e-11
+    },
+    "ff": {
+      "arms": {
+        "all": {
+          "total": 32,
+          "passed": 3,
+          "passed_per_gate": {
+            "tracking": 12,
+            "common": 13,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "off": {
+          "total": 32,
+          "passed": 32,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 32,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "input_pair": {
+          "total": 32,
+          "passed": 8,
+          "passed_per_gate": {
+            "tracking": 8,
+            "common": 31,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        },
+        "cmfb": {
+          "total": 32,
+          "passed": 10,
+          "passed_per_gate": {
+            "tracking": 32,
+            "common": 10,
+            "saturation": 32,
+            "rails": 32,
+            "supply": 32
+          }
+        }
+      },
+      "active_response_spread_mV": 50.452891,
+      "disabled_response_spread_mV": 2.8848035e-12
+    }
+  },
+  "worst_all_mos": {
+    "differential": {
+      "seed": 64211,
+      "draw": 5,
+      "corner": "ss",
+      "input_common_V": 1.1,
+      "command_V": -0.3,
+      "value_mV": 11.319202
+    },
+    "common": {
+      "seed": 97337,
+      "draw": 4,
+      "corner": "ss",
+      "input_common_V": 1.1,
+      "command_V": -0.3,
+      "value_mV": 52.69165
+    },
+    "headroom": {
+      "seed": 64211,
+      "draw": 8,
+      "corner": "ss",
+      "input_common_V": 0.95,
+      "command_V": -0.3,
+      "value_mV": -10.291098,
+      "device": "XDUT.XC.MCTP"
+    }
+  },
+  "evidence": {
+    "direct_transient_points": 30006,
+    "maestro_transient_points": 30006,
+    "greatest_direct_vs_maestro_voltage_difference_V": 0,
+    "completed_maestro_tests": [
+      "FF_FULL_1100",
+      "FF_FULL_950",
+      "SS_FULL_1100",
+      "SS_FULL_950",
+      "TT_FULL_1100",
+      "TT_FULL_950"
+    ],
+    "saved_outputs": [
+      "CM_V",
+      "DIFF_V"
+    ],
+    "all_mos_sampled_dc_points": 1152,
+    "diagnostic_only_sampled_dc_points": 864,
+    "unvaried_control_dc_points": 36,
+    "distinct_local_draws": 64,
+    "dc_conditions_per_draw": 18,
+    "rejected_replay_inputs": [
+      "seed",
+      "active MOS group",
+      "different actual draws",
+      "input common mode"
+    ]
+  },
+  "passed": false
+}

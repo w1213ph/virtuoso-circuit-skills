@@ -14,6 +14,9 @@ from ota_measure import MODES, NODES, OP_SAVES, performance
 from ota_views import LIB, TB
 
 
+TRAN_OUTPUTS = {"DIFF_V":'(VT("/OUTP") - VT("/OUTN"))',"CM_V":'((VT("/OUTP") + VT("/OUTN")) / 2)'}
+
+
 def settings(mode):
     if mode=="dc":
         return "dc", {"saveOppoint":"t"}, {"SUPPLY_UW":'-1e6 * getData("VDD" ?result "dc") * getData("VSUP:p" ?result "dc")'}
@@ -35,19 +38,34 @@ def pairs(values):
     return "(" + " ".join("("+q(k)+" "+q(v)+")" for k,v in values.items()) + ")"
 
 
-def launch(stage, site, states):
+def test_groups(states, input_levels):
+    for state in states:
+        corner,_,supply = state
+        for icm in input_levels or (None,):
+            key = corner if icm is None else "{}-{}mV".format(corner,round(icm*1000))
+            tests = {}
+            for mode in MODES if icm is None else ("tran",):
+                variables = dict(VDDVAL="{:g}".format(supply),BETA="0" if mode=="gain" else "1")
+                name = (corner+"_"+mode).upper()
+                if icm is not None:
+                    variables["ICMGAIN"] = "{:.15g}".format(icm/supply)
+                    name = "{}_FULL_{}".format(corner.upper(),round(icm*1000))
+                tests[mode] = (name,variables)
+            yield key,state,icm,tests
+
+
+def launch(stage, site, states, input_levels=()):
     folder = stage/"maestro-evidence"
     folder.mkdir()
     dest = stage/"maestro-results"
     dest.mkdir()
-    for mode in MODES:
+    for mode in ("tran",) if input_levels else MODES:
         (folder/(mode+".scs")).write_text(save_file(mode), encoding="utf-8")
     rows = []
-    for corner,temp,supply in states:
-        for mode in MODES:
+    for _key,(corner,temp,_supply),_icm,tests in test_groups(states,input_levels):
+        for mode,(name,variables) in tests.items():
             ana, opts, outputs = settings(mode)
-            variables = dict(VDDVAL="{:g}".format(supply), BETA="0" if mode=="gain" else "1")
-            values = [q((corner+"_"+mode).upper()),q(ana),q(corner),q(str(temp)),pairs(opts),
+            values = [q(name),q(ana),q(corner),q(str(temp)),pairs(opts),
                       q(str(folder/(mode+".scs"))),pairs(variables),pairs(outputs)]
             rows.append("("+" ".join(values)+")")
     prefix = "\n".join(k+"="+q(str(v)) for k,v in dict(fdLib=LIB,fdTB=TB,fdSpectre=site["spectre"],
@@ -63,28 +81,46 @@ def launch(stage, site, states):
         execute([site["virtuoso"],"-nograph","-log",folder/(phase+".log"),"-restore",script],stage,"maestro-"+phase+".stdout",900)
 
 
-def review(stage, site, states, direct):
-    names = [(s[0]+"_"+m).upper() for s in states for m in MODES]
+def check_transient_outputs(test):
+    observed = {}
+    for item in test.findall('.//field[@Type="defstruct"]'):
+        fields = {f.get("Name"):f.text for f in item.findall("field")}
+        label = (fields.get("name") or "").strip('"')
+        if label in TRAN_OUTPUTS:
+            if label in observed:
+                raise ValueError("Repeated saved Maestro output "+label)
+            observed[label] = fields.get("expression")
+    if observed!=TRAN_OUTPUTS:
+        raise ValueError("Incorrect saved differential or common-mode expression in "+test.get("Name",""))
+
+
+def review(stage, site, states, direct, input_levels=(), transient_measure=None):
+    matrix = list(test_groups(states,input_levels))
+    names = [name for _key,_state,_icm,tests in matrix for name,_variables in tests.values()]
+    transients = {tests["tran"][0] for _key,_state,_icm,tests in matrix}
     history, jobs = history_tests(stage,names,LIB,TB)
     evidence = stage/"maestro-evidence"
     readback = (evidence/"maestro-readback.txt").read_text(encoding="utf-8")
     native = (stage/TB/"netlist").read_text(encoding="utf-8")
     view = stage/LIB/TB/"maestro"
     for state in (view/"active.state",view/"test_states"/(history+".state")):
-        if sorted(t.get("Name") for t in ET.parse(str(state)).findall("./Test"))!=sorted(names):
+        saved_tests = ET.parse(str(state)).findall("./Test")
+        if sorted(t.get("Name") for t in saved_tests)!=sorted(names):
             raise ValueError("Incomplete saved Maestro test matrix")
+        for test in saved_tests:
+            if test.get("Name") in transients:
+                check_transient_outputs(test)
     # A history is complete only if its configured outputs were actually evaluated.
-    query = """SELECT t.name,r.name,v.value,v.errorID FROM result r JOIN test t USING(testID)
+    query = """SELECT t.name,r.name,v.value,v.errorID,r.expression FROM result r JOIN test t USING(testID)
                JOIN resultValue v USING(resultID)"""
     rdb = view/"results/maestro"/(history+".rdb")
     with closing(sqlite3.connect(rdb.resolve().as_uri()+"?mode=ro", uri=True)) as db:
-        plotted = {(test,name):(value,error) for test,name,value,error in db.execute(query)}
+        plotted = {(test,name):(value,error,expr) for test,name,value,error,expr in db.execute(query)}
     records = {}
-    for state in states:
+    for key,state,icm,tests in matrix:
         corner,temp,supply = state
         paths = {}
-        for mode in MODES:
-            name = (corner+"_"+mode).upper()
+        for mode,(name,variables) in tests.items():
             job = jobs[name]
             p = job/"netlist/input.scs"
             native_deck = p.read_text(encoding="utf-8")
@@ -95,7 +131,7 @@ def review(stage, site, states, direct):
             design_vars = [s for s in flat.splitlines() if s.startswith("parameters ") and "VDDVAL=" in s]
             if len(design_vars)!=1:
                 raise ValueError("Missing ADE bench variables: "+name)
-            matches_options(options(design_vars[0],"parameters"),dict(VDDVAL=str(supply), BETA="0" if mode=="gain" else "1"))
+            matches_options(options(design_vars[0],"parameters"),variables)
             matches_options(options(flat,"simulatorOptions options"),dict(temp=str(temp),reltol="1e-5",vabstol="1e-7",iabstol="1e-13"))
             ana,_,outputs = settings(mode)
             solver_opts = dict(re.findall(r"(\w+)=([^\s]+)",MODES[mode][0]))
@@ -109,9 +145,11 @@ def review(stage, site, states, direct):
                     all('"'+c+'"' in t for c in (corner,"res_"+corner,"mim_"+corner)) for t in readback.splitlines()):
                 raise ValueError("Saved signals or reopened corner differ for "+name)
             for out in outputs:
-                value,error = plotted.get((name,out),(None,"missing"))
+                value,error,expr = plotted.get((name,out),(None,"missing",None))
                 if error is not None or value is None or (mode!="dc" and value!="wave"):
                     raise ValueError("Unevaluated ADE output "+name+"/"+out+": "+str((value,error)))
+                if mode=="tran" and expr!=TRAN_OUTPUTS[out]:
+                    raise ValueError("The Maestro history evaluated a different voltage expression for "+name+"/"+out)
                 if mode=="dc" and not math.isclose(float(value), direct[corner]["power_uW"], rel_tol=.002):
                     raise ValueError("Displayed ADE power differs from the measured supply power")
             log = (job/"psf/spectre.out").read_text(encoding="utf-8", errors="replace")
@@ -123,7 +161,7 @@ def review(stage, site, states, direct):
                 raise ValueError("Missing or ambiguous native ADE result for "+name)
             paths[mode]=found[0]
             records[name]=dict(raw_sha256=sha256(found[0]), deck_sha256=sha256(p), outputs=sorted(outputs))
-        reevaluated = performance(paths,state)
+        reevaluated = performance(paths,state) if icm is None else transient_measure(paths["tran"],supply,icm)
         def compare(first,second):
             if isinstance(first,dict):
                 return isinstance(second,dict) and first.keys()==second.keys() and all(compare(first[k],second[k]) for k in first)
@@ -132,6 +170,6 @@ def review(stage, site, states, direct):
             if type(first) is float:
                 return math.isclose(first,second,abs_tol=2e-5,rel_tol=.002)
             return first==second
-        if not compare(reevaluated,direct[corner]):
-            raise ValueError("Native Maestro and direct Spectre measurements differ in "+corner)
+        if not compare(reevaluated,direct[key]):
+            raise ValueError("Native Maestro and direct Spectre measurements differ in "+key)
     return dict(history=history, tests=records)

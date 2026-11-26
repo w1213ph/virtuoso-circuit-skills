@@ -54,8 +54,7 @@ def checked_trace(folder, source, filename, site, fresh):
     return raw
 
 
-def exact_swing(folder, native, state, site, fresh, icm=None, points=3, averaged=False, reverse=False):
-    supply = state[2]
+def swing_source(native, state, site, icm, points, averaged, reverse):
     if icm is not None:
         native = replace_fixture_field(native,"EVIC","gain","0.6","({:.15g}/VDDVAL)".format(icm))
     native = replace_fixture_field(native,"VD","dc","0","(-CMCOMMAND)" if reverse else "CMCOMMAND")
@@ -68,8 +67,13 @@ def exact_swing(folder, native, state, site, fresh, icm=None, points=3, averaged
     if source.count(before) != 1:
         raise ValueError("Expected one closed-loop DC analysis")
     control = "\nparameters CMCOMMAND=0\nsave "+" ".join(signals)+"\n"
-    source = source.replace(before,control+"cm_sweep dc param=CMCOMMAND start=-0.3 stop=0.3 step={:g}\n".format(step))
-    raw = checked_trace(folder,source,"cm_sweep.dc",site,fresh)
+    return source.replace(before,control+"cm_sweep dc param=CMCOMMAND start=-0.3 stop=0.3 step={:g}\n".format(step))
+
+
+def swing_points(raw, state, icm, points=3, averaged=False, reverse=False):
+    supply = state[2]
+    step = (SWING[1]-SWING[0])/(points-1)
+    signals = ("XDUT.CMG",) + (("XDUT.CMAVG",) if averaged else ())
     data = samples(raw,"CMCOMMAND",NODES+OP_SAVES+signals)
     if len(data["CMCOMMAND"]) != points:
         raise ValueError("Incomplete closed-loop differential sweep")
@@ -94,6 +98,12 @@ def exact_swing(folder, native, state, site, fresh, icm=None, points=3, averaged
                          current_uA=current,power_uW=power,passed=abs(err)<=LIMITS["cm_error_mV"] and tracking<=1
                          and margins[limiting]>=0 and 0<=min(op,on)<=max(op,on)<=supply and power>0))
     return list(reversed(rows)) if reverse else rows
+
+
+def exact_swing(folder, native, state, site, fresh, icm=None, points=3, averaged=False, reverse=False):
+    source = swing_source(native,state,site,icm,points,averaged,reverse)
+    raw = checked_trace(folder,source,"cm_sweep.dc",site,fresh)
+    return swing_points(raw,state,icm,points,averaged,reverse)
 
 
 def parent(ota,site):
