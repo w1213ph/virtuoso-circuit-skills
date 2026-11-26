@@ -54,7 +54,7 @@ sh work/driver-matching/open.sh bench
 
 将同一负载和时钟的规格提高到 10 位，半个 LSB 为 0.48828125 mV。这次对照中，全部 11 种尺寸均未通过完整要求，最后一个诊断方案在另外 4 个样本上为 1/4。7 位结果覆盖给定摆幅、三个确定性工况及慢角局部 MOS 失配。对于整机噪声、时钟抖动、无源偏差、不同输入共模和制造良率，仍需各自的预算与测量。
 
-要复现这个超限对照，将规格文件另存为 `ten-bit.json` 并把 `adc_bits` 改为 10，再运行以下两条命令。两个输出目录可以并存。
+要复现这个超限对照，将规格文件另存为 `ten-bit.json` 并把 `adc_bits` 改为 10，再运行以下两条命令。也可以下载同一次公开运行的 `sky130-driver-ten-bit-control`，用第二条命令回放解压后的工件。[7 位与 10 位仿真工件](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/adc-driver-matching.yml)
 
 ```sh
 python3 examples/sky130-adc-driver/matching.py run --requirements ten-bit.json --out work/driver-ten-bit --samples 2 --training-seed 801 --validation-seed 901 --confirmation-seed 1001

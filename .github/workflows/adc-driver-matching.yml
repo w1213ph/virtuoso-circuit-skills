@@ -49,6 +49,7 @@ jobs:
           assert set(result["validation"][chosen]["rows"])==set(map(str,range(54701,54733)))
           assert result["validation"][chosen]["passed"]>result["validation"]["original"]["passed"]
           assert training[chosen]["pvt_pass"] and training["original"]["passed"]<32
+          assert result["selected"]==result["final_candidate"] and result["status"]=="sample_limits_met"
           if not result["first_round_qualified"]:
               repair=json.loads((root/"repair-training.json").read_text())
               final=result["final_candidate"]
@@ -56,9 +57,32 @@ jobs:
               measured=result["confirmation"][final]
               assert set(measured["rows"])==set(map(str,range(84701,84765)))
               assert set(measured["rows"]).isdisjoint(repair[final]["rows"])
-              assert (result["selected"] is not None)==(measured["passed"]==64 and result["repair_reason"]!="diagnostic_only")
+              assert measured["passed"]==64 and result["confirmation"]["original"]["passed"]<64
+              assert result["repair_reason"]!="diagnostic_only"
           PY
           cat work/matching/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify a measured failure at ten bits with the same clock and load
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          req=json.loads(Path("work/matching/requirements.json").read_text())
+          req.update(adc_bits=10,purpose="Ten-bit control at the same load and clock.")
+          Path("work/ten-bit.json").write_text(json.dumps(req))
+          PY
+          rc=0
+          python3 examples/sky130-adc-driver/matching.py run --requirements work/ten-bit.json --models work/matching/models --out work/ten-bit --samples 2 --training-seed 801 --validation-seed 901 --confirmation-seed 1001 || rc=$?
+          [ "$rc" -eq 1 ]
+          python3 examples/sky130-adc-driver/matching.py verify --out work/ten-bit
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("work/ten-bit")
+          result=json.loads((root/"summary.json").read_text())
+          assert result["limit_mV"]==0.48828125 and result["status"]=="sample_limits_exceeded"
+          assert result["selected"] is None and not (root/"open.sh").exists()
+          assert result["confirmation"][result["final_candidate"]]["passed"]<4
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -66,3 +90,8 @@ jobs:
           path: |
             work/matching/
             !work/matching/models/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-driver-ten-bit-control
+          path: work/ten-bit/
