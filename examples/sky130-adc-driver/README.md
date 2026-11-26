@@ -28,7 +28,7 @@
 
 完整搜索测了 17 组尺寸。两组通过三个确定性工况的全部检查，入选的是总栅面积较小的一组。其最坏跟踪误差为 1.736 mV（典型角下降），最坏保持误差为 1.196 mV（慢角下降），最低相位裕度为 72.88°（快角保持）。栅面积含器件倍率，放大器占 253.15 µm²，开关占 2.70 µm²，1.25 pF 是单列的接口负载。
 
-**加入慢角器件失配后，32 个独立样本中有 10 个同时满足四项采样要求。** 冻结入选电路的网表、尺寸、负载和时序，在 SS、1.62 V、85 °C 使用预先指定的种子 126701 至 126732。上行跟踪误差最大为 5.023 mV（种子 126717），下行保持误差最大为 4.713 mV（种子 126718），均超过 1.953125 mV。这个设计在上述失配条件下仍有超限，32 个样本不能给出产品良率。[下载含逐样本波形的 8 位完整工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-8bit-mismatch-v1/adc-driver-8bit-mismatch.zip)
+**加入慢角器件失配后，32 个独立样本中有 10 个同时满足四项采样要求。** 冻结入选电路的网表、尺寸、负载和时序，在 SS、1.62 V、85 °C 使用预先指定的种子 126701 至 126732。下载包使用 ngspice 44.2，上行跟踪误差最大为 5.023 mV（种子 126717），下行保持误差最大为 4.742 mV（种子 126718），均超过 1.953125 mV。独立使用 ngspice 39 重跑时，对应读数为 5.023 mV 和 4.713 mV。两次对 128 项逐样本误差的达标判断全部一致。这批样本描述所测慢角的局部器件偏差，产品良率还需更广的统计验证。[下载含逐样本波形的 8 位完整工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-8bit-mismatch-v1/adc-driver-8bit-mismatch.zip)
 
 在这个工程中运行 `python sample.py mismatch`，可以离线核对所选电路并从原始波形复算。`mismatch/samples.csv` 按种子列出双向跟踪与保持误差，`mismatch/seed-126717/transient.dat` 保留上行最差样本的原始电压。复算返回 0 表示数据、报告与选中电路相符。要用新样本检查另一个设计，在 Linux 运行 `python3 sample.py mismatch run --driver-run my-design --out my-mismatch --samples 32 --seed 127001`。如有样本超限，此次仿真返回 1；缺少已达标的标称设计或证据有误时返回 2。若使用外置模型，添加 `--models` 并指向设计时的同一目录。
 

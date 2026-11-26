@@ -4,6 +4,8 @@
 
 8 位、1.25 pF、85 ns 跟踪与 25 ns 保持的工程已对 17 组尺寸完成相同的前仿。原长沟道版通过 12/18 项，镜像改为 48∶50 后通过 16/18 项，再把互补开关各并联两组后通过 18/18 项。入选方案总栅面积为 255.85 µm²，最差跟踪与保持误差分别为 1.736 mV 和 1.196 mV。把相同接口的精度提高到 9 位并重新定尺寸，17 组均超限。两份工程各保留 306 项正式判断、459 个稳态输入测点及原始波形，均已独立复算。[8 位仿真](https://github.com/w1213ph/virtuoso-circuit-skills/actions/runs/45802170090) · [9 位仿真](https://github.com/w1213ph/virtuoso-circuit-skills/actions/runs/45802437217) · [工程下载](https://github.com/w1213ph/virtuoso-circuit-skills/releases/tag/adc-driver-precision-v1)
 
+冻结 8 位入选电路，在 SS、1.62 V、85 °C 指定 32 个局部 MOS 失配样本。每个样本在采样电容上测双向跟踪及保持，共 128 项。ngspice 39 和 44.2 的逐项达标判断一致，10 个样本四项全过。公开包中最坏跟踪与保持误差为 5.023 mV 和 4.742 mV，超过半个 LSB 的 1.953125 mV。两个仿真器在同一种子下的采样误差读数最大相差 0.029 mV。下载后用 `python sample.py mismatch` 可核对入选网表并复算这批波形。[32 个样本与可编辑工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/tag/adc-driver-8bit-mismatch-v1) · [云端仿真与打包](https://github.com/w1213ph/virtuoso-circuit-skills/actions/runs/45806770510)
+
 以下早期两尺寸对照使用 1 pF、100 ns 跟踪和 20 ns 保持。
 
 从 7 位、1 V 量化范围、1 pF 采样负载与 100 ns 窗口推导预算，在独立 Xschem 工程比较两组 PMOS 有源负载。核对两版全部晶体管的四端、尺寸、倍率和 11 个父级端口引线，打开最终核心、symbol、采样级和测试台。供电爬升后测到片上参考支路电流，跟踪/保持两种静态环路分别做 AC，上下行切换各测采样电容在关断前和保持期间的实际误差。三组确定性工况中初版通过 14/18 项，候选通过 18/18 项。8 位规格下两版均为 11/18。原始测量可从运行目录重新提取。证据范围为指定输入步阶和负载，随机失配、噪声和完整 ADC 尚待验证。[条件、可编辑工程与复算入口](../examples/sky130-adc-driver/README.md)
