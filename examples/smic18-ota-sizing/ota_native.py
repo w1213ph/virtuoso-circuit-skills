@@ -6,7 +6,7 @@ from collections import Counter
 from audit_native import outward_leads, spice_number
 from schematic import q
 from spectre_run import execute, read_json
-from ota_views import BIAS, CMFB, CORE, INPUT, OUTPUT, PROBED, TB, LIB, INTERFACE, sources
+from ota_views import BIAS, CMFB, CORE, INPUT, OUTPUT, PROBED, TB, LIB, interfaces, sources
 
 
 def netlist(folder, site, cell):
@@ -37,6 +37,7 @@ def build(folder, site, sizes):
 
 def views(folder, site, sizes):
     script, expected = sources(site["pdk_library"], sizes)
+    pin_maps = interfaces(sizes)
     if (folder / "build.il").read_text(encoding="utf-8") != script:
         raise ValueError("Native drawing source differs from the frozen sizes")
     log = (folder / "build.log").read_text(encoding="utf-8", errors="replace")
@@ -47,7 +48,7 @@ def views(folder, site, sizes):
         if re.findall(r"CMP_CHECK " + cell + r" (\([^\n]*\))", log) != ["(0 0)"]:
             raise ValueError("Missing clean Check & Save for " + cell)
         data = read_json(folder / (cell + "-schematic.json"))
-        interface = INTERFACE.get(cell, {})
+        interface = pin_maps.get(cell, {})
         if {p["name"]:p["direction"] for p in data["ports"]} != {n:t[0] for n,t in interface.items()}:
             raise ValueError("Unexpected native ports in " + cell)
         if interface:
@@ -67,7 +68,7 @@ def views(folder, site, sizes):
             ):
                 raise ValueError("{} / {} native connectivity differs: {} vs {}".format(cell, name, terms, spec["terms"]))
             if spec["lib"] == LIB:
-                outward_leads(data["shapes"], i, {n:t[2] for n,t in INTERFACE[spec["cell"]].items()})
+                outward_leads(data["shapes"], i, {n:t[2] for n,t in pin_maps[spec["cell"]].items()})
         measured[cell] = actual
     return measured
 
@@ -113,6 +114,7 @@ def cdf_value(props, key):
 
 def audit(folder, site, sizes):
     actual = views(folder, site, sizes)
+    pin_maps = interfaces(sizes)
     _, design = sources(site["pdk_library"], sizes)
     bench = exported(folder, TB)
     defs, parent = hierarchy(bench)
@@ -126,6 +128,13 @@ def audit(folder, site, sizes):
     if probes != plain or {n:v for n,v in defs.items() if n != PROBED} != plain_defs:
         raise ValueError("Shorting the test probe must reproduce the independent ordinary OTA netlist")
     areas = dict(mos_gate_um2=0.0, resistor_strip_um2=0.0, mim_plate_um2=0.0)
+    effective = {}
+    if "source_trim" in sizes:
+        values = read_json(folder/"trim-effective-cdf.json")
+        effective = {n:(model,{"w":w,"l":l}) for n,model,w,l in values}
+        names = {n for n,s in design[INPUT].items() if s["cell"] in ("n18","p18","n18_ckt","p18_ckt")}
+        if len(effective)!=len(values) or set(effective)!=names:
+            raise ValueError("Expected one effective CDF record for every input-stage MOS")
     for cell in (INPUT, OUTPUT, BIAS, CMFB, PROBED, TB):
         instances = parent if cell == TB else defs[cell][1]
         plans = {k:v for k,v in design[cell].items() if v["cell"] != "gnd"}
@@ -140,6 +149,11 @@ def audit(folder, site, sizes):
                 order = list("DGSB")
                 mult = "mr" if device.endswith("_ckt") else "m"
                 values = {k:spice_number(params[k]) for k in ("w","l","nf",mult)}
+                if cell==INPUT and name in effective:
+                    model,dimensions = effective[name]
+                    if model!=device or any(not math.isclose(cdf_value(props,k),cdf_value(dimensions,k)) for k in ("w","l") if k in props):
+                        raise ValueError("Effective and explicitly stored CDF dimensions disagree on "+name)
+                    props.update(dimensions)
                 if (master != device or values["nf"] != 1 or values[mult] != 1
                         or (mult=="mr" and spice_number(params["mismod"])!=1)
                         or not all(math.isclose(values[k], cdf_value(props,k)) for k in ("w","l"))
@@ -189,7 +203,7 @@ def audit(folder, site, sizes):
                 audited[name] = dict(ohm=resistance, segments=count, segment_length_um=length, segment_width_um=width)
             elif spec["lib"] == LIB:
                 order = defs[master][0]
-                if master != device or set(order) != set(INTERFACE[device]) or len(set(order))!=len(order):
+                if master != device or set(order) != set(pin_maps[device]) or len(set(order))!=len(order):
                     raise ValueError("Unexpected native hierarchy for " + name)
             else:
                 order = ["PLUS","MINUS","NC+","NC-"] if device=="vcvs" else ["PLUS","MINUS"]

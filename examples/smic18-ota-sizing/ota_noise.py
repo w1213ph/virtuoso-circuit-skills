@@ -21,6 +21,7 @@ import check_prelayout as acceptance
 
 NOISE = "ns (OUTP OUTN) noise start=1 stop=1G dec=60 iprobe=VD"
 GROUPS = ("input_pair", "input_load", "tail", "output_stage", "bias", "cmfb")
+TRIM_GROUPS = GROUPS+("trim_resistors","trim_switches","trim_inverters")
 COLUMNS = ("frequency_Hz", "input_V_per_sqrt_Hz", "output_V_per_sqrt_Hz", "diff_gain_V_per_V")
 
 
@@ -31,13 +32,17 @@ def group_for(instance):
         return "input_load"
     if instance == "XDUT.XI.MTAIL":
         return "tail"
+    for pattern,group in ((r"MSW[PN][0-3]","trim_switches"),(r"MIV[PN][0-3]","trim_inverters"),
+                          (r"RS[PN][0-3]\.\w+","trim_resistors")):
+        if re.fullmatch(r"XDUT\.XI\."+pattern,instance):
+            return group
     for prefix, group in (("XDUT.XO.", "output_stage"), ("XDUT.XB.", "bias"), ("XDUT.XC.", "cmfb")):
         if instance.startswith(prefix):
             return group
     raise ValueError("Unaccounted native noise source " + instance)
 
 
-def spectrum(noise_path, ac_path):
+def spectrum(noise_path, ac_path, groups=GROUPS):
     """Read aggregate ASD and per-instance output PSD from the same native noise solution."""
     header, values = noise_path.read_text(encoding="utf8").split("\nVALUE\n")
     for field in ('"positive output signal" "OUTP"', '"negative output signal" "OUTN"', '"input probe" "VD"',
@@ -53,7 +58,7 @@ def spectrum(noise_path, ac_path):
         if not fields or fields[-1] != ("total", "V^2/Hz"):
             raise ValueError("Undeclared device noise power or units for " + kind)
     native_groups = {name:group_for(name) for name in sources}
-    if set(native_groups.values()) != set(GROUPS):
+    if set(native_groups.values()) != set(groups):
         raise ValueError("Noise analysis omitted a physical functional block")
     ac = samples(ac_path, "freq", ("INP", "INN", "OUTP", "OUTN"))
     points = re.split(r'^"freq" ', values, flags=re.M)[1:]
@@ -76,7 +81,7 @@ def spectrum(noise_path, ac_path):
         parts = re.findall(r'^"(XDUT\.[^"]+)" \(\n(.*?)^\)', point, re.M | re.S)
         if len(parts) != len(sources) or {n for n,_ in parts} != set(sources):
             raise ValueError("Missing or repeated device noise contribution")
-        power = dict.fromkeys(GROUPS, 0.0)
+        power = dict.fromkeys(groups, 0.0)
         for instance, terms in parts:
             total = float(terms.splitlines()[-1])
             if not math.isfinite(total) or total < 0:
@@ -84,7 +89,7 @@ def spectrum(noise_path, ac_path):
             power[native_groups[instance]] += total
         if not math.isclose(sum(power.values()), sig["out"] ** 2, rel_tol=1e-5):
             raise ValueError("The sum of physical source powers disagrees with output noise")
-        rows.append((freq, sig["in"], sig["out"], diff_gain, *(power[g]/diff_gain**2 for g in GROUPS)))
+        rows.append((freq, sig["in"], sig["out"], diff_gain, *(power[g]/diff_gain**2 for g in groups)))
     return rows
 
 
@@ -95,10 +100,10 @@ def store(path, data, fresh):
         raise ValueError("Saved evidence differs from independently replayed native results: " + str(path))
 
 
-def export_csv(path, rows, fresh):
+def export_csv(path, rows, fresh, groups=GROUPS):
     stream = io.StringIO(newline="")
     writer = csv.writer(stream, lineterminator="\n")
-    writer.writerow((*COLUMNS, *(key + "_V2_per_Hz" for key in GROUPS)))
+    writer.writerow((*COLUMNS, *(key + "_V2_per_Hz" for key in groups)))
     writer.writerows(rows)
     store(path, stream.getvalue().encode("utf8"), fresh)
 
@@ -113,11 +118,11 @@ def noise_test(name, state, band, limit, csv_name):
                 target=dict(source="Explicit example or caller noise budget", confirmed=True, limits={"<=":limit}))
 
 
-def assess(path, test):
+def assess(path, test, groups=GROUPS):
     spec = test["recompute"]
     rms, _ = acceptance.band_noise_rms(path, spec, test["unit"])
     fractions = {}
-    for group in GROUPS:
+    for group in groups:
         group_spec = dict(spec, density=group+"_V2_per_Hz", density_unit="V2/Hz")
         contribution, _ = acceptance.band_noise_rms(path, group_spec, test["unit"])
         fractions[group] = (contribution/rms)**2

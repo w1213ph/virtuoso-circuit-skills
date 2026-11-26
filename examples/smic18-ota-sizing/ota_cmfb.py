@@ -11,7 +11,7 @@ from ota import config_for_site
 import ota_ade
 from ota_measure import LIMITS, NODES, OP_DEVICES, OP_SAVES, deck, measure, samples
 from ota_native import audit, build, hierarchy
-from ota_noise import NOISE, assess, export_csv, noise_test, spectrum
+from ota_noise import GROUPS, NOISE, assess, export_csv, noise_test, spectrum
 from ota_range import STEP_COUNT, covers, measure_ranges, replace_fixture_field
 from ota_views import CMFB, PROBED
 from bias_sim import STATES, analysis
@@ -163,7 +163,7 @@ def requested_range(coarse, supply, forward, reverse):
                 worst_tracking_mV=max(r["tracking_mV"] for r in rows),min_headroom_V=min(r["headroom_V"] for r in rows))
 
 
-def performance_at(folder,name,native,site,state,physical,fresh):
+def performance_at(folder,name,native,site,state,physical,fresh,noise_groups=GROUPS):
     corner = state[0]
     metrics = measure(folder/corner,site,state,native,fresh)
     bounds = measure_ranges(folder,native,site,state,metrics,fresh)
@@ -175,17 +175,20 @@ def performance_at(folder,name,native,site,state,physical,fresh):
     if gain_deck.count(gain_line)!=1:
         raise ValueError("Missing the matching open-differential AC bench")
     raw = checked_trace(folder/(corner+"-noise"),gain_deck.replace(gain_line,NOISE),"ns.noise",site,fresh)
-    rows = spectrum(raw,folder/corner/"gain/psf/ac.ac")
+    rows = spectrum(raw,folder/corner/"gain/psf/ac.ac",noise_groups)
     path = folder/(corner+"-noise.csv")
-    export_csv(path,rows,fresh)
-    rms,_ = assess(path,noise_test(name,state,BAND,NOISE_UV,path.name))
+    export_csv(path,rows,fresh,noise_groups)
+    rms,fractions = assess(path,noise_test(name,state,BAND,NOISE_UV,path.name),noise_groups)
     checks = dict(metrics["checks"], input_common=covers(bounds["input_cm"]["bounds_V"],ICM),
                   differential_swing=target["passed"],
                   noise=rms<=NOISE_UV, power=metrics["power_uW"]<=POWER_UW,
                   area=physical["area"]["mos_gate_um2"]<=GATE_AREA_UM2)
-    return dict(checks=checks,passed=all(checks.values()),input_common_V=bounds["input_cm"]["bounds_V"],
+    result = dict(checks=checks,passed=all(checks.values()),input_common_V=bounds["input_cm"]["bounds_V"],
                 coarse_output_diff_V=bounds["output_diff"]["bounds_V"],requested_swing=target,noise_uVrms=rms,noise_csv_sha256=sha256(path),
                 dc_sweep_csv_sha256=bounds["points_sha256"],metrics=metrics)
+    if noise_groups!=GROUPS:
+        result["noise_power_fractions"] = fractions
+    return result
 
 
 def device_curve(folder,native,site,state,width,length,baseline,fresh):

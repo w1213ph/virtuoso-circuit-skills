@@ -36,6 +36,16 @@ INTERFACE = {
 INTERFACE[PROBED] = INTERFACE[CORE]
 
 
+def interfaces(sizes):
+    if "source_trim" not in sizes:
+        return INTERFACE
+    from ota_trim_views import CODE_PINS
+    result = INTERFACE.copy()
+    for cell in (INPUT,CORE,PROBED):
+        result[cell] = dict(INTERFACE[cell],**{name:("input",(x,0),BOTTOM) for name,x in CODE_PINS})
+    return result
+
+
 def dimensions(lookup, length, current_scale, plate_um):
     row = lookup["corners"]["tt"]["budgets"][str(length)]
     branch = 2 * current_scale
@@ -56,26 +66,33 @@ def dimensions(lookup, length, current_scale, plate_um):
 class Drawing:
     def __init__(self, cell, pdk, sizes):
         self.cell, self.pdk, self.sizes = cell, pdk, sizes
+        self.interface = interfaces(sizes)
         self.ops, self.instances = [], {}
 
     def wire(self, *points, net=None, label=None, justify="lowerLeft"):
         self.ops.append(draw_wire(points, net, label, justify))
 
+    def input_stage_lead(self, start, end, name, label):
+        if "source_trim" in self.sizes:
+            self.wire(start,end,net=name,label=label)
+        else:
+            self.wire(start,end)
+
     def text(self, x, y, text, size=0.14):
         self.ops.append(note(x, y, text, size))
 
     def port(self, name, x, y, orientation):
-        self.ops.append(pin(name, (x, y), orientation, {n: v[0] for n, v in INTERFACE[self.cell].items()}))
+        self.ops.append(pin(name, (x, y), orientation, {n: v[0] for n, v in self.interface[self.cell].items()}))
 
     def device(self, name, lib, cell, xy, orientation, terms, props=None, cdf=False):
         place(self.ops, self.instances, name, lib, cell, xy, orientation, terms, props or {}, use_cdf=cdf)
 
-    def mos(self, name, kind, x, y, gate_side, nets, group, pair=None):
+    def mos(self, name, kind, x, y, gate_side, nets, group, pair=None, geometry=None):
         # x is the channel column. Mirroring exchanges the side of the gate and body stubs.
         length = self.sizes["length_um"]
         if group=="cm_input":
             length = self.sizes.get("cm_length_um",length)
-        width,length = self.sizes.get("paired_geometry",{}).get(pair,(self.sizes[group],length))
+        width,length = geometry if geometry is not None else self.sizes.get("paired_geometry",{}).get(pair,(self.sizes[group],length))
         master = MOS_MASTERS[self.sizes.get("mos_family","nominal")][{"n":"NMOS","p":"PMOS"}[kind]]
         self.device(name, self.pdk, master, (x + 0.25 * gate_side, y), "R0" if gate_side < 0 else "MY",
                     dict(zip(("D", "G", "S", "B"), nets)),
@@ -85,7 +102,7 @@ class Drawing:
         self.wire((x, y), end, net=nets[3], label=end, justify="lowerRight" if gate_side > 0 else "lowerLeft")
         self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name,width,length),0.105)
 
-    def resistor(self, name, xy, plus, minus, value):
+    def resistor(self, name, xy, plus, minus, value, label_x=None):
         segments = math.ceil(value / 45000)
         self.device(name, self.pdk, "rhrpo", xy, "R0", {"PLUS": plus, "MINUS": minus},
                     dict(segments=segments, connection="Series", calculatedParam="Length", m="1",
@@ -93,7 +110,8 @@ class Drawing:
         if name == "RB":
             self.text(xy[0]+1.1, xy[1]-0.125, "{}  {:.3g} MOhm".format(name, value/1e6), 0.115)
         else:
-            self.text(xy[0]+0.15, xy[1]-0.25, "{}  {:.3g} kOhm".format(name, value/1000), 0.1)
+            self.text(xy[0]+0.15 if label_x is None else label_x, xy[1]-0.25,
+                      "{}  {:.3g} kOhm".format(name, value/1000), 0.1)
 
     def block(self, name, cell, xy, terms):
         self.device(name, LIB, cell, xy, "R0", terms)
@@ -104,7 +122,7 @@ class Drawing:
         self.wire(xy, end, net=net, label=end, justify="lowerRight" if axis == LEFT else "lowerLeft")
 
 
-def symbol(cell):
+def symbol(cell,interface=INTERFACE):
     ops = []
 
     def line(*points):
@@ -122,7 +140,7 @@ def symbol(cell):
         line((0.5, 0.45), (0.5, 2.55), (3.5, 2.55), (3.5, 0.45), (0.5, 0.45))
     titles = {BIAS: "IREF", INPUT: "gm", OUTPUT: "Av", CMFB: "CMFB", CORE: "OTA", PROBED: "OTA"}
     label(2.0, 1.52, titles[cell], 0.25)
-    for name, (direction, (x, y), axis) in INTERFACE[cell].items():
+    for name, (direction, (x, y), axis) in interface[cell].items():
         ops.append("cmpSymbolPin({} {} list({} {}))".format(q(name), q(direction),
                    pt(x - 0.0125, y - 0.0125), pt(x + 0.0125, y + 0.0125)))
         if axis in (LEFT, RIGHT):
@@ -134,10 +152,13 @@ def symbol(cell):
             top = axis == TOP
             edge = (2.65 - 0.2 * (x - 0.5) if top else 0.35 + 0.2 * (x - 0.5)) if amplifier else (2.55 if top else 0.45)
             line((x, y), (x, edge))
-            label(x + 0.10, 2.68 if top else 0.14, name, role="pin name", justify="lowerLeft")
+            if not top and "T0" in interface[cell]:
+                label(x+.045,.105 if name.startswith("T") else .225,name,.09,role="pin name",justify="lowerLeft")
+            else:
+                label(x + 0.10, 2.68 if top else 0.14, name, role="pin name", justify="lowerLeft")
     label(3.75, 2.83, "[@instanceName]", 0.115, "instance label", "NLPLabel", "lowerRight")
     ops.append('dbCreateRect(cv list("instance" "drawing") list(0:0 4:3))')
-    order = "list(" + " ".join(q(n) for n in INTERFACE[cell]) + ")"
+    order = "list(" + " ".join(q(n) for n in interface[cell]) + ")"
     ops.extend(['dbReplaceProp(cv "portOrder" "ILList" {})'.format(order),
                 'unless(schSymbolToPinList({} {} "symbol") error("Missing symbol"))'.format(q(LIB), q(cell)),
                 'unless(equal(schGetPinOrder(cv) {}) error("Incorrect symbol port order"))'.format(order)])
@@ -160,28 +181,36 @@ def bias(d):
 
 
 def input_stage(d):
+    trimmed = "source_trim" in d.sizes
     for side, x, sign, edge in (("P", 4, -1, 1), ("N", 12, 1, 15)):
         inp, node = "IN" + side, "X" + side
-        d.mos("MIN" + side, "n", x, 3.75, sign, (node, inp, "TAIL", "VSS"), "input", "input_pair")
+        source = "S"+side+"0" if trimmed else "TAIL"
+        d.mos("MIN" + side, "n", x, 3.75, sign, (node, inp, source, "VSS"), "input", "input_pair")
         d.mos("ML" + side, "p", x, 6.75, -sign, (node, "PG", "VDD", "VDD"), "load")
         d.wire((x, 3.9375), (x, 5), (x, 6.5625))
         d.port(node, edge, 5, "R180" if sign < 0 else "R0")
-        d.wire((x, 5), (edge, 5))
+        d.input_stage_lead((x,5),(edge,5),node,(edge-sign*.625,5))
         d.port(inp, edge, 3.75, "R0" if sign < 0 else "R180")
-        d.wire((x + 0.25 * sign, 3.75), (edge, 3.75))
+        d.input_stage_lead((x+.25*sign,3.75),(edge,3.75),inp,(edge-sign*.625,3.75))
     d.wire((4.25, 6.75), (7.5, 6.75), (11.75, 6.75))
     d.port("PG", 7.5, 5.625, "R90")
-    d.wire((7.5, 5.625), (7.5, 6.75))
+    d.input_stage_lead((7.5,5.625),(7.5,6.75),"PG",(7.5,5.875))
     d.wire((4, 6.9375), (4, 7.875), (8, 7.875), (12, 7.875), (12, 6.9375))
     d.port("VDD", 8, 8.625, "R90")
-    d.wire((8, 8.625), (8, 7.875))
-    d.wire((4, 3.5625), (4, 2.875), (8, 2.875), (12, 2.875), (12, 3.5625), net="TAIL", label=(6, 2.875))
-    d.mos("MTAIL", "n", 8, 1.75, -1, ("TAIL", "BN", "VSS", "VSS"), "tail")
-    d.wire((8, 2.875), (8, 1.9375))
-    d.port("BN", 5.5, 1.75, "R0")
-    d.wire((5.5, 1.75), (7.75, 1.75))
-    d.port("VSS", 8, 0.625, "R270")
-    d.wire((8, 1.5625), (8, 0.625))
+    d.input_stage_lead((8,8.625),(8,7.875),"VDD",(8,8.25))
+    source_y,delta = 3.5625,0
+    if trimmed:
+        from ota_trim_views import source_bank
+        source_y = source_bank(d)
+        delta = source_y-3.5625
+    d.wire((4, source_y), (4, 2.875+delta), (8, 2.875+delta), (12, 2.875+delta), (12, source_y),
+           net="TAIL", label=(6, 2.875+delta))
+    d.mos("MTAIL", "n", 8, 1.75+delta, -1, ("TAIL", "BN", "VSS", "VSS"), "tail")
+    d.wire((8, 2.875+delta), (8, 1.9375+delta))
+    d.port("BN", 5.5, 1.75+delta, "R0")
+    d.input_stage_lead((5.5,1.75+delta),(7.75,1.75+delta),"BN",(6,1.75+delta))
+    d.port("VSS", 8, 0.625+delta, "R270")
+    d.input_stage_lead((8,1.5625+delta),(8,.625+delta),"VSS",(8,.875+delta))
     d.text(1, 8.75, "Differential input pair", 0.20)
 
 
@@ -258,13 +287,18 @@ def amplifier(d):
     probed = d.cell == PROBED
     for name, cell, xy in (("XI", INPUT, (7, 9)), ("XO", OUTPUT, (16, 9)),
                            ("XB", BIAS, (1, 2)), ("XC", CMFB, (10, 2))):
-        terms = {n: n for n in INTERFACE[cell]}
+        terms = {n: n for n in d.interface[cell]}
         if name == "XC" and probed:
             terms["PG"] = "CMG"
         d.block(name, cell, xy, terms)
-        for n, (_, (px, py), axis) in INTERFACE[cell].items():
+        for n, (_, (px, py), axis) in d.interface[cell].items():
             if n in ("VDD", "VSS", "BN"):
                 d.stub((xy[0]+px, xy[1]+py), axis, n)
+            elif n in ("T0","T1","T2","T3"):
+                x,y = xy[0]+px,xy[1]+py
+                end = y-(1.5 if n in ("T0","T2") else 1.0)
+                d.wire((x,y),(x,end),net=n,label=(x,end+.1875))
+                d.port(n,x,end,"R270")
     for i, letter in enumerate(("P", "N")):
         y = 11 - i
         d.port("IN"+letter, 2.75, y, "R0")
@@ -298,7 +332,7 @@ def bench(d):
     amplitude = "300m" if large_step else "50m"
     common_step = "0" if large_step else "20m"
     input_gain = "ICMGAIN" if large_step else "0.6"
-    terms = {n: n for n in INTERFACE[CORE]}
+    terms = {n: n for n in d.interface[CORE]}
     terms["VSS"] = "gnd!"
     d.block("XDUT", PROBED, (10, 5), terms)
     # The two output loads are real bench capacitors. Ideal independent and controlled
@@ -323,13 +357,21 @@ def bench(d):
         d.text(x+0.22,9.75,labels[name],0.105)
         d.stub((x, 10), TOP, plus)
         ground(d, x, 9.625, name)
-    for name, x, y, plus, minus, sensep, sensen, gain in (
+    controls = [
         ("EVIC", 2, 5.25, "VIC", "gnd!", "VDD", "gnd!", input_gain),
         ("EVCM", 5, 5.25, "VCM", "OFF", "VDD", "gnd!", "0.5"),
         ("EFB", 2, 1.5, "SUM", "CMD", "OUTP", "OUTN", "-BETA"),
         ("EIP", 7, 1.5, "INP", "VIC", "ERR", "gnd!", "0.5"),
         ("EIN", 11, 1.5, "INN", "VIC", "ERR", "gnd!", "-0.5"),
-    ):
+    ]
+    if "source_trim" in d.sizes:
+        from ota_trim_views import CODE_PINS, bit_gain
+        for bit,(gate,offset) in enumerate(CODE_PINS):
+            d.stub((10+offset,5),BOTTOM,gate,1.125 if bit%2==0 else .625)
+            controls.append(("EB"+str(bit),2+4*bit,-2,gate,"gnd!","VDD","gnd!",
+                             bit_gain(d.sizes["source_trim"]["code"],bit)))
+        d.text(1,-.875,"Static trim word T3..T0 (T0 = LSB). Each bit drives a CMOS gate.",.12)
+    for name, x, y, plus, minus, sensep, sensen, gain in controls:
         d.device(name, "analogLib", "vcvs", (x, y), "R0",
                  {"PLUS":plus, "MINUS":minus, "NC+":sensep, "NC-":sensen}, {"egain":gain})
         d.text(x+0.18, y-0.25, "{}  {}".format(name, gain), 0.10)
@@ -362,10 +404,14 @@ def sources(pdk, sizes):
         d = Drawing(cell, pdk, sizes)
         draw(d)
         expected[cell] = d.instances
-        for view, ops in ([("schematic", d.ops)] if cell == TB else [("schematic", d.ops), ("symbol", symbol(cell))]):
+        for view, ops in ([("schematic", d.ops)] if cell == TB else [("schematic", d.ops), ("symbol", symbol(cell,d.interface))]):
             proc = "fdView{}{}".format(i, view)
             scripts.append(view_procedure(proc, cell, view, ops, LIB))
             calls.append(proc+"()")
+    if "source_trim" in sizes:
+        from ota_trim_views import effective_cdf_source
+        scripts.append(effective_cdf_source(LIB,INPUT))
+        calls.append("fdReadTrimCDF()")
     scripts.append(f'''procedure(fdBuild() let((lib dest)
       cmpCheckPDK({q(pdk)}) dest=strcat(getWorkingDir() "/{LIB}")
       when(ddGetObj("{LIB}") || isDir(dest) error("Target library already exists"))

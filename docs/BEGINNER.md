@@ -34,6 +34,8 @@
 
 ## 复制这一段开始
 
+如果电路要求很小的失调，可以说「允许上电校准一次。请画出实际修调器件，告诉我需要几个控制脚、每个码有多大作用。我希望看到同一个样本换到高低温后还能不能用」。案例中的四个输入脚直接接 MOS 开关和反相器。你可以在测试台改一个码，观察两路输出之差与平均值。[打开原理图、换码和读结果的方法](../examples/smic18-ota-sizing/TRIM.md)
+
 ```text
 请使用 https://github.com/w1213ph/virtuoso-circuit-skills 帮我设计电路。
 我是集成电路新手，请先读取仓库 AGENTS.md 和 skills/paper-to-virtuoso/SKILL.md，

@@ -1,5 +1,9 @@
 # 外部来源与实际采用的方法
 
+## 从实际修调端口验证校准
+
+Christoph Weiser 的 SKY130 MPW7 SAR 在 `sarlogic.v` 中用五位掩码逐次决定校准值，并在校准结束后使用保存的码。比较器原理图将控制位和反相信号接到物理电容阵列，瞬态测试台把同一组端口接入整机。核对的提交为 `60a5ac0`，仓库使用 Apache-2.0。本项目借鉴了校准与正常工作分开的测试方法。SMIC18 放大器采用独立绘制的四位源极电阻网络，逐码检查开关控制电压，再把每个样本的码固定到其余工况。[校准 RTL](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/verilog/sarlogic/sarlogic.v) · [物理阵列](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/xschem/sar_10b/comparator/trim.sch) · [瞬态测试台](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/xschem/tb/comparator/tran_comparator_trim.sch) · [许可证](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/LICENSE) · [本项目实测](../examples/smic18-ota-sizing/TRIM.md)
+
 ## 匹配面积与跨工艺角的尺寸比较
 
 Mosplot 的优化器在参考角确定几何，在 `_freeze` 中保存设计，再由 `recorner` 在其他角重新计算工作点与性能。核对版本 `6c4c5e1` 的 `src/mosplot/optimizer/evaluate.py` 及 Apache-2.0 许可证。本项目借鉴尺寸冻结的做法，在原生 OA 和导出网表中逐对核实 W、L、其余器件与负载，随后固定几何复验三个角、六个满摆幅工况和独立局部失配样本。工艺版本或测试接口改变时，需重新表征与仿真。[Mosplot 求值器](https://github.com/medwatt/gmid/blob/6c4c5e164295c60a8b996f9dff8a79c64456ddaf/src/mosplot/optimizer/evaluate.py) · [许可证](https://github.com/medwatt/gmid/blob/6c4c5e164295c60a8b996f9dff8a79c64456ddaf/LICENSE) · [本项目实现](../examples/smic18-ota-sizing/ota_matching.py)

@@ -15,44 +15,51 @@ SEEDS = (64211,97337)
 COUNT = 32
 ARMS = ("all","off","input_pair","cmfb")
 LIMITS = ("tracking","common","saturation","rails","supply")
+CM_GROUPS = {"cm_detector": ("MDETP","MDETN","MCREFP","MCREFN"),
+             "cm_load": ("MCM","MDMY"), "cm_tail": ("MCTP","MCTN")}
 
 
-def mask_mismatch(native,arm):
+def mask_mismatch(native,arm,extra_devices=()):
     """Disable only the marked devices' local mismatch in a diagnostic copy of the original SI fixture."""
-    if arm not in ARMS:
+    if arm not in ARMS and arm not in CM_GROUPS and arm!="outside_cm":
         raise ValueError("Unknown mismatch experiment")
-    devices = {name.split(".")[-1]:name for name in OP_DEVICES}
+    devices = {name.split(".")[-1]:name for name in tuple(OP_DEVICES)+tuple(extra_devices)}
+    if len(devices)!=len(OP_DEVICES)+len(extra_devices):
+        raise ValueError("Statistical DUT instances must have distinct leaf names")
     seen = set()
     def edit(match):
         name,line = match[1],match[0]
         if name not in devices or name in seen:
             raise ValueError("Unexpected or repeated physical MOS in statistical fixture")
         seen.add(name)
-        on = arm=="all" or (arm=="input_pair" and name in ("MINP","MINN")) or (arm=="cmfb" and ".XC." in devices[name])
+        on = (arm=="all" or (arm=="input_pair" and name in ("MINP","MINN"))
+              or (arm=="cmfb" and ".XC." in devices[name]) or name in CM_GROUPS.get(arm,())
+              or (arm=="outside_cm" and ".XC." not in devices[name]))
         changed,n = re.subn(r"\bmismod=(?:1|\(1\))(?=\s|$)","mismod=0",line)
         if n!=1:
             raise ValueError("Missing enabled PDK mismatch selector on "+name)
         return line if on else changed
     out = re.sub(r"(?m)^[ \t]*(M\w+)[ \t]+\([^\n)]+\)[ \t]+[np]18_ckt\b[^\n]*",edit,native)
     if seen!=set(devices):
-        raise ValueError("Require all 18 audited statistical MOS masters")
+        raise ValueError("Require all audited statistical MOS masters")
     return out
 
 
-def sampled_ids(descriptor,data,count):
+def sampled_ids(descriptor,data,count,extra_devices=()):
     """Bind each numeric draw to named local scopes; verify local parameters actually change on all DUT MOS."""
     lines = [line.split() for line in descriptor.read_text(encoding="utf8").splitlines() if line.strip()]
     if len(lines)<2 or any(len(l)!=1 for l in lines[1:]):
         raise ValueError("Malformed native local-mismatch parameter declaration")
     fields = lines[0]
     scopes = [line[0] for line in lines[1:]]
-    if len(set(fields))!=len(fields) or len(set(scopes))!=len(scopes) or not set(OP_DEVICES)<=set(scopes):
+    required = set(OP_DEVICES).union(extra_devices)
+    if len(set(fields))!=len(fields) or len(set(scopes))!=len(scopes) or not required<=set(scopes):
         raise ValueError("Missing or duplicate local mismatch fields or MOS instance scopes")
     vectors = re.split(r"(?m)^#(\d+)\s*$",data.read_text(encoding="utf8"))
     if vectors[0].strip() or len(vectors)!=1+2*count:
         raise ValueError("Incomplete native mismatch draws")
     ids = {}
-    varied = {name:set() for name in OP_DEVICES}
+    varied = {name:set() for name in required}
     for draw,raw in zip(vectors[1::2],vectors[2::2]):
         # Spectre writes one numeric row per named scope, in descriptor order.
         rows = [tuple(map(float,line.split())) for line in raw.splitlines() if line.strip()]
@@ -79,11 +86,13 @@ def classification(row,vdd):
                 supply=row["power_uW"]>0)
 
 
-def record(folder,native,state,icm,site,arm,seed,fresh):
-    source = swing_source(mask_mismatch(native,arm),state,site,icm,3,False,False)
+def record(folder,native,state,icm,site,arm,seed,fresh,extra_devices=(),control_levels=None):
+    source = swing_source(mask_mismatch(native,arm,extra_devices),state,site,icm,3,False,False)
     head,analysis = source.rstrip().rsplit("\n",1)
     if not analysis.startswith("cm_sweep dc "):
         raise ValueError("Cannot identify the verified differential sweep")
+    if control_levels:
+        head += "\nsave "+" ".join(sorted(control_levels))
     command = (head+"\nmc montecarlo variations=mismatch donominal=no savefamilyplots=yes savemismatchparams=yes"
                +" numruns={} seed={} {{\n".format(COUNT,seed)+analysis+"\n}\n")
     raw = folder/"psf"
@@ -109,17 +118,24 @@ def record(folder,native,state,icm,site,arm,seed,fresh):
             or not re.search(r"spectre completes with 0 errors?, 0 warnings?",log,re.I)
             or (folder/"input.scs").read_text(encoding="utf8")!=command):
         raise ValueError("The mismatch deck, dependencies, log or child PSF changed")
-    ids,field_count = sampled_ids(raw/"mc.mismatch.mcparam",raw/"mc.mismatch.mcdata",COUNT)
+    ids,field_count = sampled_ids(raw/"mc.mismatch.mcparam",raw/"mc.mismatch.mcdata",COUNT,extra_devices)
     observed = {k:[] for k in LIMITS}
     rows = []
     for i,file in enumerate(expected):
         points = swing_points(folder/file,state,icm)
+        if control_levels:
+            measured = samples(folder/file,"CMCOMMAND",tuple(control_levels))
+            if any(any(abs(x-level*state[2])>1e-3 for x in measured[node]) for node,level in control_levels.items()):
+                raise ValueError("A physical trim bit or its complement missed the commanded rail")
         gates = [classification(r,state[2]) for r in points]
         for limit in LIMITS:
             observed[limit].append(all(g[limit] for g in gates))
         rows.append([dict(command_V=r["command_V"],signed_diff_error_mV=1000*(r["output_p_V"]-r["output_n_V"]-r["command_V"]),
                           cm_error_mV=r["cm_error_mV"],headroom_mV=1000*r["headroom_V"],
                           limiting_device=r["limiting_device"],failed=[k for k in LIMITS if not g[k]]) for r,g in zip(points,gates)])
+        if control_levels:
+            for point,measurement in zip(rows[-1],points):
+                point["power_uW"] = measurement["power_uW"]
     return dict(ids=ids,descriptor_sha256=job["files"]["psf/mc.mismatch.mcparam"],fields_per_scope=field_count,
                 passed_per_gate={k:sum(v) for k,v in observed.items()},samples=rows,
                 job_sha256=sha256(folder/"job.json"))

@@ -60,6 +60,11 @@ def commanded(t):
     return -.30+.60*(ramp(4e-6)-ramp(6.005e-6))
 
 
+def within_fullscale_deadline(time_us):
+    # Spectre's 2 ns strobe can print the exact 1 us sample a fraction of a femtosecond late.
+    return time_us is not None and time_us<=1.0+1e-12
+
+
 def fullscale_metrics(path,supply,icm):
     data = samples(path,"time",NODES)
     times = data["time"]
@@ -79,7 +84,7 @@ def fullscale_metrics(path,supply,icm):
         ids = [i for i,t in enumerate(times) if start-1e-15<=t<=stop+1e-15]
         last = ids[-1]
         results[direction] = dict(differential_settling_us=diff_time,common_settling_us=cm_time,
-            joint_settling_us=joint_time,passed=joint_time is not None and joint_time<=1.0,
+            joint_settling_us=joint_time,passed=within_fullscale_deadline(joint_time),
             worst_common_excursion_mV=1000*max(abs(common[i]-supply/2) for i in ids),
             final_tracking_error_mV=abs(diff[last]-target)*1000,final_common_error_mV=(common[last]-supply/2)*1000)
     startup = [i for i,t in enumerate(times) if 3.8e-6-1e-15<=t<4e-6-1e-15]

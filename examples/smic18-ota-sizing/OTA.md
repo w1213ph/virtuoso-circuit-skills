@@ -214,3 +214,7 @@ python3 examples/smic18-ota-sizing/ota_matching.py verify --config cadence.local
 ```
 
 在 `work/fdota-matching/qualification/fullscale-oa` 运行 `virtuoso -restore open.il`。打开 `FDOTA18_BENCH / TB_FDOTA18_OTA / maestro` 中的 `FF_FULL_950` 对照 `DIFF_V` 与 `CM_V`。打开 `FDOTA18_INPUT` 和 `FDOTA18_CMFB` 的 schematic 可读回两对管的尺寸。要定位第 6 个独立样本，在 `qualification/candidate-152219` 下各工况的 `psf/mc-006_cm_sweep.dc` 中检查差分输出和两路输出平均值。在相同输入共模与工况下，可从 `qualification` 中同名工况目录调出原图的结果。
+
+## 真实 PDK 器件的四位失调修调
+
+在差分对两侧串入带 MOS 旁路的电阻，再给同一个样本在室温校准一次，可以测出修调范围、误差和成本。三个实体方案分别比较了码间空隙、满摆幅建立和输出平均值。最后一组的差分跟踪有 26/32 个开发样本达标，所有静态要求同时满足的有 6/32 个。[原理图、测量曲线、失败点和复跑命令](TRIM.md)

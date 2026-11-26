@@ -1,0 +1,1017 @@
+{
+  "scope": "SMIC18 schematic-level development. External four-bit static control and calibration instrument. No measured silicon or independent yield.",
+  "command_V": [
+    -0.3,
+    0,
+    0.3
+  ],
+  "load_pF_each": 2,
+  "development_seed": 64211,
+  "common_mode_diagnosis_seed": 152219,
+  "common_mode_groups": {
+    "ss-1100": {
+      "all": 20,
+      "off": 32,
+      "cmfb": 19,
+      "cm_detector": 32,
+      "cm_load": 27,
+      "cm_tail": 20,
+      "outside_cm": 27
+    },
+    "ff-950": {
+      "all": 21,
+      "off": 32,
+      "cmfb": 27,
+      "cm_detector": 32,
+      "cm_load": 32,
+      "cm_tail": 30,
+      "outside_cm": 27
+    }
+  },
+  "untrimmed_midpoints": {
+    "5.15": {
+      "endpoints": 18,
+      "waveforms": 6,
+      "slow_high_mV": 13.734445,
+      "fast_low_mV": -18.791391
+    },
+    "5.2": {
+      "endpoints": 18,
+      "waveforms": 6,
+      "slow_high_mV": 16.701205,
+      "fast_low_mV": -16.264179
+    }
+  },
+  "variants": {
+    "wide": {
+      "bank_ohm": [
+        1200,
+        1900,
+        3200,
+        6000
+      ],
+      "physical": {
+        "mos_gate_um2": 113.322,
+        "resistor_strip_um2": 4321.92,
+        "mim_plate_um2": 1512.5
+      },
+      "incremental_trim_gate_um2": 2.952,
+      "incremental_trim_strip_um2": 94.1,
+      "fixed_code": 7,
+      "static_endpoints_passed": 18,
+      "joint_grid_passed": 693,
+      "fullscale_edges": {
+        "tt-950mV": {
+          "rising": 0.748,
+          "falling": 0.787
+        },
+        "tt-1100mV": {
+          "rising": 0.744,
+          "falling": 0.787
+        },
+        "ss-950mV": {
+          "rising": 0.982,
+          "falling": 1.099
+        },
+        "ss-1100mV": {
+          "rising": 1.452,
+          "falling": 1.121
+        },
+        "ff-950mV": {
+          "rising": 0.766,
+          "falling": 0.737
+        },
+        "ff-1100mV": {
+          "rising": 0.772,
+          "falling": 0.673
+        }
+      },
+      "corners": {
+        "tt": {
+          "gain_dB": 84.145343,
+          "noise_uVrms": 33.166982,
+          "zero_input_open_loop_gain_dB": 36.239472,
+          "zero_input_open_loop_noise_uVrms": 46.310196,
+          "real_input_bias_mV": 0.617745,
+          "closed_loop_core_uW": 23.154499,
+          "dm_pm_deg": 67.00512,
+          "cm_pm_deg": 79.540935,
+          "noise_power_fractions": {
+            "input_pair": 0.662913,
+            "input_load": 0.305343,
+            "tail": 1.7e-05,
+            "output_stage": 0.00032,
+            "bias": 3.1e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.029048,
+            "trim_switches": 0.002327,
+            "trim_inverters": 0.0
+          }
+        },
+        "ss": {
+          "gain_dB": 84.310329,
+          "noise_uVrms": 36.986245,
+          "zero_input_open_loop_gain_dB": 35.137771,
+          "zero_input_open_loop_noise_uVrms": 62.135262,
+          "real_input_bias_mV": 0.823882,
+          "closed_loop_core_uW": 16.989833,
+          "dm_pm_deg": 68.324648,
+          "cm_pm_deg": 80.911117,
+          "noise_power_fractions": {
+            "input_pair": 0.624236,
+            "input_load": 0.340226,
+            "tail": 2.3e-05,
+            "output_stage": 0.000616,
+            "bias": 4.3e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.031704,
+            "trim_switches": 0.003152,
+            "trim_inverters": 0.0
+          }
+        },
+        "ff": {
+          "gain_dB": 83.957433,
+          "noise_uVrms": 29.022234,
+          "zero_input_open_loop_gain_dB": 37.66928,
+          "zero_input_open_loop_noise_uVrms": 30.495921,
+          "real_input_bias_mV": 0.357268,
+          "closed_loop_core_uW": 23.99035,
+          "dm_pm_deg": 63.587621,
+          "cm_pm_deg": 76.624989,
+          "noise_power_fractions": {
+            "input_pair": 0.700956,
+            "input_load": 0.27077,
+            "tail": 9e-06,
+            "output_stage": 0.000202,
+            "bias": 1.7e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.026362,
+            "trim_switches": 0.001684,
+            "trim_inverters": 0.0
+          }
+        }
+      },
+      "code_curve_mV": {
+        "tt-950": [
+          -15.487848,
+          -12.990865,
+          -11.085672,
+          -8.588675,
+          -7.437332,
+          -4.940329,
+          -3.035132,
+          -0.538124,
+          0.538124,
+          3.035132,
+          4.940329,
+          7.437332,
+          8.588675,
+          11.085672,
+          12.990865,
+          15.487848
+        ],
+        "tt-1100": [
+          -15.227883,
+          -12.824545,
+          -10.943872,
+          -8.540511,
+          -7.319685,
+          -4.916312,
+          -3.035631,
+          -0.632251,
+          0.632251,
+          3.035631,
+          4.916312,
+          7.319685,
+          8.540511,
+          10.943872,
+          12.824545,
+          15.227883
+        ],
+        "ss-950": [
+          -13.102298,
+          -11.158388,
+          -9.528394,
+          -7.584464,
+          -6.321981,
+          -4.37804,
+          -2.748035,
+          -0.804087,
+          0.804087,
+          2.748035,
+          4.37804,
+          6.321981,
+          7.584464,
+          9.528394,
+          11.158388,
+          13.102298
+        ],
+        "ss-1100": [
+          -12.605441,
+          -10.819004,
+          -9.248245,
+          -7.461773,
+          -6.105084,
+          -4.318593,
+          -2.747811,
+          -0.961309,
+          0.961309,
+          2.747812,
+          4.318593,
+          6.105085,
+          7.461773,
+          9.248245,
+          10.819004,
+          12.605442
+        ],
+        "ff-950": [
+          -14.974046,
+          -12.44609,
+          -10.625047,
+          -8.097083,
+          -7.179525,
+          -4.651556,
+          -2.830513,
+          -0.302541,
+          0.302541,
+          2.830513,
+          4.651556,
+          7.179525,
+          8.097083,
+          10.625047,
+          12.44609,
+          14.974046
+        ],
+        "ff-1100": [
+          -14.812558,
+          -12.34817,
+          -10.53944,
+          -8.075036,
+          -7.104988,
+          -4.640576,
+          -2.831843,
+          -0.367426,
+          0.367426,
+          2.831843,
+          4.640576,
+          7.104988,
+          8.075036,
+          10.53944,
+          12.34817,
+          14.812558
+        ]
+      },
+      "code_summary": {
+        "tt-950": {
+          "code0_mV": -15.487848,
+          "code15_mV": 15.487848,
+          "min_mV": -15.487848,
+          "max_mV": 15.487848,
+          "max_gap_mV": 2.497008,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "tt-1100": {
+          "code0_mV": -15.227883,
+          "code15_mV": 15.227883,
+          "min_mV": -15.227883,
+          "max_mV": 15.227883,
+          "max_gap_mV": 2.40338,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-950": {
+          "code0_mV": -13.102298,
+          "code15_mV": 13.102298,
+          "min_mV": -13.102298,
+          "max_mV": 13.102298,
+          "max_gap_mV": 1.943948,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-1100": {
+          "code0_mV": -12.605441,
+          "code15_mV": 12.605442,
+          "min_mV": -12.605441,
+          "max_mV": 12.605442,
+          "max_gap_mV": 1.922618,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ff-950": {
+          "code0_mV": -14.974046,
+          "code15_mV": 14.974046,
+          "min_mV": -14.974046,
+          "max_mV": 14.974046,
+          "max_gap_mV": 2.527971,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ff-1100": {
+          "code0_mV": -14.812558,
+          "code15_mV": 14.812558,
+          "min_mV": -14.812558,
+          "max_mV": 14.812558,
+          "max_gap_mV": 2.464417,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        }
+      },
+      "max_control_error_mV": 0.000101,
+      "min_gain_all_36_dB": 83.947822,
+      "max_op_move_mV": 0.207235,
+      "max_ac_dc_difference_dB": 0.000963,
+      "native_evidence": {
+        "nominal": "1ae17d37afb44690d8859640aa35358a5b12462df1af96891b2ed91f4a74fbe8",
+        "working_point_summary": "33a48a02e863fede5fb3a0f9aa2d1194424f1ac63b2ba6965d0825fc524b5c85"
+      },
+      "slow_falling_us": {
+        "ss-950mV": {
+          "differential_settling_us": 1.099,
+          "common_settling_us": 0.359
+        },
+        "ss-1100mV": {
+          "differential_settling_us": 1.121,
+          "common_settling_us": 0.415
+        }
+      },
+      "edges_passed": 9
+    },
+    "balanced": {
+      "bank_ohm": [
+        750,
+        1250,
+        2220,
+        4150
+      ],
+      "physical": {
+        "mos_gate_um2": 113.322,
+        "resistor_strip_um2": 4292.06,
+        "mim_plate_um2": 1512.5
+      },
+      "incremental_trim_gate_um2": 2.952,
+      "incremental_trim_strip_um2": 64.24,
+      "fixed_code": 7,
+      "static_endpoints_passed": 17,
+      "joint_grid_passed": 691,
+      "fullscale_edges": {
+        "tt-950mV": {
+          "rising": 0.94,
+          "falling": 0.783
+        },
+        "tt-1100mV": {
+          "rising": 0.966,
+          "falling": 0.781
+        },
+        "ss-950mV": {
+          "rising": 1.306,
+          "falling": 1.091
+        },
+        "ss-1100mV": {
+          "rising": null,
+          "falling": 1.101
+        },
+        "ff-950mV": {
+          "rising": 0.788,
+          "falling": 0.741
+        },
+        "ff-1100mV": {
+          "rising": 0.79,
+          "falling": 0.677
+        }
+      },
+      "corners": {
+        "tt": {
+          "gain_dB": 84.379958,
+          "noise_uVrms": 32.626728,
+          "zero_input_open_loop_gain_dB": 33.959504,
+          "zero_input_open_loop_noise_uVrms": 52.899445,
+          "real_input_bias_mV": 0.796327,
+          "closed_loop_core_uW": 23.155037,
+          "dm_pm_deg": 66.2674,
+          "cm_pm_deg": 79.541052,
+          "noise_power_fractions": {
+            "input_pair": 0.685037,
+            "input_load": 0.291713,
+            "tail": 3.1e-05,
+            "output_stage": 0.000307,
+            "bias": 5.7e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.0208,
+            "trim_switches": 0.002055,
+            "trim_inverters": 0.0
+          }
+        },
+        "ss": {
+          "gain_dB": 84.510239,
+          "noise_uVrms": 36.381879,
+          "zero_input_open_loop_gain_dB": 34.735752,
+          "zero_input_open_loop_noise_uVrms": 63.85036,
+          "real_input_bias_mV": 0.900026,
+          "closed_loop_core_uW": 16.990222,
+          "dm_pm_deg": 67.693841,
+          "cm_pm_deg": 80.91129,
+          "noise_power_fractions": {
+            "input_pair": 0.645133,
+            "input_load": 0.328597,
+            "tail": 3e-05,
+            "output_stage": 0.000595,
+            "bias": 5.7e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.022915,
+            "trim_switches": 0.002673,
+            "trim_inverters": 0.0
+          }
+        },
+        "ff": {
+          "gain_dB": 84.216892,
+          "noise_uVrms": 28.568466,
+          "zero_input_open_loop_gain_dB": 32.25331,
+          "zero_input_open_loop_noise_uVrms": 32.631463,
+          "real_input_bias_mV": 0.579225,
+          "closed_loop_core_uW": 23.990932,
+          "dm_pm_deg": 62.712375,
+          "cm_pm_deg": 76.625054,
+          "noise_power_fractions": {
+            "input_pair": 0.723387,
+            "input_load": 0.25608,
+            "tail": 2.7e-05,
+            "output_stage": 0.000191,
+            "bias": 4.9e-05,
+            "cmfb": 0.0,
+            "trim_resistors": 0.018731,
+            "trim_switches": 0.001534,
+            "trim_inverters": 0.0
+          }
+        }
+      },
+      "code_curve_mV": {
+        "tt-950": [
+          -10.00508,
+          -8.665897,
+          -7.37399,
+          -6.034803,
+          -4.708854,
+          -3.369665,
+          -2.077756,
+          -0.738565,
+          0.738565,
+          2.077756,
+          3.369665,
+          4.708854,
+          6.034803,
+          7.37399,
+          8.665897,
+          10.00508
+        ],
+        "tt-1100": [
+          -9.784157,
+          -8.512491,
+          -7.248804,
+          -5.977132,
+          -4.613725,
+          -3.342049,
+          -2.078358,
+          -0.806679,
+          0.806679,
+          2.078358,
+          3.342049,
+          4.613725,
+          5.977132,
+          7.248804,
+          8.512491,
+          9.784157
+        ],
+        "ss-950": [
+          -8.289106,
+          -7.297351,
+          -6.232096,
+          -5.240336,
+          -3.93619,
+          -2.944427,
+          -1.879167,
+          -0.887402,
+          0.887402,
+          1.879167,
+          2.944427,
+          3.936191,
+          5.240336,
+          6.232096,
+          7.297351,
+          8.289106
+        ],
+        "ss-1100": [
+          -7.885062,
+          -6.995421,
+          -5.990382,
+          -5.100734,
+          -3.768457,
+          -2.878804,
+          -1.873756,
+          -0.9841,
+          0.9841,
+          1.873756,
+          2.878804,
+          3.768458,
+          5.100735,
+          5.990383,
+          6.995422,
+          7.885062
+        ],
+        "ff-950": [
+          -9.788835,
+          -8.389716,
+          -7.131801,
+          -5.73268,
+          -4.592411,
+          -3.193287,
+          -1.935372,
+          -0.536247,
+          0.536247,
+          1.935372,
+          3.193287,
+          4.592411,
+          5.73268,
+          7.131802,
+          8.389716,
+          9.788835
+        ],
+        "ff-1100": [
+          -9.646515,
+          -8.296477,
+          -7.054118,
+          -5.704075,
+          -4.529571,
+          -3.179526,
+          -1.937164,
+          -0.587117,
+          0.587117,
+          1.937164,
+          3.179526,
+          4.529571,
+          5.704075,
+          7.054118,
+          8.296477,
+          9.646515
+        ]
+      },
+      "code_summary": {
+        "tt-950": {
+          "code0_mV": -10.00508,
+          "code15_mV": 10.00508,
+          "min_mV": -10.00508,
+          "max_mV": 10.00508,
+          "max_gap_mV": 1.477131,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "tt-1100": {
+          "code0_mV": -9.784157,
+          "code15_mV": 9.784157,
+          "min_mV": -9.784157,
+          "max_mV": 9.784157,
+          "max_gap_mV": 1.613359,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-950": {
+          "code0_mV": -8.289106,
+          "code15_mV": 8.289106,
+          "min_mV": -8.289106,
+          "max_mV": 8.289106,
+          "max_gap_mV": 1.774804,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-1100": {
+          "code0_mV": -7.885062,
+          "code15_mV": 7.885062,
+          "min_mV": -7.885062,
+          "max_mV": 7.885062,
+          "max_gap_mV": 1.9682,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ff-950": {
+          "code0_mV": -9.788835,
+          "code15_mV": 9.788835,
+          "min_mV": -9.788835,
+          "max_mV": 9.788835,
+          "max_gap_mV": 1.399124,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ff-1100": {
+          "code0_mV": -9.646515,
+          "code15_mV": 9.646515,
+          "min_mV": -9.646515,
+          "max_mV": 9.646515,
+          "max_gap_mV": 1.350047,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        }
+      },
+      "max_control_error_mV": 0.000101,
+      "min_gain_all_36_dB": 84.207044,
+      "max_op_move_mV": 0.358588,
+      "max_ac_dc_difference_dB": 0.000945,
+      "native_evidence": {
+        "nominal": "9a8a1e7c96324d5e4111880cf6a4f0773690e4d702772888e975e0a7670ddef5",
+        "working_point_summary": "5f8c7a91a6e83ae04119a4b34c3bc54acc09f224e440305a40e6f1b1bb675a40"
+      },
+      "slow_falling_us": {
+        "ss-950mV": {
+          "differential_settling_us": 1.091,
+          "common_settling_us": 0.363
+        },
+        "ss-1100mV": {
+          "differential_settling_us": 1.101,
+          "common_settling_us": 0.419
+        }
+      },
+      "edges_passed": 8,
+      "matched_development": {
+        "total": 32,
+        "fixed_joint": 0,
+        "calibrated_joint": 6,
+        "fixed_per_gate": {
+          "tracking": 1,
+          "common": 9,
+          "saturation": 26,
+          "rails": 32,
+          "supply": 32,
+          "power_budget": 28
+        },
+        "calibrated_per_gate": {
+          "tracking": 21,
+          "common": 9,
+          "saturation": 26,
+          "rails": 32,
+          "supply": 32,
+          "power_budget": 28
+        },
+        "paired": {
+          "both_pass": 0,
+          "gained": 6,
+          "lost": 0,
+          "both_fail": 26
+        },
+        "histogram": {
+          "5": 5,
+          "12": 2,
+          "2": 1,
+          "11": 3,
+          "9": 3,
+          "8": 1,
+          "6": 7,
+          "3": 3,
+          "7": 2,
+          "10": 2,
+          "4": 3
+        },
+        "frozen_sha256": "78c75cff3bfcbd8be78877002dc8e92af9dccf36e80ffc5af05532bc9f21b87d",
+        "worst_fixed_mV": 7.438846,
+        "worst_calibrated_mV": 1.901432,
+        "nominal_model_checks": 18
+      }
+    },
+    "centered": {
+      "bank_ohm": [
+        750,
+        1250,
+        2220,
+        3650
+      ],
+      "physical": {
+        "mos_gate_um2": 113.322,
+        "resistor_strip_um2": 4288.28,
+        "mim_plate_um2": 1512.5
+      },
+      "incremental_trim_gate_um2": 2.952,
+      "incremental_trim_strip_um2": 60.46,
+      "fixed_code": 7,
+      "static_endpoints_passed": 18,
+      "joint_grid_passed": 693,
+      "fullscale_edges": {
+        "tt-950mV": {
+          "rising": 0.754,
+          "falling": 0.755
+        },
+        "tt-1100mV": {
+          "rising": 0.748,
+          "falling": 0.753
+        },
+        "ss-950mV": {
+          "rising": 1.0,
+          "falling": 1.027
+        },
+        "ss-1100mV": {
+          "rising": 0.99,
+          "falling": 1.031
+        },
+        "ff-950mV": {
+          "rising": 0.74,
+          "falling": 0.749
+        },
+        "ff-1100mV": {
+          "rising": 0.732,
+          "falling": 0.745
+        }
+      },
+      "corners": {
+        "tt": {
+          "gain_dB": 84.40952,
+          "noise_uVrms": 32.558488,
+          "zero_input_open_loop_gain_dB": 57.166104,
+          "zero_input_open_loop_noise_uVrms": 32.719189,
+          "real_input_bias_mV": 0.091398,
+          "closed_loop_core_uW": 23.155104,
+          "dm_pm_deg": 66.172461,
+          "cm_pm_deg": 79.541053,
+          "noise_power_fractions": {
+            "input_pair": 0.687911,
+            "input_load": 0.290034,
+            "tail": 0.0,
+            "output_stage": 0.000305,
+            "bias": 0.0,
+            "cmfb": 0.0,
+            "trim_resistors": 0.019708,
+            "trim_switches": 0.002043,
+            "trim_inverters": 0.0
+          }
+        },
+        "ss": {
+          "gain_dB": 84.535086,
+          "noise_uVrms": 36.306289,
+          "zero_input_open_loop_gain_dB": 43.376053,
+          "zero_input_open_loop_noise_uVrms": 41.220449,
+          "real_input_bias_mV": 0.270943,
+          "closed_loop_core_uW": 16.99027,
+          "dm_pm_deg": 67.613274,
+          "cm_pm_deg": 80.911291,
+          "noise_power_fractions": {
+            "input_pair": 0.64782,
+            "input_load": 0.327183,
+            "tail": 2e-06,
+            "output_stage": 0.000593,
+            "bias": 4e-06,
+            "cmfb": 0.0,
+            "trim_resistors": 0.021754,
+            "trim_switches": 0.002644,
+            "trim_inverters": 0.0
+          }
+        },
+        "ff": {
+          "gain_dB": 84.249884,
+          "noise_uVrms": 28.511045,
+          "zero_input_open_loop_gain_dB": 56.610703,
+          "zero_input_open_loop_noise_uVrms": 28.535464,
+          "real_input_bias_mV": -0.084021,
+          "closed_loop_core_uW": 23.991005,
+          "dm_pm_deg": 62.599709,
+          "cm_pm_deg": 76.625056,
+          "noise_power_fractions": {
+            "input_pair": 0.726302,
+            "input_load": 0.254253,
+            "tail": 1e-06,
+            "output_stage": 0.00019,
+            "bias": 2e-06,
+            "cmfb": 0.0,
+            "trim_resistors": 0.017722,
+            "trim_switches": 0.00153,
+            "trim_inverters": 0.0
+          }
+        }
+      },
+      "code_curve_mV": {
+        "tt-950": [
+          -9.298072,
+          -7.958863,
+          -6.666933,
+          -5.32772,
+          -4.001748,
+          -2.662534,
+          -1.370601,
+          -0.031386,
+          0.031386,
+          1.370601,
+          2.662534,
+          4.001748,
+          5.32772,
+          6.666933,
+          7.958863,
+          9.298072
+        ],
+        "tt-1100": [
+          -9.079787,
+          -7.808099,
+          -6.544391,
+          -5.272698,
+          -3.90927,
+          -2.637573,
+          -1.373862,
+          -0.102163,
+          0.102163,
+          1.373862,
+          2.637573,
+          3.90927,
+          5.272698,
+          6.544392,
+          7.808099,
+          9.079787
+        ],
+        "ss-950": [
+          -7.659357,
+          -6.667585,
+          -5.602312,
+          -4.610534,
+          -3.306369,
+          -2.314589,
+          -1.249311,
+          -0.25753,
+          0.25753,
+          1.249312,
+          2.314589,
+          3.306369,
+          4.610534,
+          5.602312,
+          6.667585,
+          7.659358
+        ],
+        "ss-1100": [
+          -7.262166,
+          -6.37251,
+          -5.367456,
+          -4.477793,
+          -3.145498,
+          -2.255831,
+          -1.250769,
+          -0.3611,
+          0.3611,
+          1.250769,
+          2.255832,
+          3.145499,
+          4.477794,
+          5.367456,
+          6.372511,
+          7.262166
+        ],
+        "ff-950": [
+          -9.124788,
+          -7.725642,
+          -6.467703,
+          -5.068554,
+          -3.928265,
+          -2.529114,
+          -1.271175,
+          0.127977,
+          -0.127977,
+          1.271175,
+          2.529114,
+          3.928265,
+          5.068554,
+          6.467703,
+          7.725642,
+          9.124788
+        ],
+        "ff-1100": [
+          -8.983601,
+          -7.633539,
+          -6.391158,
+          -5.041092,
+          -3.86657,
+          -2.516501,
+          -1.274118,
+          0.075952,
+          -0.075952,
+          1.274118,
+          2.516501,
+          3.86657,
+          5.041092,
+          6.391158,
+          7.633539,
+          8.983601
+        ]
+      },
+      "code_summary": {
+        "tt-950": {
+          "code0_mV": -9.298072,
+          "code15_mV": 9.298072,
+          "min_mV": -9.298072,
+          "max_mV": 9.298072,
+          "max_gap_mV": 1.339215,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "tt-1100": {
+          "code0_mV": -9.079787,
+          "code15_mV": 9.079787,
+          "min_mV": -9.079787,
+          "max_mV": 9.079787,
+          "max_gap_mV": 1.363427,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-950": {
+          "code0_mV": -7.659357,
+          "code15_mV": 7.659358,
+          "min_mV": -7.659357,
+          "max_mV": 7.659358,
+          "max_gap_mV": 1.304165,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ss-1100": {
+          "code0_mV": -7.262166,
+          "code15_mV": 7.262166,
+          "min_mV": -7.262166,
+          "max_mV": 7.262166,
+          "max_gap_mV": 1.332295,
+          "monotonic": true,
+          "nearest_zero_code": 7
+        },
+        "ff-950": {
+          "code0_mV": -9.124788,
+          "code15_mV": 9.124788,
+          "min_mV": -9.124788,
+          "max_mV": 9.124788,
+          "max_gap_mV": 1.399151,
+          "monotonic": false,
+          "nearest_zero_code": 8
+        },
+        "ff-1100": {
+          "code0_mV": -8.983601,
+          "code15_mV": 8.983601,
+          "min_mV": -8.983601,
+          "max_mV": 8.983601,
+          "max_gap_mV": 1.350069,
+          "monotonic": false,
+          "nearest_zero_code": 8
+        }
+      },
+      "max_control_error_mV": 0.000101,
+      "min_gain_all_36_dB": 84.239994,
+      "max_op_move_mV": 0.039955,
+      "max_ac_dc_difference_dB": 0.000937,
+      "native_evidence": {
+        "nominal": "020499c17cfb596ccec0d03941e53b2d5012a268152bc2502567bef066bb743f",
+        "working_point_summary": "8c0c011d1a0b0d46cf9c38bbfb83202cc31b2298159e8593671a7c9744d75658"
+      },
+      "slow_falling_us": {
+        "ss-950mV": {
+          "differential_settling_us": 1.027,
+          "common_settling_us": 0.363
+        },
+        "ss-1100mV": {
+          "differential_settling_us": 1.031,
+          "common_settling_us": 0.419
+        }
+      },
+      "edges_passed": 10,
+      "matched_development": {
+        "total": 32,
+        "fixed_joint": 0,
+        "calibrated_joint": 6,
+        "fixed_per_gate": {
+          "tracking": 1,
+          "common": 9,
+          "saturation": 26,
+          "rails": 32,
+          "supply": 32,
+          "power_budget": 28
+        },
+        "calibrated_per_gate": {
+          "tracking": 26,
+          "common": 9,
+          "saturation": 26,
+          "rails": 32,
+          "supply": 32,
+          "power_budget": 28
+        },
+        "paired": {
+          "both_pass": 0,
+          "gained": 6,
+          "lost": 0,
+          "both_fail": 26
+        },
+        "histogram": {
+          "4": 6,
+          "13": 2,
+          "2": 2,
+          "12": 2,
+          "9": 3,
+          "6": 5,
+          "11": 3,
+          "5": 3,
+          "10": 1,
+          "3": 4,
+          "7": 1
+        },
+        "frozen_sha256": "1ea5923cd11eb0e490629da4c093e7a7c0c648b8c9ea6a0629b6e12fd0a5e137",
+        "worst_fixed_mV": 6.894779,
+        "worst_calibrated_mV": 1.87481,
+        "nominal_model_checks": 18
+      }
+    }
+  }
+}
