@@ -1,0 +1,73 @@
+name: Measure a SKY130 bootstrapped sampling switch
+on:
+  workflow_dispatch:
+    inputs:
+      requirements:
+        description: 'Sampling specification as JSON. Leave blank for 8 MHz, 50 ohm and 1.25 pF.'
+        type: string
+        required: false
+  push:
+    paths:
+      - 'examples/sky130-bootstrap-switch/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'examples/sky130-adc-driver/*.sym'
+      - '.github/workflows/sky130-bootstrap-switch.yml'
+  pull_request:
+    paths:
+      - 'examples/sky130-bootstrap-switch/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'examples/sky130-adc-driver/*.sym'
+      - '.github/workflows/sky130-bootstrap-switch.yml'
+permissions:
+  contents: read
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    timeout-minutes: 35
+    steps:
+      - name: Install Xschem, ngspice and plot tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates python3 python3-matplotlib xschem ngspice xvfb xauth fonts-dejavu-core
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Characterize MOS devices and measure native sampling circuits
+        env:
+          SWITCH_REQUIREMENTS: ${{ inputs.requirements }}
+        run: |
+          ex=examples/sky130-bootstrap-switch
+          mkdir -p work
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          request = os.environ.get("SWITCH_REQUIREMENTS") or Path("examples/sky130-bootstrap-switch/requirements.example.json").read_text()
+          Path("work/request.json").write_text(request, encoding="utf-8")
+          PY
+          rc=0
+          python3 "$ex/switch.py" run --requirements work/request.json --out work/measured || rc=$?
+          test "$rc" -le 1
+          echo "$rc" > work/decision
+          xvfb-run -a python3 "$ex/pack_switch.py" --run work/measured --project work/project --revision "$GITHUB_SHA"
+      - name: Replay the standalone download and check the stated sampling conditions
+        run: |
+          rc=0
+          python3 -IB work/project/sample.py || rc=$?
+          test "$rc" -eq "$(cat work/decision)"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("work/project")
+          s=json.loads((p/"evidence/summary.json").read_text())
+          assert json.loads(Path("work/request.json").read_text()) == json.loads((p/"my-switch.json").read_text()) == s["requirements"]
+          assert len(s["variants"])==7 and all(len(v["cases"])==3*len(s["requirements"]["input_vpp_V"]) for v in s["variants"].values())
+          assert "transmission" in s["variants"] and not (p/"evidence/models").exists()
+          PY
+          cat work/project/evidence/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sky130-bootstrap-switch
+          path: work/project/
+          compression-level: 0
+          if-no-files-found: error

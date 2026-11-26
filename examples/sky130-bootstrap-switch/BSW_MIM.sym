@@ -1,0 +1,16 @@
+v {xschem version=3.4.4 file_version=1.2}
+G {}
+K {type=primitive
+format="@name @pinlist sky130_fd_pr__cap_mim_m3_1 w=@side l=@side mf=1"
+template="name=XCAP side=10"}
+V {}
+S {}
+E {}
+L 4 0 -30 0 -4 {}
+L 4 -15 -4 15 -4 {}
+L 4 -15 4 15 4 {}
+L 4 0 4 0 30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=TOP dir=inout}
+B 5 -2.5 27.5 2.5 32.5 {name=BOT dir=inout}
+T {@name} 19 -22 0 0 0.21 0.21 {}
+T {@side x @side} 19 0 0 0 0.17 0.17 {}

@@ -1,0 +1,12 @@
+{
+  "purpose": "用 SKY130 在 8 MHz 时钟下采样正弦。输入共模 0.95 V，摆幅 0.2 Vpp 和 1.0 Vpp，驱动源为 50 Ω，负载 1.25 pF，跟踪 85 ns，完全关断后 25 ns 读数。比较普通传输门和自举电路，第 2 至 5 次谐波的总失真要求不高于 −58 dBc，并报告器件端压和电容面积。",
+  "sample_MHz": 8.0,
+  "input_common_V": 0.95,
+  "input_vpp_V": [0.2, 1.0],
+  "source_ohm": 50.0,
+  "load_pF": 1.25,
+  "track_ns": 85.0,
+  "read_after_off_ns": 25.0,
+  "max_thd_dBc": -58.0,
+  "max_forward_V": 0.20
+}

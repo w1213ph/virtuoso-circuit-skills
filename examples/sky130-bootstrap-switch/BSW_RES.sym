@@ -1,0 +1,18 @@
+v {xschem version=3.4.4 file_version=1.2}
+G {}
+K {type=primitive
+format="@name @pinlist @value"
+template="name=RDRV value=50"}
+V {}
+S {}
+E {}
+L 4 -30 0 -15 0 {}
+L 4 -15 -6 15 -6 {}
+L 4 15 -6 15 6 {}
+L 4 15 6 -15 6 {}
+L 4 -15 6 -15 -6 {}
+L 4 15 0 30 0 {}
+B 5 -32.5 -2.5 -27.5 2.5 {name=P dir=inout}
+B 5 27.5 -2.5 32.5 2.5 {name=N dir=inout}
+T {@name} -18 -32 0 0 0.2 0.2 {}
+T {@value} -12 9 0 0 0.18 0.18 {}

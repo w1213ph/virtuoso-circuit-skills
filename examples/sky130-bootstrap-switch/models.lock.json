@@ -1,0 +1,24 @@
+{
+  "repository": "google/skywater-pdk-libs-sky130_fd_pr",
+  "revision": "f62031a1be9aefe902d6d54cddd6f59b57627436",
+  "files": {
+    "cells/cap_mim_m3/sky130_fd_pr__cap_mim_m3_1.model.spice": "fdfadaae5e309ac66985a7fc145ab43e8b5366d67cd91d6b776a2c3c9d2b6f91",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__ff.corner.spice": "23e17fb740ff03ff47f0c5cddfbcfa3af5c16465f388d521520d7ea057935bc2",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__ff.pm3.spice": "b125bcf5ef6390c09c94d4416e39ca2a88aac7cbfa62e78ea256f1c0492f0f37",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__mismatch.corner.spice": "dc0527eebdde0321d062a73472cacfc168a1b07bf60ba7214bc1b169f6e404bc",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__ss.corner.spice": "5b2ef445a9fa6f8686eba7a2bfcbca327c35fde17ae8a8f60eb4f4b9f03942ab",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__ss.pm3.spice": "919e80020553c2a79f0b924109735e5497843dc4075b86bb6dcc8c4821024aa8",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__tt.corner.spice": "c6220fd1b3ed009078cc3bfe66f6fabccddd5b33653c8efd8c9c4b344253cd25",
+    "cells/nfet_g5v0d10v5/sky130_fd_pr__nfet_g5v0d10v5__tt.pm3.spice": "4552045d9df048f36742b667c0672b5fd4417d5593f462178015f6646a6fef50",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__ff.corner.spice": "70c2630c319f9856b6ef8bdf671d7ed0813ee3d07bcc4734dff5ec3beef4dfe8",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__ff.pm3.spice": "5a37c170195a01728dbca83764edfb9f81f274f5bfcef230cfa2513c6c1c9541",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__mismatch.corner.spice": "dc85a36daef58633d44b11431161ef82db1f8f0f1c597e2bbe6bf984597f6d38",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__ss.corner.spice": "171fe57846f7562cde7f32ef5012a7a21ec20c2e843f80bbfcbf91a1a13184a8",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__ss.pm3.spice": "604349ce3e4cd34ae9fd45458600a7135ffeedd51ad67a8ce79c724ebbfef438",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__tt.corner.spice": "52707b93246551402e9467132ce3d9cb4939d810cd910aa9968dbd534e3f7907",
+    "cells/pfet_g5v0d10v5/sky130_fd_pr__pfet_g5v0d10v5__tt.pm3.spice": "c438f61902b269fea15355003564c83840661945ac5da8c9dd0d910d3223f21b",
+    "models/r+c/res_typical__cap_typical.spice": "3b1f8cbce726e224bb4afb365393f07140e4f7287d61662bd42cd096d9403d1b",
+    "models/r+c/res_typical__cap_typical__lin.spice": "aa793ec63ab459d26ef90afefde9601494ba6d4baa7311d6890d643b5c6cccc1",
+    "models/sky130_fd_pr__model__r+c.model.spice": "a88510f1299c8b8daa7b53bfc2fe38ec6111d4e79a2c9065c574d6edd8485cfb"
+  }
+}
