@@ -39,15 +39,17 @@ def reference_pulse(max_settling_ns):
     return "PULSE(0 'ISET' 10n 1n 1n " + hold + ")"
 
 
-def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA, max_settling_ns=MAX_SETTLING_NS):
+def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA, max_settling_ns=MAX_SETTLING_NS,
+         process_label="SKY130", operating_point=""):
     corner, temp, vdd = state
     body, n = re.subn(r"(?im)^\.end\s*\Z", "", native)
     if n != 1:
         raise ValueError("Native netlist must end in .end")
-    return ("SKY130 current mirror from Xschem\n"
+    controls = CONTROLS.replace("dc VFORCE", operating_point + "dc VFORCE")
+    return (process_label + " current mirror from Xschem\n" +
             '.lib "{}" {}\n.temp {}\n.param VDDTEST={:g} ISET={:.12g}u VOUTTEST=0.8\n'.format(
                 lib, corner, temp, vdd, reference_uA)
-            + body + "\n" + CONTROLS.format(stop_ns=observation_ns(max_settling_ns)))
+            + body + "\n" + controls.format(stop_ns=observation_ns(max_settling_ns)))
 
 
 def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERROR_PCT, max_settling_ns=MAX_SETTLING_NS):

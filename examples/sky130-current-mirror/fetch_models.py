@@ -81,17 +81,18 @@ def download(request):
         return data
 
 
-def fetch(name):
+def fetch(name, lock=None):
+    lock = LOCK if lock is None else lock
     path = urllib.parse.quote(name, safe="/")
-    raw = "https://raw.githubusercontent.com/{}/{}/{}".format(LOCK["repository"], LOCK["revision"], path)
-    api = "https://api.github.com/repos/{}/contents/{}?ref={}".format(LOCK["repository"], path, LOCK["revision"])
+    raw = "https://raw.githubusercontent.com/{}/{}/{}".format(lock["repository"], lock["revision"], path)
+    api = "https://api.github.com/repos/{}/contents/{}?ref={}".format(lock["repository"], path, lock["revision"])
     headers = {"User-Agent":"sky130-current-mirror", "Accept-Encoding":"gzip", "Accept":"application/vnd.github.raw+json"}
     errors = {}
     for url in (raw, api, raw, api):
         try:
             request = urllib.request.Request(url, headers=headers)
             content = download(request)
-            if checksum(content) != LOCK["files"][name]:
+            if checksum(content) != lock["files"][name]:
                 raise ValueError("Content differs from the locked SHA-256")
             return content
         except (OSError, EOFError, ValueError, http.client.HTTPException) as exc:

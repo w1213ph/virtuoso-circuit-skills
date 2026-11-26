@@ -1,0 +1,9 @@
+{
+  "repository": "google/globalfoundries-pdk-libs-gf180mcu_fd_pr",
+  "revision": "9f992d5a9186d1f7820c58f039c484ad35b2edea",
+  "files": {
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "models/ngspice/design.ngspice": "8d9721a5bf8f079d3fddbd03339af9a0c84d4feb06db8e06465fbd02c7500508",
+    "models/ngspice/sm141064.ngspice": "73fc67d38747d95ce03f3c2ba5f0a25c98f56a293363a9df4c971a3a28a3dcda"
+  }
+}

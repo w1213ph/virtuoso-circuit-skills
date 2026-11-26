@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 
 from fetch_models import checksum
+from mos_model import SKY130
 
 
 FIELDS = ("polarity", "length_um", "width_um", "vds_V", "vbs_V", "abs_vgs_V", "abs_id_uA",
@@ -61,21 +62,21 @@ def table(path, names):
     return results
 
 
-def scans(lib, corner, temp, supply, lengths=LENGTHS):
-    lines = ["SKY130 MOS characterization", '.lib "{}" {}'.format(lib, corner), ".temp {}".format(temp),
+def scans(lib, corner, temp, supply, lengths=LENGTHS, model=SKY130):
+    lines = [model.label + " MOS characterization", '.lib "{}" {}'.format(lib, corner), ".temp {}".format(temp),
              "VG gate 0 0", "EINV pgate 0 gate 0 -1"]
     devices, controls = [], []
-    for pol, sign, gate in (("n", 1, "gate"), ("p", -1, "pgate")):
-        master = "sky130_fd_pr__{}fet_01v8".format(pol)
+    for pol, sign, gate, master, primitive in (("n", 1, "gate", model.nmos, model.inner_n),
+                                               ("p", -1, "pgate", model.pmos, model.inner_p)):
         for i, length in enumerate(lengths):
             for j, drain in enumerate((0.35, 0.65, 1.2)):
                 for k, body in enumerate((0, 0.15)):
                     tag = "{}{}{}{}".format(pol, i, j, k)
                     vds, vbs = sign * drain, -sign * body
                     lines.extend(["VD{0} d{0} 0 {1:g}".format(tag, vds), "VB{0} b{0} 0 {1:g}".format(tag, vbs),
-                                  "X{0} d{0} {1} 0 b{0} {2} w={3:g} l={4:g} nf=1".format(
-                                      tag, gate, master, REFERENCE_WIDTH, length)])
-                    internal = "@m.x{}.m{}".format(tag, master)
+                                  "X{0} d{0} {1} 0 b{0} {2} w={3} l={4} nf=1".format(
+                                      tag, gate, master, model.geometry("w", REFERENCE_WIDTH), model.geometry("l", length))])
+                    internal = "@m.x{}.{}".format(tag, primitive)
                     fields = ["i(vd{})".format(tag)] + [internal + "[" + key + "]" for key in
                                                           ("gm", "gds", "vdsat", "cgg", "cgd")]
                     devices.append((tag, pol, length, vds, vbs, fields))
@@ -104,11 +105,29 @@ def cache_record(source, recipe, names):
         return None
 
 
-def characterize(root, lib, tool, state, identity, previous=None, lengths=LENGTHS):
+def read_curves(folder, devices, supply):
+    rows = []
+    for tag, pol, length, vds, vbs, vectors in devices:
+        values = table(folder / (tag + ".dat"), ["v(gate)"] + vectors)
+        if len(values) != round(supply / 0.01) + 1 or not math.isclose(values[-1][0], supply):
+            raise ValueError("Device sweep ended early")
+        for index, (mag, gate, current, gm, gds, vdsat, cgg, cgd) in enumerate(values):
+            if not (math.isclose(mag, index / 100.0, abs_tol=1e-9) and math.isclose(gate, mag, abs_tol=1e-10)):
+                raise ValueError("Measured gate bias differs from requested sweep")
+            current = abs(current)
+            ratio = abs(gm) / current if current >= 1e-10 else None
+            numbers = (pol.upper(), length, REFERENCE_WIDTH, vds, vbs, gate, current*1e6,
+                       current*1e6/REFERENCE_WIDTH, ratio, abs(gm)*1e6, gds*1e6,
+                       abs(gm)/gds if gds > 0 else None, abs(vdsat), cgg*1e15, cgd*1e15)
+            rows.append(dict(zip(FIELDS, numbers)))
+    return rows
+
+
+def characterize(root, lib, tool, state, identity, previous=None, lengths=LENGTHS, model=SKY130):
     corner, temp, supply = state
     folder = root / corner
     folder.mkdir()
-    deck, devices = scans(lib, corner, temp, supply, lengths)
+    deck, devices = scans(lib, corner, temp, supply, lengths, model)
     recipe = dict(identity, lengths_um=list(lengths), input_sha256=checksum(deck.encode("utf-8")),
                   reader_sha256=checksum(Path(__file__).read_bytes()))
     files = ["input.spice", "ngspice.log", "table.csv"] + [tag+".dat" for tag, *_rest in devices]
@@ -120,20 +139,7 @@ def characterize(root, lib, tool, state, identity, previous=None, lengths=LENGTH
                 shutil.copyfile(str(source / name), str(folder / name))
     else:
         simulate(tool, folder, deck)
-    rows = []
-    for tag, pol, length, vds, vbs, vectors in devices:
-        values = table(folder / (tag + ".dat"), ["v(gate)"] + vectors)
-        if len(values) != round(supply / 0.01) + 1 or not math.isclose(values[-1][0], supply):
-            raise ValueError("Device sweep ended early")
-        for mag, gate, current, gm, gds, vdsat, cgg, cgd in values:
-            if not math.isclose(gate, mag, abs_tol=1e-10):
-                raise ValueError("Measured gate bias differs from requested sweep")
-            current = abs(current)
-            ratio = abs(gm) / current if current >= 1e-10 else None
-            numbers = (pol.upper(), length, REFERENCE_WIDTH, vds, vbs, gate, current*1e6,
-                       current*1e6/REFERENCE_WIDTH, ratio, abs(gm)*1e6, gds*1e6,
-                       abs(gm)/gds if gds > 0 else None, abs(vdsat), cgg*1e15, cgd*1e15)
-            rows.append(dict(zip(FIELDS, numbers)))
+    rows = read_curves(folder, devices, supply)
     path = folder / "table.csv"
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
@@ -148,7 +154,7 @@ def characterize(root, lib, tool, state, identity, previous=None, lengths=LENGTH
     return rows, record
 
 
-def choose(rows, length, current_uA=10, target_ratio=15):
+def choose(rows, length, current_uA=10, target_ratio=15, width_range=(0.42, 12.0)):
     candidates = [r for r in rows if r["polarity"] == "N" and r["length_um"] == length and
                   r["vds_V"] == 0.65 and r["vbs_V"] == 0 and r["gm_id_per_V"] and r["abs_id_uA"] >= 0.1]
     if not candidates:
@@ -156,7 +162,7 @@ def choose(rows, length, current_uA=10, target_ratio=15):
     sample = min(candidates, key=lambda r: abs(r["gm_id_per_V"] - target_ratio))
     width = current_uA / sample["id_per_width_uA_um"]
     width_rounded = round(round(width / 0.05) * 0.05, 2)
-    if not 0.42 <= width_rounded <= 12:
+    if not width_range[0] <= width_rounded <= width_range[1]:
         raise ValueError("Sizing estimate outside this example's allowable width range")
     return dict(length_um=length, width_um=width_rounded, continuous_width_um=width, fingers=1,
                 mirror_pair_gate_area_um2=round(2 * length * width_rounded, 6),

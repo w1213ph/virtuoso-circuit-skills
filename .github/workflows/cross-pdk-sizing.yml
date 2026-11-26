@@ -1,0 +1,58 @@
+name: Cross-PDK ADC bias sizing and waveform replay
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/cross-pdk-current-mirror/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/cross-pdk-sizing.yml'
+  pull_request:
+    paths:
+      - 'examples/cross-pdk-current-mirror/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/cross-pdk-sizing.yml'
+permissions:
+  contents: read
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    timeout-minutes: 15
+    steps:
+      - name: Install native tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git python3 ngspice xschem
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Sweep both pinned libraries and simulate the sized and copied native designs
+        run: python3 examples/cross-pdk-current-mirror/transfer.py run --out work/transfer
+      - name: Replay the raw device curves, native dimensions, DC, OP and transient
+        run: |
+          python3 examples/cross-pdk-current-mirror/transfer.py verify --out work/transfer
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("work/transfer/summary.json").read_text())
+          sky, gf = [report["processes"][name] for name in ("sky130", "gf180")]
+          assert sky["selected"] == gf["selected"] == "short"
+          assert sum(sky["points"].values()) == 12600 and sum(gf["points"].values()) == 23040
+          assert [p["designs"]["short"]["sizing"]["width_um"] for p in (sky, gf)] == [2.8, 6.1]
+          limit = report["requirements"]["max_settling_ns"]
+          assert gf["designs"]["short"]["worst_settling_ns"] <= limit < gf["designs"]["long"]["worst_settling_ns"]
+          control = report["copied_control"]
+          assert control["worst_error_pct"] < report["requirements"]["max_error_pct"]
+          assert control["corners"]["ss"]["metrics"]["settling_ns"] > limit
+          PY
+          cat work/transfer/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-pdk-bias-evidence
+          path: |
+            work/transfer/
+            !work/transfer/models/**
+          if-no-files-found: error

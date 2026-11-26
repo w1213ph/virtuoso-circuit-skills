@@ -6,6 +6,7 @@ import shlex
 
 from fetch_models import HERE
 from measure import DEFAULT_REFERENCE_LOAD_FF, MAX_SETTLING_NS, reference_pulse
+from mos_model import SKY130
 from mos_table import command
 
 
@@ -51,7 +52,7 @@ def leads(directory):
     return pins
 
 
-def audit(netlist, width, length, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS):
+def audit(netlist, width, length, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS, model=SKY130):
     joined = re.sub(r"\n\s*\+\s*", " ", netlist)
     lines = [line.strip().lower() for line in joined.splitlines() if line.strip() and not line.lstrip().startswith("*")]
     header = ".subckt bias_mirror iref iout vss"
@@ -71,14 +72,17 @@ def audit(netlist, width, length, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, m
     for row in body[:2]:
         parts = row.split()
         name = parts[0]
-        if name not in expected or parts[1:5] != expected[name] or parts[5] != "sky130_fd_pr__nfet_01v8":
+        if name not in expected or parts[1:5] != expected[name] or parts[5] != model.nmos:
             raise ValueError("Native device or terminal mismatch: " + name)
         values = dict(s.split("=",1) for s in parts[6:])
         parameters = dict(w=width, l=length, nf=1, ad=width*0.30, **{"as":width*0.30},
                           pd=2*(width+0.30), ps=2*(width+0.30))
-        if values.keys() != parameters.keys() or any(
-                not math.isclose(float(values[k]), val, rel_tol=1e-9) for k,val in parameters.items()):
+        if values.keys() != parameters.keys():
             raise ValueError("Native device dimensions differ: " + name)
+        for key, value in parameters.items():
+            number = re.fullmatch(r"([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)([a-z]*)", values[key])
+            if not number or number[2] != model.suffix(key) or not math.isclose(float(number[1]), value, rel_tol=1e-9):
+                raise ValueError("Native device dimensions differ: " + name + "." + key)
         terms[name] = dict(zip("DGSB", parts[1:5]))
     if terms.keys() != expected.keys():
         raise ValueError("Missing native device")
@@ -86,26 +90,41 @@ def audit(netlist, width, length, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, m
             "parent_port_order":["IREF","IOUT","VSS"]}, top
 
 
-def build(directory, sizing, xschem, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS):
-    directory.mkdir()
-    width, length = sizing["width_um"], sizing["length_um"]
+def view_sources(width, length, reference_load_fF, max_settling_ns, model=SKY130):
+    dimensions = (("'MIR_W'","w",width), ("'MIR_L'","l",length), ("'MIR_W*0.30'","ad",width*0.30),
+                  ("'2*(MIR_W+0.30)'","pd",2*(width+0.30)))
     for name in VIEWS:
         content = (HERE / name).read_text(encoding="utf-8")
-        if name == "BIAS_MIRROR.sch":
-            for token, value in (("'MIR_W'",width), ("'MIR_L'",length), ("'MIR_W*0.30'",width*0.30),
-                                 ("'2*(MIR_W+0.30)'",2*(width+0.30))):
+        if name == "BIAS_MIRROR.sch" or (name == "NMOS18.sym" and model != SKY130):
+            for token, field, value in dimensions:
                 if token not in content:
                     raise ValueError("Missing dimension in schematic: " + token)
-                content = content.replace(token, "{:.8g}".format(value))
+                content = content.replace(token, model.geometry(field, value))
+        if name == "BIAS_MIRROR.sch":
+            content = content.replace("NMOS18.sym", model.symbol)
+            if model != SKY130:
+                content = content.replace("1:1 NMOS bias current mirror", model.label + " 1:1 NMOS bias current mirror")
             content = content.replace("MIR_W and MIR_L set both device dimensions in micrometres.",
                                       "Each NMOS: W = {:g} um, L = {:g} um, one finger.".format(width, length))
+        elif name == "NMOS18.sym":
+            name = model.symbol
+            content = content.replace(SKY130.nmos, model.nmos)
         elif name == "TB_BIAS_MIRROR.sch":
+            if model != SKY130:
+                content = content.replace("Bias mirror characterisation", model.label + " bias mirror testbench")
             for old, new in (("name=CREF value=100f", "name=CREF value={:.12g}f".format(reference_load_fF)),
                              ("The 100 fF reference load", "The {:.12g} fF reference load".format(reference_load_fF)),
                              (reference_pulse(MAX_SETTLING_NS), reference_pulse(max_settling_ns))):
                 if content.count(old) != 1:
                     raise ValueError("Missing or ambiguous testbench fixture: " + old)
                 content = content.replace(old, new, 1)
+        yield name, content
+
+
+def build(directory, sizing, xschem, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF, max_settling_ns=MAX_SETTLING_NS, model=SKY130):
+    directory.mkdir()
+    width, length = sizing["width_um"], sizing["length_um"]
+    for name, content in view_sources(width, length, reference_load_fF, max_settling_ns, model):
         (directory / name).write_text(content, encoding="utf-8")
     env = dict(os.environ, MIRROR_SCHEMATIC_DIR=str(directory))
     command([xschem,"-n","-q","-x","-s","--tcl",TCL_PATH,"--netlist_path",directory,
@@ -115,7 +134,7 @@ def build(directory, sizing, xschem, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF
         raise ValueError("Review native Xschem diagnostics in " + str(directory))
     path = directory / "TB_BIAS_MIRROR.spice"
     netlist = path.read_text(encoding="utf-8")
-    readback, top = audit(netlist, width, length, reference_load_fF, max_settling_ns)
+    readback, top = audit(netlist, width, length, reference_load_fF, max_settling_ns, model)
     readback["parent_leads"] = leads(directory)
     opener = directory.parent / "open.sh"
     opener.write_text(
@@ -125,6 +144,7 @@ def build(directory, sizing, xschem, reference_load_fF=DEFAULT_REFERENCE_LOAD_FF
         'case "${1:-bench}" in\n'
         '  bench) target=TB_BIAS_MIRROR.sch ;;\n  core) target=BIAS_MIRROR.sch ;;\n'
         '  symbol) target=BIAS_MIRROR.sym ;;\n  *) echo "Use bench, core, or symbol" >&2; exit 2 ;;\nesac\n'
-        + "exec " + shlex.quote(xschem) + " --tcl " + shlex.quote(TCL_PATH) + ' "$MIRROR_SCHEMATIC_DIR/$target"\n',
+        + 'tool=' + shlex.quote(xschem) + '\n[ -x "$tool" ] || tool=xschem\n'
+        + 'exec "${XSCHEM:-$tool}" --tcl ' + shlex.quote(TCL_PATH) + ' "$MIRROR_SCHEMATIC_DIR/$target"\n',
         encoding="utf-8")
     return netlist, readback, top
