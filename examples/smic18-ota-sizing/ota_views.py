@@ -170,7 +170,8 @@ def bias(d):
     d.port("VSS", 4, 0.75, "R270")
     d.port("BN", 7, 3.5, "R0")
     d.resistor("RB", (4, 5.75), "VDD", "BN", d.sizes["bias_ohm"])
-    d.mos("MREF", "n", 4, 2.5, -1, ("BN", "BN", "VSS", "VSS"), "reference")
+    reference = (d.sizes["bias_ref_width_um"], d.sizes["length_um"]) if "bias_ref_width_um" in d.sizes else None
+    d.mos("MREF", "n", 4, 2.5, -1, ("BN", "BN", "VSS", "VSS"), "reference", geometry=reference)
     d.wire((4, 7), (4, 5.75))
     d.wire((4, 5.375), (4, 3.5), (4, 2.6875))
     d.wire((4, 3.5), (7, 3.5))

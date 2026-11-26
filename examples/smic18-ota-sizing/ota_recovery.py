@@ -17,6 +17,10 @@ from spectre_run import read_json, sha256
 
 DESIGNS = {"cap":dict(plate_um=26.5),
            **{"r"+str(k):dict(plate_um=26.5,cm_bridge_ohm=k*1000) for k in (130,150,220,390)}}
+SENSE_SIZES = {"sense-w050-l375":(.50,3.75),"sense-w045-l350":(.45,3.50),"sense-w050-l350":(.50,3.50)}
+DESIGNS.update({name:dict(DESIGNS["r130"],cm_input=w,cm_length_um=l) for name,(w,l) in SENSE_SIZES.items()})
+BIAS_WIDTHS = {"sense-bias140": 1.40, "sense-bias145": 1.45}
+DESIGNS.update({name:dict(DESIGNS["sense-w050-l350"],bias_ref_width_um=w) for name,w in BIAS_WIDTHS.items()})
 
 
 def screen(args,site,folder,design,fresh):

@@ -31,9 +31,10 @@ def physical_bank(folder,site,sizes,reference,fresh,bank,code=None,recovery=None
     controls = bank if code is None else dict(bank,code=code)
     candidate = dict(sizes,paired_geometry=GEOMETRY,source_trim=controls)
     if recovery:
-        if (set(recovery)-{"plate_um","cm_bridge_ohm"} or
+        if (set(recovery)-{"plate_um","cm_bridge_ohm","cm_input","cm_length_um","bias_ref_width_um"} or
+                ("cm_input" in recovery)!=("cm_length_um" in recovery) or
                 any(not math.isfinite(v) or v<=0 for v in recovery.values())):
-            raise ValueError("Invalid physical compensation plate or CM feedback resistor")
+            raise ValueError("Check the compensation, CM feedback resistor, detector and bias reference dimensions")
         candidate.update(recovery)
     if fresh:
         build(folder,site,candidate)
@@ -41,6 +42,10 @@ def physical_bank(folder,site,sizes,reference,fresh,bank,code=None,recovery=None
     gate_added = bank["length_um"]*(8*bank["switch_um"]+4*(bank["inverter_n_um"]+bank["inverter_p_um"]))
     delta = 2*sum(w*l-sizes[role]*sizes["length_um"]
                   for (w,l),role in ((GEOMETRY["input_pair"],"input"),(GEOMETRY["cm_loads"],"load")))
+    if recovery and "cm_input" in recovery:
+        delta += 4*(candidate["cm_input"]*candidate["cm_length_um"] - sizes["cm_input"]*sizes["cm_length_um"])
+    if recovery and "bias_ref_width_um" in recovery:
+        delta += (candidate["bias_ref_width_um"]-sizes["reference"])*sizes["length_um"]
     base = reference["area"]
     measured = physical["area"]
     extra = {"RS"+side+str(bit) for side in ("P","N") for bit in range(4)}

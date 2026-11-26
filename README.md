@@ -22,6 +22,7 @@
 | 设计可编程增益级 | 从控制位追到传输门，在后级输入测四档增益和切码建立时间，同时比较电流和器件面积 | [可直接复跑的 SKY130 增益级](examples/sky130-programmable-gain/README.md) |
 | 给放大器做失调修调 | 用实际开关和电阻测每个码能修正多少，每个样本校准一次，检查换温度、输入共模和输出指令后的误差 | [SMIC18 修调原理图与测试台](examples/smic18-ota-sizing/TRIM.md) |
 | 判断阶跃多久真正稳定 | 用两条公开波形复算首次进入误差带、随后越界和最终稳定的时刻，再对照相位裕量、共模和功耗决定是否采纳改型 | [用 Python 复算慢角下降沿](examples/smic18-ota-sizing/RECOVERY.md) |
+| 从失效工作点选 MOS 尺寸 | 取实际支路电流、漏偏置和体偏置查 gm/ID 表，改尺寸后逐颗核对饱和余量、功耗和校准能力 | [两条器件曲线与 1,152 个尾管工作点](examples/smic18-ota-sizing/HEADROOM.md) |
 | 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
 | 按自己的规格跨工艺选尺寸 | 给出参考电流、负载和时限，在 SKY130、GF180 分别测 gm/ID、选栅面积最小的达标者；可在线生成原理图与波形 | [按实际需求运行 ADC 偏置设计](examples/cross-pdk-current-mirror/README.md#用你自己的电流负载和时限选尺寸) |
 | 用 Virtuoso 给 ADC 搭偏置支路 | 在 SMIC18 实测 gm/ID，保留建立时间超限的尺寸，打开达标电流镜的原理图和六个 Maestro 测试 | [SMIC18 偏置电流镜](examples/smic18-bias-mirror/README.md) |
