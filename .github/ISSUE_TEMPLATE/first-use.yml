@@ -1,0 +1,54 @@
+name: 记录一次 ADC 偏置试用
+description: 记录使用一个 agent 实际打开的电路、复算的结果，或中途遇到的问题。
+title: "[首次试用] ADC 偏置支路"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请使用[公开试用题](https://github.com/w1213ph/virtuoso-circuit-skills/blob/main/docs/FIRST_USE_TRIAL.md)。这份记录会公开。路径可写成相对工程目录的路径。只需填写你实际做到的部分。
+  - type: dropdown
+    id: experience
+    attributes:
+      label: 这次开始前，你用过这个项目吗？
+      options:
+        - 第一次使用
+        - 此前已经用过
+        - 我是项目维护者，正在复跑
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: 这次做到哪一步？
+      options:
+        - 我与一个 agent 独立完成了开图和复算
+        - 得到他人帮助后完成了开图和复算
+        - 做到一部分，遇到了卡点
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 使用的仓库版本、工具和耗时
+      description: 可以填 Git 提交短码、Xschem/ngspice 版本和大约用时。工具还没装好时写明进行到了哪里。
+    validations:
+      required: true
+  - type: textarea
+    id: observations
+    attributes:
+      label: 你在电路或测试台中看到了什么？
+      description: 可写实际打开的核心与父级、参考端负载、所用工艺表行与 W/L、两管栅面积，以及哪个工况决定了选择。如果卡住，请写最后一步和当时看到的现象。
+    validations:
+      required: true
+  - type: textarea
+    id: replay
+    attributes:
+      label: 你自己复算了哪些结果？
+      description: 填实际运行的命令、工况、判定或数值，以及对应的数据文件。还没做到复算时可留空。
+  - type: textarea
+    id: assistance
+    attributes:
+      label: 有人帮助过你吗？
+      description: 填求助次数和具体步骤。只有自己与 agent 协作时填 0 次。
+    validations:
+      required: true
