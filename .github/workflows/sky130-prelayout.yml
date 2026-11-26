@@ -185,6 +185,27 @@ jobs:
           path: |
             work/adc-driver/
             work/driver-8bit/
+      - name: Measure input offset and slow-corner sampling margin with local MOS mismatch
+        run: |
+          ex=examples/sky130-adc-driver
+          status=0
+          python3 "$ex/mismatch.py" run --driver-run work/adc-driver --models work/mirror/models --out work/driver-mismatch || status=$?
+          test "$status" = 1
+          python3 "$ex/mismatch.py" verify --out work/driver-mismatch > work/mismatch-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          actual = json.loads(Path("work/mismatch-check.json").read_text())
+          assert actual["status"] == "sample_limits_exceeded" and actual["half_lsb_mV"] == 3.90625
+          assert actual["samples"] == 32 and actual["within_all_four"] == 14
+          assert actual["within_each"] == {"up_track_mV": 14, "up_hold_mV": 22, "down_track_mV": 31, "down_hold_mV": 30}
+          PY
+          cat work/driver-mismatch/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-adc-driver-mismatch
+          path: work/driver-mismatch/
       - name: Measure four gain codes at the receiver and settle both control transitions
         run: |
           ex=examples/sky130-programmable-gain
