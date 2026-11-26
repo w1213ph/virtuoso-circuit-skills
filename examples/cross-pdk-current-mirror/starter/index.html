@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADC 偏置电流镜 · 原理图与前仿</title>
+<style>
+  :root { color-scheme: light; font-family: "Source Sans 3", "Microsoft YaHei", sans-serif; color: #182a31; background: #fff; }
+  body { max-width: 66rem; margin: auto; padding: 1.5rem clamp(1rem,4vw,3rem) 3rem; line-height: 1.65; }
+  h1,h2,h3 { line-height: 1.35; } h1 { margin-bottom: .4rem; } h2 { margin-top: 2rem; }
+  section { border-top: 1px solid #bdcccc; margin-top: 1.8rem; }
+  a { color: #005e68; text-underline-offset: .16em; } code { background: #edf2f3; padding: .1em .3em; overflow-wrap: anywhere; }
+  .views { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(16rem,100%),1fr)); gap: .9rem; }
+  figure { margin: 0; } img { display: block; width: 100%; height: auto; border: 1px solid #d2dbdb; }
+  figcaption { margin: .25rem 0; } .pass { color: #146245; } .fail { color: #8e361d; }
+  footer { margin-top: 2rem; font-size: .88rem; } pre { overflow-x: auto; padding: .7rem 1rem; background: #edf2f3; }
+</style>
+<main>
+<h1>ADC 偏置电流镜</h1>
+<p>$purpose</p>
+<p>IREF 端复制外部 <strong>$current µA</strong> 参考电流，参考端接 <strong>$load fF</strong>。IOUT 从 0.40 V 扫到 1.20 V，误差上限为 <strong>$error%</strong>。固定 IOUT 为 0.80 V，参考电流升至 99% 后，输出应在 <strong>$deadline ns</strong> 内进入并保持在其稳态值的 ±1%。</p>
+<p>两管总栅面积取 2WL。每种工艺分别扫器件表、建候选并做三个工况的前仿，再从本次实测尺寸中选栅面积最小的达标者。<a href="evidence/RESULTS.md">全部候选与原始数据</a> · <a href="evidence/requirements.json">本次规格</a></p>
+$processes
+<section>
+<h2>在自己电脑上复算</h2>
+<p>在解压目录打开终端，用 Python 3 运行下面的命令。它从器件扫描、父级网表和仿真波形重算选型。返回码 0 表示两个工艺均有达标解，1 表示至少一边在本次范围内无解，2 表示证据或运行有误。</p>
+<pre><code>python bias.py</code></pre>
+<h3>换一组指标重新设计</h3>
+<p>把新需求交给 agent，让它更新工程根目录的 <a href="my-bias.json">my-bias.json</a>。在装有 Python 3、Xschem 和 ngspice 的 Linux 上运行以下命令。首次生成会下载校验过的公开模型，<code>my-design</code> 应为新目录。</p>
+<pre><code>python3 bias.py run --out my-design
+python3 bias.py verify --out my-design</code></pre>
+<p>新的 <code>my-design/RESULTS.md</code> 给出所选或超限的电路。在 Xschem 中编辑原理图时，可在工程的副本上修改，再保留相应的新网表和实测结果。</p>
+</section>
+</main>
+<footer>工具源码随包提供。<a href="https://github.com/w1213ph/virtuoso-circuit-skills/commit/$revision">本次源码提交</a> · <a href="LICENSE">项目许可证</a> · <a href="NOTICE">项目来源说明</a> · <a href="model-notices.txt">开源模型来源</a> · <a href="model-license.txt">上游许可证</a></footer>
+</html>

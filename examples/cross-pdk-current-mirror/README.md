@@ -67,9 +67,9 @@ sh work/my-bias/gf180/open.sh core
 
 可以让 agent 把输入 JSON 提交到 GitHub 的 **Cross-PDK ADC bias sizing and waveform replay → Run workflow → requirements**。手动运行需要该仓库的写权限。首次使用者可以在自己的 fork 启用 Actions，再提交自己的规格。输入留空会跑上表的 10 µA 算例。[打开工作流](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/cross-pdk-sizing.yml) · [GitHub 手动运行说明](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)
 
-在完成的运行页面下载 `cross-pdk-bias-evidence` 并解压。先打开 `RESULTS.md`，它指向本次的原理图、测试台和原始波形。同一页的 `cross-pdk-schematic-previews` 提供 Xschem 导出的核心、符号和父级 PNG，文件名中的 `qualified` 表示入选，`over-limit` 表示用于排查。查看 PNG 无需安装 EDA 工具，编辑原理图使用 Xschem。所有查表结果都超出宽度范围时，报告列出被排除的宽度，本次没有原理图预览。
+下载当次运行的 **adc-bias-project** 并解压。双击 `index.html` 就能看到本次规格、限制尺寸的直流和开启波形、Xschem 导出的核心、符号和父级图。每张原理图旁都能打开可编辑源文件。若本工艺的合法候选都超限，页面标出排查用的版本。若所有宽度都被排除，则在报告列出超范围的查表结果。
 
-在运行对应版本的仓库内，用 `python examples/cross-pdk-current-mirror/transfer.py verify --out 解压目录` 从波形复算，Windows 也只需要 Python。返回 0 表示两种工艺各有达标版本，1 表示至少一种工艺的范围内没有达标版本，2 表示输入、执行或证据有误。工作流正常结束时，仍要从报告读取电路是否达标。
+在解压目录运行 `python bias.py`，会从原始数据复算。返回 0 表示两种工艺各有达标尺寸，1 表示至少一种工艺在此次搜索中无解，2 表示输入、运行或证据有误。Windows 复算只需 Python 3。若要在自己的 Linux 仿真环境重新设计，编辑 `my-bias.json` 后运行 `python3 bias.py run --out my-design`。工具会重新查表、建图和前仿，结果在 `my-design/RESULTS.md`。也可直接下载公开的 275 fF 完整示例。[下载示例工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-bias-first-use-v1/adc-bias-275ff.zip)
 
 ## 复跑前面的 250 fF 对照
 

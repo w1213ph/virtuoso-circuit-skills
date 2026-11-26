@@ -4,7 +4,7 @@
 
 这里提供**搭建方法、绘图规则、功能 symbol 参考和检查工具**。AI 负责结合你的实际工艺完成设计；你可以用示例图和验收清单检查成果。
 
-**第一次试用**，把这句话发给能运行命令的 agent：“请从空目录跑通仓库里的 SKY130 电流镜，打开原理图，告诉我哪一版满足要求，以及两版的栅面积相差多少。”这个案例用开源工具下载固定版本的工艺模型，生成可编辑的原理图和测试台，并在三组工况下比较两种尺寸。[开源案例、原生截图与复跑命令](examples/sky130-current-mirror/README.md)
+**第一次试用**，可以直接下载 8 µA、275 fF 的 ADC 偏置工程。解压后打开 `index.html` 看两种工艺的原理图、测试台和限制尺寸的波形。让 agent 在解压目录运行 `python bias.py`，解释哪个尺寸达标、要多少栅面积。想从一句话重新设计，可以从空目录领取同一题。[下载示例工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-bias-first-use-v1/adc-bias-275ff.zip) · [领取设计题](docs/FIRST_USE_TRIAL.md)
 
 **设计自己的电路**，在[新手入口](docs/BEGINNER.md)用一句话描述用途。Agent 从工程读取工艺和供电，与你确定指标，用器件实测表选择初始尺寸，再交付电路、功能 symbol、测试台和结果。已有电路也可以比较同条件下的候选。[性能优化流程](skills/paper-to-virtuoso/references/optimization.md)
 

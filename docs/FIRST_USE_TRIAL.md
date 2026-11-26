@@ -1,14 +1,16 @@
 # 第一次用一个 agent 设计 ADC 偏置支路
 
-把下面这段需求和仓库链接交给一个能读写工程、运行命令的 agent。使用空目录开始。有 Linux 环境时可用 Python 3、Xschem 和 ngspice 本地生成与仿真，模型可联网下载或用离线源。也可以在自己的 GitHub fork 提交本题规格，下载本次工程、原生图的预览与波形，再用 Python 独立复算。请保留工程和对话，记录自己是查看 PNG 还是在编辑器中打开了工程。[项目仓库](https://github.com/w1213ph/virtuoso-circuit-skills) · [提交自己的规格](../examples/cross-pdk-current-mirror/README.md#本机没有仿真环境时)
+**要尝试从零完成设计**，在空目录把仓库链接和下面这段话交给一个能读写工程、运行命令的 agent。用 Linux、Python 3、Xschem 和 ngspice 可以本地生成和前仿，也可以在自己的 GitHub fork 提交规格并下载本次生成的完整工程。请记录实际打开的是原生编辑器还是预览图。[项目仓库](https://github.com/w1213ph/virtuoso-circuit-skills) · [在线运行方法](../examples/cross-pdk-current-mirror/README.md#本机没有仿真环境时)
 
 > 我要给 ADC 复制外部 8 µA 参考电流，输出支路向地拉电流。参考节点接 **275 fF**，输出在 **0.40–1.20 V** 时电流误差最多 **8%**。输出固定在 **0.80 V**，参考电流达到 99% 后，希望 **40 ns** 内进入并保持在稳态值的 **±1%**。请分别试 SKY130 和 GF180 的三组示例工况。在每种工艺里，选两管栅面积最小的达标版本；如果都超限，请指出哪次测量说明了原因。给我可以打开的图和可以复算的结果。
+
+**要先看一次交付**，直接下载这道题的 ZIP，解压并用浏览器打开 `index.html`。可以点开实际测试台、最差工况的误差曲线和原始数据。打开解压目录的终端运行 `python bias.py`，Windows 也只需 Python 3。要重新设计，修改工程内的 `my-bias.json`，再按页面中的命令生成新的测试台。试用记录请注明采用了哪种起点。[下载 275 fF 实测工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-bias-first-use-v1/adc-bias-275ff.zip)
 
 完成后，用自己的话留下一份简短的试用记录。以下信息便于下一位使用者或维护者找到具体卡点。
 
 | 要记录的事 | 你实际看到或做了什么 |
 |---|---|
-| 起点 | 仓库提交、已装工具、开始和结束时间 |
+| 起点 | 从空目录生成、下载后改规格重跑，还是仅复核已有工程？记录仓库提交、已装工具和大约用时。 |
 | 从需求到测试台 | 哪些条件需要你确认？在实际测试台的哪个节点读到了负载值？ |
 | 打开电路 | 从报告打开了哪个版本的核心和父级？指出参考端、输出端和地。 |
 | 工艺与取舍 | 用哪一行器件表确定 W/L？两只管合计多大？哪条工作曲线决定了取舍？ |
@@ -17,4 +19,4 @@
 
 完成、求助后完成或中途卡住，都可以在 GitHub 提交一份记录。卡在安装阶段时，写下最后执行的命令和现象即可。表单只需这道公开试用题的信息。参加者可以正常查阅仓库，并与一个 agent 协作。[提交我的试用记录](https://github.com/w1213ph/virtuoso-circuit-skills/issues/new?template=first-use.yml)
 
-维护者按实际参加者去重。将能指出所开电路并独立复算的人计入独立完成，将需要他人提示和中途卡住的情况分别记录。已用过项目的人的反馈、维护者复跑和 CI 结果单独保留。[查看已提交的试用记录](https://github.com/w1213ph/virtuoso-circuit-skills/issues?q=is%3Aissue%20in%3Atitle%20%22%E9%A6%96%E6%AC%A1%E8%AF%95%E7%94%A8%22)
+维护者按实际参加者去重，分别记录从空目录独立生成、修改已有工程后独立重跑、复核已有结果的人数。每组记录是否需要他人提示、在哪一步卡住。维护者复跑和 CI 另记。[查看已提交的试用记录](https://github.com/w1213ph/virtuoso-circuit-skills/issues?q=is%3Aissue%20in%3Atitle%20%22%E9%A6%96%E6%AC%A1%E8%AF%95%E7%94%A8%22)

@@ -29,7 +29,7 @@ jobs:
       - name: Install native tools
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends ca-certificates git python3 ngspice xschem xvfb xauth fonts-dejavu-core
+          apt-get install -y --no-install-recommends ca-certificates git python3 python3-matplotlib ngspice xschem xvfb xauth fonts-dejavu-core
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -85,7 +85,7 @@ jobs:
               assert measured == 0 and all(p["selected"] for p in report["processes"].values())
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
               f.write(("两种工艺各有达标尺寸。" if not measured else "本次规格有工艺未找到达标尺寸。") + "\n\n")
-              f.write("下载 `cross-pdk-bias-evidence` 并打开 `RESULTS.md`，即可沿图纸和波形的相对链接核对测量。\n\n")
+              f.write("下载 `adc-bias-project` 后解压，打开 `index.html` 看图，在工程根目录运行 `python bias.py` 从原始数据复算。\n\n")
               f.write(re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", (out / "RESULTS.md").read_text()))
           PY
       - uses: actions/upload-artifact@v4
@@ -97,6 +97,52 @@ jobs:
           if-no-files-found: error
       - name: Open the measured core, symbol and testbench in Xschem and export their images
         run: xvfb-run -a python3 examples/cross-pdk-current-mirror/preview.py --out work/transfer --images work/previews
+      - name: Assemble the requested project and replay using only its own source
+        run: |
+          python3 examples/cross-pdk-current-mirror/project.py --out work/transfer --images work/previews --project work/project --revision "$GITHUB_SHA"
+          python3 - <<'PY'
+          import json, pathlib, subprocess, sys, tempfile
+          project = pathlib.Path("work/project").resolve()
+          with tempfile.TemporaryDirectory() as empty:
+              replay = subprocess.run([sys.executable, "-IB", str(project / "bias.py")], cwd=empty)
+          both = json.loads((project / "evidence/summary.json").read_text())["qualified_in_both"]
+          assert replay.returncode == (0 if both else 1)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adc-bias-project
+          path: work/project/
+          if-no-files-found: error
+      - name: Start from the delivered tools and design for the 275 fF first-use exercise
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          example=examples/cross-pdk-current-mirror
+          measured=0
+          python3 -IB work/project/bias.py run --requirements "$example/first-use.json" --out work/first-use --sky130-models work/transfer/models/sky130 --gf180-models work/transfer/models/gf180 || measured=$?
+          test "$measured" -le 1
+          xvfb-run -a python3 "$example/preview.py" --out work/first-use --images work/first-use-previews
+          python3 "$example/project.py" --out work/first-use --images work/first-use-previews --project work/first-use-project --revision "$GITHUB_SHA"
+          replayed=0
+          python3 -IB work/first-use-project/bias.py || replayed=$?
+          test "$measured" -eq "$replayed"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          req = json.loads(Path("examples/cross-pdk-current-mirror/first-use.json").read_text())
+          out = Path("work/first-use-project/evidence")
+          report = json.loads((out / "summary.json").read_text())
+          assert report["requirements"] == req
+          for proc, data in report["processes"].items():
+              name = data["selected"] or data["diagnostic"]
+              bench = (out / proc / name / "views/TB_BIAS_MIRROR.spice").read_text().lower()
+              assert "cref iref 0 275f" in bench
+          PY
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          name: adc-bias-first-use-275ff
+          path: work/first-use-project/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: cross-pdk-schematic-previews

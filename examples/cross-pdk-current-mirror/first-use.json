@@ -1,0 +1,8 @@
+{
+  "purpose": "给 ADC 复制外部 8 µA 参考电流，参考端接 275 fF。在两种开源工艺中找满足 8% 直流误差和 40 ns 开启建立要求的最小两管栅面积。",
+  "reference_uA": 8,
+  "reference_load_fF": 275,
+  "max_error_pct": 8,
+  "max_settling_ns": 40,
+  "selection": "min_gate_area"
+}

@@ -1,4 +1,6 @@
 import sys
+import struct
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -7,12 +9,44 @@ sys.path[:0] = [str(EXAMPLES / "cross-pdk-current-mirror"), str(EXAMPLES / "sky1
 
 import mos_table
 import native
+import preview
+import project
 import sizing_search
 import transfer_models
 from mos_model import GF180, SKY130
 
 
 class CrossPdkSizingTests(unittest.TestCase):
+    def test_preview_inventory_binds_each_png_to_the_measured_run_and_editable_view(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            images = root / "images"
+            images.mkdir()
+            index = root / "evidence.json"
+            index.write_bytes(b"first run")
+            report = {"processes": {"sky130": {"selected": "short", "diagnostic": None}}}
+            for _, view, name in preview.views("sky130", report["processes"]["sky130"]):
+                (root / view).parent.mkdir(parents=True, exist_ok=True)
+                (root / view).write_bytes(b"native view")
+                (images / name).write_bytes(b"\x89PNG\r\n\x1a\n" + struct.pack(">I4sII", 13, b"IHDR", 1200, 800))
+            original = preview.inventory(root, images, report)
+            index.write_bytes(b"second run")
+            self.assertNotEqual(original["evidence_sha256"], preview.inventory(root, images, report)["evidence_sha256"])
+            (root / view).write_bytes(b"different native view")
+            self.assertNotEqual(original["images"][name]["view_sha256"],
+                                preview.inventory(root, images, report)["images"][name]["view_sha256"])
+            with (images / name).open("ab") as f:
+                f.write(b"changed pixels")
+            self.assertNotEqual(original["images"][name]["png_sha256"],
+                                preview.inventory(root, images, report)["images"][name]["png_sha256"])
+
+    def test_excluded_widths_report_no_measured_design_and_no_image_links(self):
+        data = dict(selected=None, diagnostic=None)
+        self.assertEqual(list(preview.views("gf180", data)), [])
+        section = project.process_section("gf180", data, {})
+        self.assertIn("没有可仿真的候选", section)
+        self.assertNotIn("<img", section)
+
     def test_duplicate_grid_points_share_one_design_and_keep_the_lookup_row(self):
         rows = [dict(polarity="N", length_um=l, vds_V=0.65, vbs_V=0, gm_id_per_V=14.8,
                      abs_id_uA=8, id_per_width_uA_um=4) for _,l in sizing_search.LENGTHS]

@@ -17,6 +17,16 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: starting_point
+    attributes:
+      label: 你从哪里开始？
+      options:
+        - 从空目录提交需求并生成自己的工程
+        - 下载示例后修改规格并重新生成工程
+        - 下载已有工程看图和复算
+    validations:
+      required: true
+  - type: dropdown
     id: outcome
     attributes:
       label: 这次做到哪一步？

@@ -190,17 +190,17 @@ def verify(out):
     return report
 
 
-if __name__ == "__main__":
+def main(argv=None, *, requirements=DEFAULT_REQ, optimize=False):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="action")
     run_cli = commands.add_parser("run", help="Build native views, characterize both PDKs and simulate")
-    run_cli.add_argument("--requirements", type=Path, default=DEFAULT_REQ)
-    run_cli.add_argument("--optimize", action="store_true", help="Simulate all legal gm/ID candidates and select minimum passing gate area")
+    run_cli.add_argument("--requirements", type=Path, default=requirements)
+    run_cli.add_argument("--optimize", action="store_true", default=optimize, help="Simulate all legal gm/ID candidates and select minimum passing gate area")
     run_cli.add_argument("--sky130-models", type=Path, help="Offline upstream SKY130 inputs matching models.lock.json")
     run_cli.add_argument("--gf180-models", type=Path, help="Offline upstream GF180 tree matching gf180-models.lock.json")
     run_cli.add_argument("--out", type=Path, required=True, help="New output directory")
     commands.add_parser("verify", help="Recompute from the artifact using only Python").add_argument("--out", type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if not args.action:
         parser.error("Choose run or verify")
     try:
@@ -208,6 +208,22 @@ if __name__ == "__main__":
         summary = run(args) if args.action == "run" else verify(args.out)
         for proc, data in summary["processes"].items():
             print(proc, "selected:", data["selected"], "| measured MOS points:", sum(data["points"].values()))
-        sys.exit(0 if summary["qualified_in_both"] else 1)
+            name = data["selected"] or data.get("diagnostic")
+            if name:
+                case = data["designs"][name]
+                dc, tran = search.worst_traces(case)
+                metrics = case["corners"][tran]["metrics"]
+                elapsed = ("{:.2f}".format(metrics["settling_ns"]) if metrics["settling_ns"] is not None
+                           else ">{:.2f}".format(metrics["settling_lower_bound_ns"]))
+                print("  {} {} | pair gate area {:.2f} um^2 | error {:.3f}% ({}) | settling {} ns ({})".format(
+                    "PASS" if data["selected"] else "OVER LIMIT", name, case["sizing"]["mirror_pair_gate_area_um2"],
+                    case["worst_error_pct"], dc, elapsed, tran))
+            elif "search" in summary:
+                print("  No candidate inside the allowed width range.")
+        return 0 if summary["qualified_in_both"] else 1
     except (OSError, ValueError, KeyError, TypeError, IndexError, OverflowError) as exc:
         parser.exit(2, str(exc) + "\n")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
