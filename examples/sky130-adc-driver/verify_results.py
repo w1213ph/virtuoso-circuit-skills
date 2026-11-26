@@ -11,6 +11,7 @@ from driver import audit, check_sizing, checked_views, parent_pins, size
 from mos_model import SKY130
 from mos_table import LENGTHS
 import replay_lut
+import precision
 
 
 def read(path):
@@ -57,19 +58,20 @@ def verify(out, *, detailed=False):
     fixture=read(out/"fixture.json")
     recipe=read(out/"recipe.json")
     version=recipe.get("schema_version",1)
-    require(type(version) is int and version in (1,2,3),"Unsupported sampling-driver run format")
+    require(type(version) is int and version in (1,2,3,4),"Unsupported sampling-driver run format")
+    optimize = version == 4
     tt_rows, points, library = checked_tables(out, recipe, version)
     require(read(out/"budget.json") == theory, "Sampling budget differs from the confirmed requirements")
-    for name in ("baseline","candidate"):
+    def measure(name,expected_size):
         stage=out/name
         f=stage/"prelayout.json"
         plan=checks.load_plan(f)
-        expected=[t for c,temp,vdd in STATES for t in tests_for(c,temp,vdd,r,theory,include_diagnostics=version>=2)]
+        expected=[t for c,temp,vdd in STATES for t in tests_for(c,temp,vdd,r,theory,include_diagnostics=version>=2,include_dc=optimize)]
         require(plan["tests"]==expected,"Test conditions differ from requirements: "+name)
         contexts=read(stage/"before-simulation.json")
         sizing=read(stage/"sizing.json")
         if tt_rows is not None:
-            check_sizing(sizing, size(tt_rows, r, name == "candidate"))
+            check_sizing(sizing,expected_size)
         views = checked_views(stage/"views", sizing, r, legacy=version < 3)
         inputs = ["sizing.json", "views/TB_ADRV_SAMPLE.spice"] + (views if version >= 3 else [])
         require(plan["inputs"] == inputs, "Simulation input list differs from the archived design: " + name)
@@ -78,7 +80,8 @@ def verify(out, *, detailed=False):
         sections=audit(netlist,sizing,r)
         body = "\n".join(row for row in netlist.splitlines() if not row.strip().startswith("**")) + "\n"
         back=read(stage/"readback.json")
-        require(sections==back["native_sections"] and {k:sections[k] for k in fixture}==fixture,"Native hierarchy differs")
+        require(sections==back["native_sections"] and precision.same_fixture(sections,fixture,optimize and sizing["devices"]["XSN"][2]!=1),
+                "Native hierarchy differs")
         pins=json.loads(json.dumps(parent_pins(stage/"views")))
         require(pins==back["parent_pins"],"Parent pin geometry differs")
         areas[name]=sum(w*l*m for n,(w,l,m) in sizing["devices"].items() if n in sections["ADRV_OTA"])
@@ -89,6 +92,14 @@ def verify(out, *, detailed=False):
             folder=stage/corner
             dynamics=transient_metrics(folder/"track",r,vdd)
             measurements[corner]={"transient":dynamics}
+            if optimize:
+                dc = folder/"dc"
+                require((dc/"input.spice").read_text(encoding="utf-8")==precision.dc_deck(body,library,(corner,temp,vdd),r),
+                        "Static measurement has a different native driver, input range or clock: "+name+"/"+corner)
+                static=precision.dc_transfer(dc,r,vdd)
+                measurements[corner]["dc"]=static
+                require(static==read(folder/"measurement.json")["dc"],"Static transfer does not match raw levels")
+                values[corner+".dc.transfer"]=static["worst_abs_mV"]
             for edge,m in dynamics["edges"].items():
                 for phase in ("track","hold"):
                     values[corner+"."+edge+"."+phase]=m[phase+"_error_mV"]
@@ -109,6 +120,8 @@ def verify(out, *, detailed=False):
             record=plan["results"][idx]
             files={corner+"/measurement.json",corner+"/"+mode+"/ngspice.log",corner+"/"+mode+"/op.dat",
                    corner+"/"+mode+("/ac.dat" if t["analysis"]=="ac" else "/transient.dat")}
+            if t["analysis"]=="dc":
+                files={corner+"/measurement.json",corner+"/dc/ngspice.log",corner+"/dc/dc.dat"}
             require(set(record["evidence"])==files,"Wrong evidence files at "+idx)
             ctx=contexts[idx]
             for p in [*inputs,*t["inputs"]]:
@@ -122,15 +135,27 @@ def verify(out, *, detailed=False):
             for t in reviews[name]["tests"]),
                 "Archived decisions or evidence differ: "+name)
         variants[name] = dict(sizing=sizing, measurements=measurements)
+        if optimize:
+            return precision.summarize(sizing,measurements,reviews[name])
+
+    originals={name:(size(tt_rows,r,name=="candidate") if tt_rows is not None else None) for name in precision.ORIGINALS}
+    search=precision.evaluate_family(originals,optimize,measure)
     comparison=checks.compare(reviews["baseline"],reviews["candidate"])
     require(comparison==read(out/"comparison.json"),"Comparison differs")
     passing=comparison["passing_variants"]
     pick=min(passing,key=areas.get) if passing else None
+    if optimize:
+        require(all(checks.compare(reviews["baseline"],v)["status"]=="COMPARABLE" for v in reviews.values()),
+                "Changed sampling contract across optimized circuits")
+        require(read(out/"optimization.json")==search,"Search results, static shortlist or areas differ")
+        passing,pick=precision.selection(search)
     status={"status":"completed" if pick else "review_required","passing_variants":passing,"selected":pick}
     require(read(out/"status.json")==status,"Selected circuit differs")
     result = dict(status,characterization_points=points,pass_counts={v:sum(t["status"]=="PASS" for t in data["tests"]) for v,data in reviews.items()})
     if detailed:
         result.update(variants=variants, requirements=r, budget=theory)
+        if optimize:
+            result["optimization"]=search
     return result
 
 

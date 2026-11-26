@@ -13,7 +13,7 @@ from driver_review import write_review
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 SOURCE = {
-    "examples/sky130-adc-driver": ("run.py", "driver.py", "bench.py", "verify_results.py", "driver_review.py",
+    "examples/sky130-adc-driver": ("run.py", "driver.py", "bench.py", "precision.py", "verify_results.py", "driver_review.py",
         "requirements.example.json", "ADRV_NMOS.sym", "ADRV_PMOS.sym", "ADRV_SOURCE.sym", "ADRV_OTA.sch",
         "ADRV_OTA.sym", "ADRV_SAMPLER.sch", "ADRV_SAMPLER.sym", "TB_ADRV_SAMPLE.sch"),
     "examples/sky130-current-mirror": ("fetch_models.py", "models.lock.json", "mos_table.py", "mos_model.py",
@@ -26,6 +26,8 @@ ROOT_FILES = ("requirements.json", "budget.json", "fixture.json", "recipe.json",
 
 def evidence_names(source, result):
     yield from ROOT_FILES
+    if "optimization" in result:
+        yield "optimization.json"
     for corner in result["characterization_points"]:
         folder = Path("characterization", corner)
         yield folder / "manifest.json"
@@ -50,7 +52,7 @@ def build(source, dest, revision, xschem):
         raise ValueError("Supply the complete source commit")
     if dest.exists() or dest == source or source in dest.parents:
         raise ValueError("Choose a new destination outside the measured project")
-    if read(source/"recipe.json").get("schema_version") != 3:
+    if read(source/"recipe.json").get("schema_version") not in (3,4):
         raise ValueError("Build fresh measurements with the editable views frozen before simulation")
     result = verify(source, detailed=True)
     dest.parent.mkdir(parents=True, exist_ok=True)

@@ -6,9 +6,29 @@
 
 **直接试用**，下载 ZIP 并解压，打开 `index.html`。页面上的两组原理图都有对应的 Xschem 源文件。波形同时画出放大器输出 OUT 和传输门后的 SAMPLE，黑点标出实际用于判定的电容电压。工程根目录运行 `python sample.py` 即可从器件扫描、网表和波形复算。Windows 复算只需 Python 3。[下载 7 位、1 pF 的完整工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-7bit-v1/adc-driver-7bit.zip)
 
-**改成自己的规格**，把新需求告诉 agent，让它更新包内的 `my-driver.json`。在装有 Xschem 和 ngspice 的 Linux 上运行 `python3 sample.py run --out my-design`，再运行 `python3 sample.py verify --out my-design`。新原理图和逐工况测值在 `my-design/RESULTS.md`。也可以在自己的 GitHub fork 启用 Actions，选择 **Build an ADC sampling driver from user requirements**，将确认好的 JSON 粘贴到 `requirements`。运行结束下载 `adc-sampling-project` 即是按这次输入实测的完整工程。返回 0 表示至少一组达标，1 表示两组均有实测超限，2 表示运行或证据有误。[在 GitHub 提交规格](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/adc-driver-project.yml)
+**改成自己的规格**，让 agent 更新包内的 `my-driver.json`。在装有 Xschem 和 ngspice 的 Linux 上运行 `python3 sample.py run --out my-design`，再运行 `python3 sample.py verify --out my-design`。原理图和逐工况测值见 `my-design/RESULTS.md`。也可以在自己的 GitHub fork 启用 Actions，选择 **Build an ADC sampling driver from user requirements**，将 JSON 粘贴到 `requirements`。工作流在初始两版均超限时会继续优化。下载 `adc-sampling-project` 即可拿到本次工程。复算返回 0 表示有方案达标，1 表示已测方案均超限，2 表示运行或证据有误。[在 GitHub 提交规格](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/adc-driver-project.yml)
 
 ![候选放大器的 Xschem 原理图，左为偏置、右为差分对和有源负载](images/core.png)
+
+<a id="precision"></a>
+## 把超限的 8 位采样驱动器改到达标
+
+> 给我的 8 位 ADC 驱动 1.25 pF 的采样电容。量化范围 1 V，输入在 0.85 V 和 1.05 V 间跳变。跟踪 85 ns、保持 25 ns，误差最多半个 LSB，两种状态的相位裕度都要超过 60°。请给我可编辑的电路，解释初版为什么失败，以及改善精度增加了多少器件面积。
+
+解压后打开 `index.html` 查看选中的原理图和波形。点击“查看全部”能逐一打开被淘汰的尺寸。在解压目录运行 `python sample.py` 可离线复算。要按自己的规格重新设计，让 agent 修改 `my-driver.json`，在装有 Xschem 和 ngspice 的 Linux 上运行 `python3 sample.py run --optimize --out my-design`。GitHub 的采样驱动器工作流也按提交的规格执行同样的优化。[下载 8 位实测工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-precision-v1/adc-driver-8bit-optimized.zip) · [最初两版超限工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-7bit-v1/adc-driver-8bit.zip)
+
+原长沟道版在慢角、1.05 V 输入下，稳态采样电压离目标约 3.59 mV，超过 1.953 mV 的限值。将 PMOS 镜像每条支路拆成相同的小单元后，只在输出支路增加两个单元，使 VX 与 OUT 的个数为 48 和 50。三个工况各测九个输入电平，最大静态误差降至 1.736 mV。慢角下降步阶的采样误差仍有 3.586 mV。沿用这组放大器，把传输门的 NMOS 和 PMOS 各改为两组并联，再测采样电容上的电压。
+
+| 同一组 8 位要求 | 放大器与开关总栅面积 | 通过项 |
+|---|---:|---:|
+| 原长沟道负载、原开关 | 250.75 µm² | 12/18 |
+| 原长沟道负载、两组并联开关 | 252.10 µm² | 11/18 |
+| 48∶50 镜像、原开关 | 254.50 µm² | 16/18 |
+| 48∶50 镜像、两组并联开关 | **255.85 µm²** | **18/18** |
+
+完整搜索测了 17 组尺寸。两组全部达标，入选的是总栅面积较小的一组。其最坏跟踪误差为 1.736 mV（典型角下降），最坏保持误差为 1.196 mV（慢角下降），最低相位裕度为 72.88°（快角保持）。栅面积含器件倍率，放大器占 253.15 µm²，开关占 2.70 µm²，1.25 pF 是单列的接口负载。上述结果覆盖给定步阶、三个工况和开关时序。局部随机失配、噪声和完整 ADC 转换精度需要各自的测试台。
+
+对于其他规格，程序先从实测 gm/ID 表得到两组初始尺寸。如果已经有达标方案，就在这两组中选型。两组都超限时，分别在短、长沟道负载中比较等比拆分及输出支路增减一到两个单元。每种长度选出静态误差最小的一组，再试两组与三组并联开关。每个被比较的尺寸均重新生成原生图、网表和双向瞬态。18 项判定保留跟踪、保持和稳定性要求，静态扫描只用于定位误差和选择下一步。
 
 ## 从空目录开始
 

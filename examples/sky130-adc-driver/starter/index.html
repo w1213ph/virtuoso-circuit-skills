@@ -10,17 +10,19 @@
   .views {display:grid; grid-template-columns:repeat(auto-fit,minmax(min(23rem,100%),1fr)); gap:.6rem 1.1rem}
   .pass {color:#186347} .fail {color:#853719} pre {overflow-x:auto; padding:.75rem 1rem; background:#edf3f3}
   footer {margin-top:2rem}
+  summary {cursor:pointer;color:#005d6a} .scroll {overflow:auto} table {border-collapse:collapse; min-width:45rem}
+  th,td {padding:.35rem .65rem;text-align:left;border-bottom:1px solid #d4dede} td:first-child {min-width:13rem}
 </style>
 <main>
 <h1>ADC 采样驱动器</h1>
 <p>$purpose</p>
 <p><strong>$decision</strong> $bits 位、量化范围 $span V 对应半个 LSB 为 <strong>$half mV</strong>。验收节点是传输门后的 <strong>SAMPLE</strong>，负载为 $load pF。分别取 $track ns 跟踪结束前的误差，以及完全关断后 $hold ns 保持窗口内的最大误差。</p>
-<p>两组尺寸均在 TT（27 °C、1.80 V）、SS（85 °C、1.62 V）和 FF（−40 °C、1.80 V）测量上升、下降步阶及两个时钟状态的环路裕度。面积为 MOS 栅面积的 W × L × 并联数之和。采样电容作为 ADC 接口负载单列。<a href="evidence/RESULTS.md">各工况完整报告</a> · <a href="evidence/requirements.json">本次规格</a> · <a href="evidence/characterization/tt/table.csv">TT 器件表</a></p>
+<p>每组尺寸均在 TT（27 °C、1.80 V）、SS（85 °C、1.62 V）和 FF（−40 °C、1.80 V）测量上升、下降步阶及两个时钟状态的环路裕度。面积为 MOS 栅面积的 W × L × 并联数之和。采样电容作为 ADC 接口负载单列。<a href="evidence/RESULTS.md">各工况完整报告</a> · <a href="evidence/requirements.json">本次规格</a> · <a href="evidence/characterization/tt/table.csv">TT 器件表</a></p>
 $sections
 <section><h2>复算与重新设计</h2>
-<p>在解压目录的终端运行 <code>python sample.py</code>。Python 3 会核对可编辑图、实际网表和器件扫描，重算采样误差与相位裕度。返回 0 表示有方案达标，1 表示两组实测均超限，2 表示运行或证据有误。</p>
+<p>在解压目录的终端运行 <code>python sample.py</code>。Python 3 会核对可编辑图、实际网表和器件扫描，重算采样误差与相位裕度。返回 0 表示有方案达标，1 表示全部实测方案均超限，2 表示运行或证据有误。</p>
 <p>可以用一句话告诉 agent 新的 ADC 位数、量化范围、输入电平、采样电容和跟踪／保持时间，让它更新 <a href="my-driver.json">my-driver.json</a>。在装有 Xschem 和 ngspice 的 Linux 上执行以下命令，首次运行会下载锁定的公开模型，输出目录应为新目录。</p>
-<pre><code>python3 sample.py run --out my-design
+<pre><code>python3 sample.py run --optimize --out my-design
 python3 sample.py verify --out my-design</code></pre>
 <p>新结果在 <code>my-design/RESULTS.md</code>。本页覆盖指定的步阶、负载与三个确定性工况。若需验证随机失配，仓库另有使用独立样本的尺寸复验。<a href="https://github.com/w1213ph/virtuoso-circuit-skills/blob/$revision/examples/sky130-adc-driver/MATCHING.md">失配与面积实测</a></p>
 </section></main>

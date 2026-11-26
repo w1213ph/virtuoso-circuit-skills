@@ -24,7 +24,7 @@ jobs:
   simulate:
     runs-on: ubuntu-latest
     container: debian:trixie-slim
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Install the simulator, schematic editor and plot tools
         run: |
@@ -46,7 +46,7 @@ jobs:
           Path("work/requested.json").write_text(supplied, encoding="utf-8")
           PY
           status=0
-          python3 "$ex/run.py" --requirements work/requested.json --out work/measured || status=$?
+          python3 "$ex/run.py" --optimize --requirements work/requested.json --out work/measured || status=$?
           test "$status" -le 1
           xvfb-run -a python3 "$ex/pack_project.py" --run work/measured --project work/project --revision "$GITHUB_SHA"
           python3 - "$status" <<'PY'
@@ -97,4 +97,28 @@ jobs:
         with:
           name: adc-sampling-project-8bit
           path: work/altered-project/
+          if-no-files-found: error
+      - name: Improve the failed eight-bit circuit from the delivered source
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          python3 -IB work/project/sample.py run --optimize --requirements work/altered.json --models work/measured/models --reuse-lut work/measured/characterization --out work/optimized
+          xvfb-run -a python3 examples/sky130-adc-driver/pack_project.py --run work/optimized --project work/optimized-project --revision "$GITHUB_SHA"
+          python3 -IB work/optimized-project/sample.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out = Path("work/optimized-project/evidence")
+          search = json.loads((out/"optimization.json").read_text())
+          picked = json.loads((out/"status.json").read_text())["selected"]
+          assert json.loads((out/"requirements.json").read_text()) == json.loads(Path("work/altered.json").read_text())
+          assert len(search) == 17 and not any(search[n]["passed"] for n in ("baseline","candidate"))
+          assert search[picked]["pass_count"] == 18 and search[picked]["gate_um2"] == min(v["gate_um2"] for v in search.values() if v["passed"])
+          native = json.loads((out/picked/"readback.json").read_text())["native_sections"]
+          assert native["ADRV_SAMPLER"]["CSH"] == ["SAMPLE","VSS","1.25P","M=1"]
+          PY
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          name: adc-sampling-project-optimized
+          path: work/optimized-project/
           if-no-files-found: error

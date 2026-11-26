@@ -14,6 +14,8 @@
 
 可以从空目录直接生成，也可以先下载 7 位、1 pF 示例，让 agent 用上述新规格重新设计。请在测试台找到采样电容所在的节点，用自己的话说明放大器输出与采样电压的区别，并从原始波形复算至少一项判定。[下载 7 位示例](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-7bit-v1/adc-driver-7bit.zip) · [提交自定义采样规格](../examples/sky130-adc-driver/README.md)
 
+也可以继续要求 agent 把这份 8 位工程做到达标。记录先改哪一支电流镜、哪次测量促使它再改开关，以及达标后付出的栅面积。若从已经优化好的压缩包开始，请在记录中注明是复核成品还是换了规格重新设计。[优化版与可编辑电路](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-precision-v1/adc-driver-8bit-optimized.zip)
+
 ## 记录这次试用
 
 完成后，用自己的话留下一份简短的试用记录。以下信息便于下一位使用者或维护者找到具体卡点。

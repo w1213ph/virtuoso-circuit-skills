@@ -87,6 +87,9 @@ def view_sources(sizing, r):
     for source in sorted(list(HERE.glob("*.sym"))+list(HERE.glob("*.sch"))):
         data = source.read_text(encoding="utf-8")
         text = re.sub(r"__([A-Z][A-Z0-9_]*)__", lambda m:repl[m[1]], data)
+        if source.name == "ADRV_SAMPLER.sch" and sizing["devices"]["XSN"][2] > 1:
+            note = "Transmission gate: NMOS " + label("XSN") + ". PMOS " + label("XSP") + "."
+            text += "T {" + note + "} 56 584 0 0 0.24 0.24 {}\n"
         yield source.name, text
 
 

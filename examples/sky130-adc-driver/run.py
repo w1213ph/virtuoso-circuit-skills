@@ -14,13 +14,14 @@ from fetch_models import LOCK, checksum, prepare, verify
 from mos_table import STATES, characterize, command, save_json, simulate
 from bench import FIXED_OUTPUT_PF, budget, deck, loop_metrics, requirements, transient_metrics
 from driver import build, size
+import precision
 
 
 def digest(p):
     return checksum(p.read_bytes())
 
 
-def tests_for(corner, temp, vdd, r, theory, include_diagnostics=False):
+def tests_for(corner, temp, vdd, r, theory, include_diagnostics=False, include_dc=False):
     common = {"corner":corner,"supply_V":vdd,"temperature_C":temp,"input_V":[r["input_low_V"],r["input_high_V"]],
               "sample_cap_pF":r["sample_cap_pF"],"output_cap_pF":FIXED_OUTPUT_PF,"track_ns":r["track_ns"],"hold_ns":r["hold_ns"]}
     definitions = []
@@ -42,9 +43,14 @@ def tests_for(corner, temp, vdd, r, theory, include_diagnostics=False):
                    "analysis": "tran", "testbench": "TB_ADRV_SAMPLE", "conditions": common,
                    "measurement": "Absolute OUT-to-SAMPLE drop just before switch opening after the "+edge+" step",
                    "inputs": [corner+"/track/input.spice"], "target": None}
+    if include_dc:
+        yield {"id": corner+".dc.transfer", "role": "diagnostic", "metric": "dc.transfer", "unit": "mV",
+               "analysis": "dc", "testbench": "TB_ADRV_SAMPLE", "conditions": common,
+               "measurement": "Maximum absolute static capacitor error across nine input voltages with the switch on",
+               "inputs": [corner+"/dc/input.spice"], "target": None}
 
 
-def simulate_variant(path,native,r,lib,tool,references):
+def simulate_variant(path,native,r,lib,tool,references,include_dc=False):
     theory=budget(r)
     views = sorted("views/" + p.name for p in (path/"views").iterdir() if p.suffix in (".sch", ".sym"))
     plan={"schema_version":1,"inputs":["sizing.json","views/TB_ADRV_SAMPLE.spice",*views],"reference_inputs":references,"tests":[],"results":{}}
@@ -54,7 +60,11 @@ def simulate_variant(path,native,r,lib,tool,references):
             d=path/corner/mode
             d.mkdir(parents=True)
             (d/"input.spice").write_text(deck(native,lib,state,r,mode=="track"),encoding="utf-8")
-        plan["tests"].extend(tests_for(corner,temp,vdd,r,theory,include_diagnostics=True))
+        if include_dc:
+            dc = path/corner/"dc"
+            dc.mkdir()
+            (dc/"input.spice").write_text(precision.dc_deck(native,lib,state,r),encoding="utf-8")
+        plan["tests"].extend(tests_for(corner,temp,vdd,r,theory,include_diagnostics=True,include_dc=include_dc))
     f=path/"prelayout.json"
     save_json(f,plan)
     plan,before=checks.load_records(f,{})
@@ -80,12 +90,19 @@ def simulate_variant(path,native,r,lib,tool,references):
                         values[edge+".switch_drop"]=x["switch_drop_mV"]
             except (ValueError,OSError) as exc:
                 detail[mode+"_error"]=str(exc)
+        if include_dc:
+            dc = folder/"dc"
+            simulate(tool,dc,(dc/"input.spice").read_text(encoding="utf-8"))
+            detail["dc"] = precision.dc_transfer(dc,r,vdd)
+            values["dc.transfer"] = detail["dc"]["worst_abs_mV"]
         save_json(folder/"measurement.json",detail)
         details[corner]=detail
         for t in (t for t in plan["tests"] if t["id"].startswith(corner+".")):
             mode="hold" if t["metric"]=="hold.margin" else "track"
             files=[folder/"measurement.json",folder/mode/"ngspice.log",folder/mode/"op.dat",
                    folder/mode/("ac.dat" if t["analysis"]=="ac" else "transient.dat")]
+            if t["analysis"]=="dc":
+                files=[folder/"measurement.json",folder/"dc/ngspice.log",folder/"dc/dc.dat"]
             record={"unit":t["unit"],"context_sha256":before[t["id"]]["context_sha256"],
                     "evidence":{p.relative_to(path).as_posix():digest(p) for p in files if p.is_file()}}
             if t["metric"] in values:
@@ -101,7 +118,7 @@ def simulate_variant(path,native,r,lib,tool,references):
     return review,details
 
 
-def report(out,r,theory,geometry,measurements,reviews,pick,incomplete=False):
+def report(out,r,theory,geometry,measurements,reviews,pick,incomplete=False,search=None):
     lines=["# ADC 采样驱动器前仿","","    "+r["purpose"].replace("\n","\n    "),"",
            "量化范围 {:g} V、{} 位，半个 LSB 为 {:.4f} mV。输入步阶 {:.3f} V，采样电容 {:g} pF、输出固定负载 {:g} pF。".format(
                r["full_scale_span_V"],r["adc_bits"],theory["half_lsb_mV"],theory["step_V"],r["sample_cap_pF"],FIXED_OUTPUT_PF),
@@ -115,6 +132,18 @@ def report(out,r,theory,geometry,measurements,reviews,pick,incomplete=False):
         lines+=["[选中原理图]({0}/views/ADRV_OTA.sch) · [实际采样负载]({0}/views/ADRV_SAMPLER.sch) · "
                 "[测试台]({0}/views/TB_ADRV_SAMPLE.sch) · [逐项结果]({0}/checked.json)".format(pick),"",
                 "在本结果目录执行 `sh "+pick+"/open.sh bench`。可将 `bench` 换为 `core`、`symbol` 或 `sampler`。",""]
+    if search:
+        lines+=["## 尺寸与静态精度","",
+                "每个工况在输入区间等距测九点。静态误差用于比较镜像比。选型先核对 18 项双向采样和稳定性要求，再比较放大器与传输门的总栅面积。",
+                "","| 电路 | 镜像单元 VX / OUT | 传输门并联 | 最坏静态误差 (mV) | 放大器 / 开关栅面积 (µm²) | 达标项 |",
+                "|---|---:|---:|---:|---:|---:|"]
+        for name, row in search.items():
+            sz=geometry[name]
+            d=sz["devices"]
+            lines.append("| [{0}]({0}/views/ADRV_OTA.sch) | {1} / {2} | {3} | {4:.4f} | {5:.3f} / {6:.3f} | {7}/18 |".format(
+                name,d["XLA"][2],d["XLB"][2],d["XSN"][2],row["static_mV"],sz["core_gate_area_um2"],
+                sz["switch_gate_area_um2"],row["pass_count"]))
+        lines+=["","[各版尺寸筛选记录](optimization.json)",""]
     lines+=["| 版本、工况 | 跟踪误差 ↑ / ↓ (mV) | 保持最坏误差 ↑ / ↓ (mV) | 相位裕度 跟踪 / 保持 (°) | 静态电流 (µA) |",
             "|---|---:|---:|---:|---:|"]
     for name,records in measurements.items():
@@ -158,7 +187,7 @@ def report(out,r,theory,geometry,measurements,reviews,pick,incomplete=False):
     (out/"RESULTS.md").write_text("\n".join(lines),encoding="utf-8")
 
 
-def run(out,r,models,previous,xschem,ngspice):
+def run(out,r,models,previous,xschem,ngspice,optimize=False):
     save_json(out/"requirements.json",r)
     theory=budget(r)
     save_json(out/"budget.json",theory)
@@ -175,15 +204,17 @@ def run(out,r,models,previous,xschem,ngspice):
         if state[0]=="tt":
             tt_rows=rows
         print("MOS",state[0],record["mode"],record["points"],flush=True)
-    save_json(out/"recipe.json",dict(identity,schema_version=3,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
-                                     runner=digest(HERE/"run.py"),xschem_binary=digest(Path(xschem))))
+    recipe=dict(identity,schema_version=4 if optimize else 3,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
+                runner=digest(HERE/"run.py"),xschem_binary=digest(Path(xschem)))
+    if optimize:
+        recipe["precision_search"]=digest(HERE/"precision.py")
+    save_json(out/"recipe.json",recipe)
     refs=["../requirements.json","../budget.json","../recipe.json","../fixture.json","../ngspice-version.txt",str(lib)]
     refs += [str(lib.parent/p) for p in sorted(LOCK["files"])]
     geometry,reviews,measurements={},{},{}
-    for name in ("baseline","candidate"):
+    def measure(name,sizing):
         path=out/name
         path.mkdir()
-        sizing=size(tt_rows,r,name=="candidate")
         geometry[name]=sizing
         save_json(path/"sizing.json",sizing)
         native,readback=build(path/"views",xschem,sizing,r)
@@ -191,16 +222,27 @@ def run(out,r,models,previous,xschem,ngspice):
         fixture={k:readback["native_sections"][k] for k in ("TOP","ADRV_SAMPLER")}
         if name=="baseline":
             save_json(out/"fixture.json",fixture)
-        elif json.loads((out/"fixture.json").read_text())!=fixture:
+        elif not precision.same_fixture(readback["native_sections"],json.loads((out/"fixture.json").read_text()),
+                                        optimize and sizing["devices"]["XSN"][2]!=1):
             raise ValueError("Candidate changed the sampling fixture")
-        reviews[name],measurements[name]=simulate_variant(path,native,r,lib,ngspice,refs)
+        reviews[name],measurements[name]=simulate_variant(path,native,r,lib,ngspice,refs,include_dc=optimize)
+        if optimize:
+            return precision.summarize(sizing,measurements[name],reviews[name])
+
+    originals={name:size(tt_rows,r,name=="candidate") for name in precision.ORIGINALS}
+    search=precision.evaluate_family(originals,optimize,measure)
     comparison=checks.compare(reviews["baseline"],reviews["candidate"])
     save_json(out/"comparison.json",comparison)
     missing = [name+"/"+test["id"] for name,review in reviews.items() for test in review["tests"]
                if test["status"] not in ("PASS", "FAIL", "DIAGNOSTIC_MEASURED")]
     eligible=comparison["passing_variants"]
     pick=min(eligible,key=lambda n:geometry[n]["core_gate_area_um2"]) if eligible and not missing else None
-    report(out,r,theory,geometry,measurements,reviews,pick,incomplete=bool(missing))
+    if optimize:
+        if any(checks.compare(reviews["baseline"],review)["status"]!="COMPARABLE" for review in reviews.values()):
+            raise ValueError("Optimized variants have different measurement contracts")
+        eligible,pick=precision.selection(search)
+        save_json(out/"optimization.json",search)
+    report(out,r,theory,geometry,measurements,reviews,pick,incomplete=bool(missing),search=search if optimize else None)
     if missing:
         return {"status":"failed","selected":None,"reason":"Missing verified measurements: "+", ".join(missing)}
     return {"status":"completed" if pick else "review_required","passing_variants":eligible,"selected":pick}
@@ -212,6 +254,7 @@ def main(argv=None, default_requirements=HERE/"requirements.example.json"):
     cli.add_argument("--requirements",type=Path,default=default_requirements)
     cli.add_argument("--models",type=Path,help="Already verified public SKY130 model directory")
     cli.add_argument("--reuse-lut",type=Path,help="Reuse a previous verified characterization if compatible")
+    cli.add_argument("--optimize",action="store_true",help="Measure DC transfer and try mirror ratios and switch sizes if both original drivers miss")
     cli.add_argument("--xschem",default="xschem")
     cli.add_argument("--ngspice",default="ngspice")
     args=cli.parse_args(argv)
@@ -227,7 +270,7 @@ def main(argv=None, default_requirements=HERE/"requirements.example.json"):
     save_json(out/"status.json",{"status":"running"})
     try:
         result=run(out,r,args.models.resolve() if args.models else None,args.reuse_lut.resolve() if args.reuse_lut else None,
-                   *(str(Path(p).resolve()) for p in tools))
+                   *(str(Path(p).resolve()) for p in tools),optimize=args.optimize)
     except (OSError,ValueError,KeyError,RuntimeError) as exc:
         result={"status":"failed","reason":str(exc)}
     save_json(out/"status.json",result)

@@ -11,6 +11,7 @@ sys.path.insert(0,str(ROOT/"examples/sky130-current-mirror"))
 sys.path.insert(0,str(CASE))
 import bench
 import driver
+import precision
 from driver_review import limiting_measurements
 
 
@@ -67,6 +68,41 @@ class SamplingDriverTests(unittest.TestCase):
                     "track":{"phase_margin_deg":track_pm},"hold":{"phase_margin_deg":hold_pm}}
         rows = {"ss":case(4, .2, .6, 70, 72), "ff":case(2, .3, 5, 80, 65)}
         self.assertEqual(limiting_measurements(rows), (("ss","up",4),("ff","down",5),("ff","hold",65)))
+
+    def test_dc_screen_uses_all_nine_signed_capacitor_levels_and_checked_clock(self):
+        def write(clkb, count):
+            rows = ["v-sweep " + " ".join(precision.DC_VECTORS)]
+            for i in range(count):
+                v = .85 + .025*i
+                rows.append("{} {} {} {} 1.62 {} 1.62".format(v,v,v,v-(.003 if i==4 else .001),clkb))
+            (self.tmp/"dc.dat").write_text("\n".join(rows))
+        write(0,9)
+        r=precision.dc_transfer(self.tmp,self.req,1.62)
+        self.assertAlmostEqual(r["worst_input_V"],.95)
+        self.assertAlmostEqual(r["points"][4]["signed_error_mV"],-3)
+        self.assertAlmostEqual(r["worst_abs_mV"],3)
+        write(1.62,9)
+        with self.assertRaisesRegex(ValueError,"clock"):
+            precision.dc_transfer(self.tmp,self.req,1.62)
+        write(0,8)
+        with self.assertRaisesRegex(ValueError,"nine"):
+            precision.dc_transfer(self.tmp,self.req,1.62)
+
+    def test_switch_resizing_keeps_the_sampling_fixture_and_counts_gate_area(self):
+        base={"devices":{n:(6,1,2) for n in (*driver.OTA,*driver.SAMPLER)}}
+        adjusted=precision.modified(base,extra=2,switch=2)
+        self.assertEqual(adjusted["devices"]["XLA"],(1.5,1,8))
+        self.assertEqual(adjusted["devices"]["XLB"],(1.5,1,10))
+        self.assertEqual(adjusted["switch_gate_area_um2"],48)
+        self.assertEqual(base["devices"]["XLA"],(6,1,2))
+        sampler={"CSH":["SAMPLE","VSS","1.25P","M=1"],"XSN":["SAMPLE","CLK","IN","VSS","N","M=1"],
+                 "XSP":["SAMPLE","CLKB","IN","VDD","P","M=1"]}
+        original={"TOP":{"COUT":["OUT","0","0.6P"]},"ADRV_SAMPLER":sampler}
+        changed={"TOP":original["TOP"],"ADRV_SAMPLER":dict(sampler,XSN=sampler["XSN"][:-1]+["M=2"])}
+        self.assertTrue(precision.same_fixture(changed,original,True))
+        self.assertFalse(precision.same_fixture(changed,original,False))
+        changed["ADRV_SAMPLER"]["CSH"]=["SAMPLE","VSS","500F","M=1"]
+        self.assertFalse(precision.same_fixture(changed,original,True))
 
     def test_loop_uses_loaded_state_and_rejects_multiple_crossings(self):
         op=self.tmp/"op.dat"
