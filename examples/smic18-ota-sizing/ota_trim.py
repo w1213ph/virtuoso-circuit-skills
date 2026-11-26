@@ -27,9 +27,14 @@ def applied(native,code):
     return native
 
 
-def physical_bank(folder,site,sizes,reference,fresh,bank,code=None):
+def physical_bank(folder,site,sizes,reference,fresh,bank,code=None,recovery=None):
     controls = bank if code is None else dict(bank,code=code)
     candidate = dict(sizes,paired_geometry=GEOMETRY,source_trim=controls)
+    if recovery:
+        if (set(recovery)-{"plate_um","cm_bridge_ohm"} or
+                any(not math.isfinite(v) or v<=0 for v in recovery.values())):
+            raise ValueError("Invalid physical compensation plate or CM feedback resistor")
+        candidate.update(recovery)
     if fresh:
         build(folder,site,candidate)
     native,physical = audit(folder,site,candidate)
@@ -41,10 +46,21 @@ def physical_bank(folder,site,sizes,reference,fresh,bank,code=None):
     extra = {"RS"+side+str(bit) for side in ("P","N") for bit in range(4)}
     strip = round(math.fsum(physical["passives"][r]["segment_length_um"]*physical["passives"][r]["segment_width_um"]
                           *physical["passives"][r]["segments"] for r in extra),6)
+    bridge_strip = 0
+    unchanged = dict(reference["passives"])
+    allowed = set(extra)
+    if "cm_bridge_ohm" in candidate:
+        bridge = physical["passives"]["RREC"]
+        bridge_strip = bridge["segment_length_um"]*bridge["segment_width_um"]*bridge["segments"]
+        allowed.add("RREC")
+    if recovery and "plate_um" in recovery:
+        for name in ("CCP","CCN"):
+            del unchanged[name]
+            allowed.add(name)
     if (not math.isclose(measured["mos_gate_um2"],base["mos_gate_um2"]+gate_added+delta,abs_tol=1e-6)
-            or not math.isclose(measured["resistor_strip_um2"],base["resistor_strip_um2"]+strip,abs_tol=1e-6)
-            or measured["mim_plate_um2"]!=base["mim_plate_um2"]
-            or {k:v for k,v in physical["passives"].items() if k not in extra}!=reference["passives"]):
+            or not math.isclose(measured["resistor_strip_um2"],base["resistor_strip_um2"]+strip+bridge_strip,abs_tol=1e-6)
+            or not math.isclose(measured["mim_plate_um2"],2*candidate["plate_um"]**2,abs_tol=1e-6)
+            or {k:v for k,v in physical["passives"].items() if k not in allowed}!=unchanged):
         raise ValueError("The native area change differs from the eight resistors and named MOS changes")
     return native,dict(physical=physical,trim_gate_um2=gate_added,trim_strip_um2=strip,
                        mos_limit_um2=GATE_AREA_UM2,mos_within_budget=measured["mos_gate_um2"]<=GATE_AREA_UM2)
@@ -88,7 +104,7 @@ def code_summary(codes):
                 nearest_zero_code=min(range(16),key=lambda i:(abs(errors[i]),i)))
 
 
-def characterize(args,site,fresh):
+def characterize(args,site,fresh,recovery=None):
     _,sizes,reference = load_design(args.ota,args.cmfb,site)
     # A footprint comparison is against a physically audited upstream candidate.
     old = read_json(args.matching/"sensitivity.json")["probes"]["load-high"]
@@ -98,7 +114,7 @@ def characterize(args,site,fresh):
     if fresh:
         args.out.mkdir(parents=True)
     bank = BANKS[args.bank]
-    native,budget = physical_bank(args.out/"oa",site,sizes,reference,fresh,bank)
+    native,budget = physical_bank(args.out/"oa",site,sizes,reference,fresh,bank,recovery=recovery)
     curves,summary = {},{}
     for state in STATES:
         for icm in ICM:
@@ -111,7 +127,7 @@ def characterize(args,site,fresh):
     code = summary["tt-950"]["nearest_zero_code"]
     fixed = applied(native,code)
     if code!=bank["code"]:
-        released,check = physical_bank(args.out/"fixed-code-oa",site,sizes,reference,fresh,bank,code)
+        released,check = physical_bank(args.out/"fixed-code-oa",site,sizes,reference,fresh,bank,code,recovery)
         if hierarchy(fixed)!=hierarchy(released) or budget!=check:
             raise ValueError("The editable fixed-code bench differs from the chosen physical code")
         fixed = released
@@ -124,6 +140,8 @@ def characterize(args,site,fresh):
         fixed_static_passed=sum(row["passed"] for row in fixed_rows),zero_input_open_loop=performance,fullscale=large)
     # Persist JSON-native tuples so verification replays the exact same decision.
     result["geometry"] = {k:list(v) for k,v in GEOMETRY.items()}
+    if recovery:
+        result["recovery"] = recovery
     persist(args.out/"summary.json",result,fresh)
     return result
 

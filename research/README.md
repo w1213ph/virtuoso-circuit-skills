@@ -1,5 +1,9 @@
 # 外部来源与实际采用的方法
 
+## 分别检验差模和共模
+
+JKU 的差分 OTA 课程解释了同相激励和反相激励为何让平均取样节点呈现不同的负载。固定版本的 Xschem 原图中可以找到两侧成对的补偿电容、电阻和差分负载。这里采用分别测量两个环路、在阶跃中辨别差模与共模的方法，使用本例自己的工艺器件、连接和尺寸实现。实测显示，三个较大反馈电阻都能加快满摆幅建立，却在快角失去规定的共模相位裕量。[课程原文](https://iic-jku.github.io/analog-circuit-design/slides/ota_diff.html) · [JKU 原理图](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/xschem/ota-diff.sch) · [Apache-2.0 许可证](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/LICENSE) · [本项目的对照](../examples/smic18-ota-sizing/RECOVERY.md)
+
 ## 从实际修调端口验证校准
 
 Christoph Weiser 的 SKY130 MPW7 SAR 在 `sarlogic.v` 中用五位掩码逐次决定校准值，并在校准结束后使用保存的码。比较器原理图将控制位和反相信号接到物理电容阵列，瞬态测试台把同一组端口接入整机。核对的提交为 `60a5ac0`，仓库使用 Apache-2.0。本项目借鉴了校准与正常工作分开的测试方法。SMIC18 放大器采用独立绘制的四位源极电阻网络，逐码检查开关控制电压，再把每个样本的码固定到其余工况。[校准 RTL](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/verilog/sarlogic/sarlogic.v) · [物理阵列](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/xschem/sar_10b/comparator/trim.sch) · [瞬态测试台](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/xschem/tb/comparator/tran_comparator_trim.sch) · [许可证](https://github.com/christoph-weiser/mpw7/blob/60a5ac0066ca18d4f024ec3d8f41e9f196dc34b4/LICENSE) · [本项目实测](../examples/smic18-ota-sizing/TRIM.md)

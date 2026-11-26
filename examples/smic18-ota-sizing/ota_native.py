@@ -174,7 +174,10 @@ def audit(folder, site, sizes):
                 if set(order) != {"PLUS","MINUS"} or spice_number(params["m"]) != 1:
                     raise ValueError("Unexpected resistor wrapper")
                 length, width = [spice_number(params[k]) * 1e6 for k in ("segL","segW")]
-                if not (math.isclose(length, cdf_value(props,"segL")*1e6) and math.isclose(width, 2)):
+                target_width = spice_number(spec["parameters"]["segW"])*1e6
+                if not (math.isclose(length, cdf_value(props,"segL")*1e6)
+                        and math.isclose(width, target_width)
+                        and ("segW" not in props or math.isclose(width, cdf_value(props,"segW")*1e6))):
                     raise ValueError("Resistor strip geometry differs")
                 # Walk from one end to the other. Reject parallel, disconnected and extra segments.
                 edges = []

@@ -91,9 +91,10 @@ def characterize(args,site,fresh):
         raise ValueError("Expected the audited nominal code experiment")
     _,sizes,base = load_design(args.ota,args.cmfb,site)
     bank,code = nominal["bank"],nominal["fixed_code"]
-    original,area = physical_bank(args.nominal/"oa",site,sizes,base,False,bank)
+    recovery = nominal.get("recovery")
+    original,area = physical_bank(args.nominal/"oa",site,sizes,base,False,bank,recovery=recovery)
     folder = args.nominal/("oa" if code==bank["code"] else "fixed-code-oa")
-    fixed,actual = physical_bank(folder,site,sizes,base,False,bank,code)
+    fixed,actual = physical_bank(folder,site,sizes,base,False,bank,code,recovery)
     if area!=actual or area!=nominal["budget"] or hierarchy(applied(original,code))!=hierarchy(fixed):
         raise ValueError("Wrong native bench, trim word or geometry for the bias-matched measurement")
     if fresh:

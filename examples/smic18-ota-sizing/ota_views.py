@@ -102,11 +102,11 @@ class Drawing:
         self.wire((x, y), end, net=nets[3], label=end, justify="lowerRight" if gate_side > 0 else "lowerLeft")
         self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name,width,length),0.105)
 
-    def resistor(self, name, xy, plus, minus, value, label_x=None):
+    def resistor(self, name, xy, plus, minus, value, label_x=None, width_um=2):
         segments = math.ceil(value / 45000)
         self.device(name, self.pdk, "rhrpo", xy, "R0", {"PLUS": plus, "MINUS": minus},
                     dict(segments=segments, connection="Series", calculatedParam="Length", m="1",
-                         segW="2u", r="{:.7g}".format(value)), True)
+                         segW="{:g}u".format(width_um), r="{:.7g}".format(value)), True)
         if name == "RB":
             self.text(xy[0]+1.1, xy[1]-0.125, "{}  {:.3g} MOhm".format(name, value/1e6), 0.115)
         else:
@@ -259,15 +259,26 @@ def common_mode(d):
         d.mos("MCT" + side, "n", x, 1.875, -1, (tail, "BN", "VSS", "VSS"), "reference", "cm_tails")
         d.wire((x, 3), (x, 2.0625))
         d.stub((x-0.25, 1.875), LEFT, "BN")
+    bridge = d.sizes.get("cm_bridge_ohm")
     for name, x, drain, y in (("MCM", 3, "PG", 6), ("MDMY", 17, "RCG", 5.125)):
         sign = -1 if x == 3 else 1
-        d.mos(name, "p", x, 7.5, sign, (drain, drain, "VDD", "VDD"), "load", "cm_loads")
+        if bridge:
+            sign = -sign
+        gate = "RCG" if bridge else drain
+        d.mos(name, "p", x, 7.5, sign, (drain, gate, "VDD", "VDD"), "load", "cm_loads")
         d.wire((x, 7.3125), (x, y))
-        d.wire((x+0.25*sign, 7.5), (x+sign, 7.5), (x+sign, 6.625), (x, 6.625))
+        if not bridge:
+            d.wire((x+0.25*sign, 7.5), (x+sign, 7.5), (x+sign, 6.625), (x, 6.625))
+    if bridge:
+        d.wire((3.25, 7.5), (10, 7.5), (16, 7.5), (16.75, 7.5))
+        d.wire((16, 7.5), (16, 6.625), (17, 6.625))
+        d.resistor("RREC", (10, 7), "RCG", "PG", bridge, label_x=10.5, width_um=1)
+        d.wire((10, 7.5), (10, 7))
+        d.wire((10, 6.625), (10, 6))
     d.wire((3, 6), (13, 6), net="PG", label=(5, 6))
     d.wire((7, 5.125), (17, 5.125), net="RCG", label=(10, 5.125))
     d.port("PG", 0.75, 6.625, "R180")
-    d.wire((0.75, 6.625), (2, 6.625))
+    d.wire((0.75, 6.625), (3 if bridge else 2, 6.625))
     d.wire((3, 7.6875), (3, 8.5), (10, 8.5), (17, 8.5), (17, 7.6875))
     d.wire((5, 1.6875), (5, 0.75), (10, 0.75), (15, 0.75), (15, 1.6875))
     for name, x, y, axis in (("VDD", 10, 9.25, BOTTOM), ("VSS", 10, 0, TOP)):
@@ -280,7 +291,10 @@ def common_mode(d):
         d.port(name, x, y, "R180" if name == "VCM" else "R0")
         d.wire((x, y), (8.25 if name == "VCM" else 3.875, y))
     d.text(1.0, 9.5, "Output common-mode detector", 0.2)
-    d.text(6, 6.55, "PG sums the two sense currents.")
+    if bridge:
+        d.text(4.25, 8, "PG drives the input loads. RREC sets CM feedback gain.", 0.14)
+    else:
+        d.text(6, 6.55, "PG sums the two sense currents.")
 
 
 def amplifier(d):

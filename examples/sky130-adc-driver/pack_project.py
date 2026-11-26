@@ -13,12 +13,12 @@ from driver_review import write_review
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 SOURCE = {
-    "examples/sky130-adc-driver": ("run.py", "driver.py", "bench.py", "precision.py", "verify_results.py", "driver_review.py",
+    "examples/sky130-adc-driver": ("run.py", "driver.py", "bench.py", "precision.py", "verify_results.py", "driver_review.py","settling_detail.py",
         "mismatch.py", "mismatch_bench.py", "requirements.example.json", "ADRV_NMOS.sym", "ADRV_PMOS.sym", "ADRV_SOURCE.sym", "ADRV_OTA.sch",
         "ADRV_OTA.sym", "ADRV_SAMPLER.sch", "ADRV_SAMPLER.sym", "TB_ADRV_SAMPLE.sch"),
     "examples/sky130-current-mirror": ("fetch_models.py", "models.lock.json", "mos_table.py", "mos_model.py",
                                        "native.py", "measure.py", "replay_lut.py"),
-    "skills/paper-to-virtuoso/scripts": ("check_prelayout.py",),
+    "skills/paper-to-virtuoso/scripts": ("check_prelayout.py","settling_diagnosis.py"),
 }
 ROOT_FILES = ("requirements.json", "budget.json", "fixture.json", "recipe.json", "status.json", "ngspice-version.txt",
               "comparison.json", "RESULTS.md")

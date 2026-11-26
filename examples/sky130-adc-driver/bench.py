@@ -120,7 +120,7 @@ def loop_metrics(folder, vdd, tracked, r):
             "bias_V": bias, "quiescent_uA": -current*1e6, "quiescent_power_uW": -vdd*current*1e6}
 
 
-def transient_metrics(folder, r, vdd):
+def transient_metrics(folder, r, vdd, *, settling_detail=False):
     intervals, stop = schedule(r)
     waves = table(folder / "transient.dat", TRACE)
     times = [x[0]*1e9 for x in waves]
@@ -157,5 +157,10 @@ def transient_metrics(folder, r, vdd):
                          "switch_drop_mV": 1e3*abs(before[2]-before[3]),
                          "hold_error_mV": 1e3*max(abs(v-target) for v in held),
                          "hold_endpoint_error_mV": 1e3*abs(after[3]-target), "settling_ns": settle}
+        if settling_detail:
+            from settling_diagnosis import settling_window
+            observed = [(a,at(a)[3])]+during
+            details[name]["settling_detail"] = settling_window([t*1e-9 for t,_ in observed],
+                [v for _,v in observed],target,half,a*1e-9,b*1e-9,1.01*STEP_NS*1e-9)
     return {"edges": details, "precharge_error_mV": 1000*abs(at(599)[3]-r["input_low_V"]),
             "reference_current_uA": at(300)[9]*1e6, "bias_at_300ns_V": at(300)[7], "points": len(waves)}

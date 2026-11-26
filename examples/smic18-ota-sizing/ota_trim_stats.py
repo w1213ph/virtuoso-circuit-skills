@@ -53,10 +53,11 @@ def experiment(args,site,fresh):
     bank = nominal["bank"]
     if nominal["baseline_sha256"]!=sha256(args.matching/"sensitivity.json") or bank not in BANKS.values():
         raise ValueError("Nominal evidence belongs to a different physical bank")
-    net,area = physical_bank(args.nominal/"oa",site,sizes,reference,False,bank)
+    recovery = nominal.get("recovery")
+    net,area = physical_bank(args.nominal/"oa",site,sizes,reference,False,bank,recovery=recovery)
     if fresh:
         args.out.mkdir(parents=True)
-    stat,measured = physical_bank(args.out/"statistical-oa",site,dict(sizes,mos_family="statistical"),reference,fresh,bank)
+    stat,measured = physical_bank(args.out/"statistical-oa",site,dict(sizes,mos_family="statistical"),reference,fresh,bank,recovery=recovery)
     if (measured!=area or nominal["budget"]!=area or nominal["geometry"]!={k:list(v) for k,v in GEOMETRY.items()}
             or hierarchy(net)[1]!=hierarchy(stat)[1]):
         raise ValueError("The nominal and statistical fixtures, geometry or passives differ")
