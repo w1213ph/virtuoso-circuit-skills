@@ -45,6 +45,8 @@ jobs:
           training=json.loads((root/"training.json").read_text())
           result=json.loads((root/"summary.json").read_text())
           chosen=result["trained_candidate"]
+          version=(root/"ngspice-version.txt").read_text()
+          assert result["simulator"] in version and result["simulator"] in (root/"RESULTS.md").read_text()
           assert set(training[chosen]["rows"])==set(map(str,range(24701,24733)))
           assert set(result["validation"][chosen]["rows"])==set(map(str,range(54701,54733)))
           assert result["validation"][chosen]["passed"]>result["validation"]["original"]["passed"]

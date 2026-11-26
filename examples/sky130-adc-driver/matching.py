@@ -120,7 +120,8 @@ def selected_opener(name):
 def analyze(root, recipe, spec, ngspice=None, xschem=None):
     writing = ngspice is not None
     require(
-        recipe["schema_version"] == 1
+        type(recipe["schema_version"]) is int
+        and recipe["schema_version"] in (1, 2)
         and recipe["model_revision"] == LOCK["revision"]
         and recipe["identity"]["model_lock_sha256"] == digest(MIRROR / "models.lock.json")
         and recipe["identity"]["ngspice_version_sha256"] == digest(root / "ngspice-version.txt"),
@@ -253,6 +254,18 @@ def analyze(root, recipe, spec, ngspice=None, xschem=None):
         validation=heldout,
         switch_area_um2=geometries[winner]["switch_gate_area_um2"],
     )
+    if recipe["schema_version"] >= 2:
+        lines = (root / "ngspice-version.txt").read_text(encoding="utf-8").splitlines()
+        labels = [
+            s.strip("* ").split(" :")[0].strip()
+            for s in lines
+            if s.strip("* ").lower().startswith("ngspice-")
+        ]
+        data["simulator"] = (
+            labels[0]
+            if labels
+            else "ngspice (binary SHA-256 {})".format(recipe["identity"]["ngspice_binary_sha256"][:12])
+        )
     recorded(root / "summary.json", data, writing)
     return data, dict(training, **repair_training)
 
@@ -272,6 +285,14 @@ def report(data, training):
         "| 方案 | 放大器栅面积 (µm²) | 三个工艺角标称 | 开发样本通过 | 开发样本最坏误差 (mV) | 最大标称静态电流 (µA) |",
         "|---|---:|---|---:|---:|---:|",
     ]
+    if "simulator" in data:
+        lines[2:2] = [
+            "本次仿真器为 **{}**。按规格和选定余量，开发样本的优选误差上限为 {:.6f} mV。".format(
+                data["simulator"], data["limit_mV"] * (1 - data["reserve_percent"] / 100)
+            ),
+            "比较其他环境的选型时，请核对同一尺寸距这条余量线的差值，并查看各自冻结后的独立复验。",
+            "",
+        ]
     for name, row in training.items():
         current = max(max(v["track_quiescent_uA"], v["hold_quiescent_uA"]) for v in row["nominal"].values())
         lines.append(
@@ -366,7 +387,7 @@ def run(args):
             ngspice_binary_sha256=digest(Path(ng)),
         )
         recipe = dict(
-            schema_version=1,
+            schema_version=2,
             identity=identity,
             model_revision=LOCK["revision"],
             model_path=str(lib),

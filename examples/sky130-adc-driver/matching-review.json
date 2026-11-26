@@ -991,5 +991,70 @@
       "minimum_pm_deg": 95.7452972192017,
       "offset_sd_mV": 0.37738908068049354
     }
+  },
+  "simulator": "ngspice-39",
+  "public_solver_run": {
+    "simulator": "ngspice-44.2",
+    "source_commit": "5bc6f47309a21b3437922d89b1c217a27f969d59",
+    "run_url": "https://github.com/w1213ph/virtuoso-circuit-skills/actions/runs/45764945872",
+    "artifact_id": 15092266381,
+    "artifact_sha256": "2697cbb5260729254ec6aa1835d6507a37c4f367e757a26d08e7c0a98cca38c9",
+    "assumed_reserve_limit_mV": 3.515625,
+    "selected": "fine-ratio",
+    "selected_core_gate_area_um2": 477.40000000000003,
+    "matched_development_candidate": "fine-ratio",
+    "development": {
+      "worst_seed": 24713,
+      "worst_metric": "down_track_mV",
+      "worst_error_mV": 3.512840394800043,
+      "passed": 64,
+      "samples": 64,
+      "minimum_pm_deg": 84.02668641345706
+    },
+    "validation": {
+      "original": {
+        "worst_seed": 54704,
+        "worst_metric": "up_track_mV",
+        "worst_error_mV": 8.515186417000109,
+        "passed": 20,
+        "samples": 32,
+        "minimum_pm_deg": 75.38601878791336
+      },
+      "long-load": {
+        "worst_seed": 54704,
+        "worst_metric": "up_track_mV",
+        "worst_error_mV": 3.909447715000125,
+        "passed": 31,
+        "samples": 32,
+        "minimum_pm_deg": 84.44725568009602
+      }
+    },
+    "confirmation": {
+      "original": {
+        "worst_seed": 84751,
+        "worst_metric": "up_track_mV",
+        "worst_error_mV": 7.450071785000123,
+        "passed": 33,
+        "samples": 64,
+        "minimum_pm_deg": 75.20588209307576
+      },
+      "long-load": {
+        "worst_seed": 84751,
+        "worst_metric": "up_track_mV",
+        "worst_error_mV": 3.3636190549999334,
+        "passed": 64,
+        "samples": 64,
+        "minimum_pm_deg": 84.24489378393915
+      },
+      "fine-ratio": {
+        "worst_seed": 84731,
+        "worst_metric": "down_track_mV",
+        "worst_error_mV": 3.599475963199983,
+        "passed": 64,
+        "samples": 64,
+        "minimum_pm_deg": 84.0166694173652
+      }
+    },
+    "maximum_nominal_quiescent_uA": 43.50371548353
   }
 }
