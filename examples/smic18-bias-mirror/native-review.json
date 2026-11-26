@@ -1,0 +1,291 @@
+{
+  "requirements": {
+    "reference_uA": 8,
+    "max_error_pct": 8,
+    "reference_load_fF": 300,
+    "max_settling_ns": 32,
+    "selection": "min_gate_area"
+  },
+  "pdk_revision": "V1.11_3",
+  "corner_temperature_C_supply_V": [
+    [
+      "tt",
+      27,
+      1.8
+    ],
+    [
+      "ss",
+      85,
+      1.62
+    ],
+    [
+      "ff",
+      -40,
+      1.8
+    ]
+  ],
+  "lookup_points": {
+    "tt": 2172,
+    "ss": 2172,
+    "ff": 2172
+  },
+  "selected": "l050-g18",
+  "candidates": [
+    {
+      "length_um": 0.5,
+      "width_um": 1.3,
+      "mirror_pair_gate_area_um2": 1.3,
+      "target_gm_id_per_V": 12,
+      "name": "l050-g12",
+      "state": "measured",
+      "passed": false,
+      "measurements": {
+        "tt": {
+          "worst_error_pct": 3.4834583228233074,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 35.81000000000003,
+          "measured_reference_gm_id_per_V": 11.824354118253103,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ss": {
+          "worst_error_pct": 3.067968516449704,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 39.21000000000006,
+          "measured_reference_gm_id_per_V": 10.134870332709928,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ff": {
+          "worst_error_pct": 3.935625159006695,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 32.41,
+          "measured_reference_gm_id_per_V": 14.658872272606938,
+          "dc_points": 151,
+          "transient_points": 1501
+        }
+      }
+    },
+    {
+      "length_um": 0.5,
+      "width_um": 2.9,
+      "mirror_pair_gate_area_um2": 2.9,
+      "target_gm_id_per_V": 15,
+      "name": "l050-g15",
+      "state": "measured",
+      "passed": false,
+      "measurements": {
+        "tt": {
+          "worst_error_pct": 4.436943723408993,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 31.60999999999999,
+          "measured_reference_gm_id_per_V": 15.259189624042138,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ss": {
+          "worst_error_pct": 3.945711933163376,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 33.81000000000001,
+          "measured_reference_gm_id_per_V": 13.387310068452413,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ff": {
+          "worst_error_pct": 5.009327698028954,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 29.60999999999998,
+          "measured_reference_gm_id_per_V": 18.43229361587099,
+          "dc_points": 151,
+          "transient_points": 1501
+        }
+      }
+    },
+    {
+      "length_um": 0.5,
+      "width_um": 6.75,
+      "mirror_pair_gate_area_um2": 6.75,
+      "target_gm_id_per_V": 18,
+      "name": "l050-g18",
+      "state": "measured",
+      "passed": true,
+      "measurements": {
+        "tt": {
+          "worst_error_pct": 5.612079174419193,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 29.409999999999968,
+          "measured_reference_gm_id_per_V": 18.2440788071936,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ss": {
+          "worst_error_pct": 4.998665423858606,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 31.209999999999987,
+          "measured_reference_gm_id_per_V": 16.298761923073037,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ff": {
+          "worst_error_pct": 6.369745720478814,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 28.209999999999955,
+          "measured_reference_gm_id_per_V": 21.219709495388276,
+          "dc_points": 151,
+          "transient_points": 1501
+        }
+      }
+    },
+    {
+      "length_um": 0.5,
+      "width_um": 11.95,
+      "mirror_pair_gate_area_um2": 11.95,
+      "target_gm_id_per_V": 20,
+      "name": "l050-g20",
+      "state": "area_bound"
+    },
+    {
+      "length_um": 1.0,
+      "width_um": 3.05,
+      "mirror_pair_gate_area_um2": 6.1,
+      "target_gm_id_per_V": 12,
+      "name": "l100-g12",
+      "state": "measured",
+      "passed": false,
+      "measurements": {
+        "tt": {
+          "worst_error_pct": 2.574941604616776,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 36.610000000000035,
+          "measured_reference_gm_id_per_V": 12.195927620438233,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ss": {
+          "worst_error_pct": 2.2522956108257386,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 39.810000000000066,
+          "measured_reference_gm_id_per_V": 10.498490916759856,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ff": {
+          "worst_error_pct": 2.992219742485358,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 33.21,
+          "measured_reference_gm_id_per_V": 15.149296056296263,
+          "dc_points": 151,
+          "transient_points": 1501
+        }
+      }
+    },
+    {
+      "length_um": 1.0,
+      "width_um": 6.0,
+      "mirror_pair_gate_area_um2": 12.0,
+      "target_gm_id_per_V": 15,
+      "name": "l100-g15",
+      "state": "measured",
+      "passed": false,
+      "measurements": {
+        "tt": {
+          "worst_error_pct": 3.265439090619604,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 34.210000000000015,
+          "measured_reference_gm_id_per_V": 15.049515706827963,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ss": {
+          "worst_error_pct": 2.8671372674001327,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 36.610000000000035,
+          "measured_reference_gm_id_per_V": 13.184543928885276,
+          "dc_points": 151,
+          "transient_points": 1501
+        },
+        "ff": {
+          "worst_error_pct": 3.7980155269723204,
+          "worst_vout_V": 1.200000000000001,
+          "settling_ns": 31.810000000000006,
+          "measured_reference_gm_id_per_V": 18.3370166246785,
+          "dc_points": 151,
+          "transient_points": 1501
+        }
+      }
+    },
+    {
+      "length_um": 1.0,
+      "width_um": 13.7,
+      "mirror_pair_gate_area_um2": 27.4,
+      "target_gm_id_per_V": 18,
+      "name": "l100-g18",
+      "state": "area_bound"
+    },
+    {
+      "length_um": 1.0,
+      "width_um": 29.35,
+      "mirror_pair_gate_area_um2": 58.7,
+      "target_gm_id_per_V": 20,
+      "name": "l100-g20",
+      "state": "outside_width_range"
+    }
+  ],
+  "maestro": {
+    "TT_DC": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "worst_error_pct": 5.612096155451485
+    },
+    "TT_TRAN": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "settling_ns": 29.409999999999968
+    },
+    "SS_DC": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "worst_error_pct": 4.998682206305816
+    },
+    "SS_TRAN": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "settling_ns": 31.209999999999987
+    },
+    "FF_DC": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "worst_error_pct": 6.369762412671531
+    },
+    "FF_TRAN": {
+      "warnings": 1,
+      "warning_codes": [
+        "SFE-884"
+      ],
+      "settling_ns": 28.209999999999955
+    }
+  },
+  "tight_deadline_check": {
+    "max_settling_ns": 1,
+    "selected": null,
+    "worst_settling_ns_by_candidate": {
+      "l050-g15": 33.81000000000001,
+      "l100-g15": 36.610000000000035,
+      "l050-g12": 39.21000000000006,
+      "l100-g12": 39.810000000000066,
+      "l050-g18": 31.209999999999987,
+      "l050-g20": 30.609999999999996,
+      "l100-g18": 36.41000000000003
+    }
+  }
+}

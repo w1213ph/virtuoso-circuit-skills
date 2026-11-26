@@ -1,0 +1,9 @@
+{
+  "cds_lib": "./site.lib",
+  "model_file": "/path/to/licensed/smic18/spectre/model.lib",
+  "pdk_library": "smic18mmrf",
+  "pdk_revision": "your-installed-revision",
+  "virtuoso": "virtuoso",
+  "si": "si",
+  "spectre": "spectre"
+}

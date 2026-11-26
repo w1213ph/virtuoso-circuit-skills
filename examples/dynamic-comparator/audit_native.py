@@ -17,7 +17,7 @@ def check_family(netlist, family):
         raise ValueError("Saved comparator MOS masters differ from the configured mos_family")
 
 
-def outward_leads(shapes, instance):
+def outward_leads(shapes, instance, directions=OUTWARD):
     leads = {}
     for term in instance["terms"]:
         origin = term["xy"]
@@ -31,14 +31,14 @@ def outward_leads(shapes, instance):
                     ends.append(b)
                 elif b == origin:
                     ends.append(a)
-        axis = OUTWARD[term["name"]]
+        axis = directions[term["name"]]
         if not ends or any(
             not all((b == a if sign == 0 else (b - a) * sign > 0)
                     for a, b, sign in zip(origin, end, axis)) for end in ends
         ):
             raise ValueError("Invalid parent wire at " + term["name"])
         leads[term["name"]] = {"anchor": origin, "first_endpoints": ends}
-    if leads.keys() != OUTWARD.keys():
+    if leads.keys() != directions.keys():
         raise ValueError("Incomplete parent port readback")
     return leads
 

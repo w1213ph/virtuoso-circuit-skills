@@ -1,0 +1,8 @@
+{
+  "purpose": "在 SMIC18 中为 ADC 复制外部 8 µA 参考电流，参考端接 300 fF，三组工况下 0.40–1.20 V 输出范围的电流误差不超过 8%，开启后 32 ns 内稳定，从达标尺寸中选两管栅面积较小的一版。",
+  "reference_uA": 8,
+  "reference_load_fF": 300,
+  "max_error_pct": 8,
+  "max_settling_ns": 32,
+  "selection": "min_gate_area"
+}

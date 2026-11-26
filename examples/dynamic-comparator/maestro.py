@@ -49,12 +49,12 @@ def check_deck(deck, control, case, model, saves):
         raise ValueError("Maestro model, section or include order differs")
 
 
-def history_tests(folder, expected):
+def history_tests(folder, expected, library=LIB, cell=TB):
     history = (folder / "maestro-evidence/maestro-history.txt").read_text(encoding="utf-8").splitlines()
     token = re.fullmatch(r'"([A-Za-z0-9_-]+\.\d+)"', history[0] if history else "")
     if not token:
         raise ValueError("Cannot identify the completed Maestro history")
-    root = folder / "maestro-results" / LIB / TB / "maestro/results/maestro" / token[1]
+    root = folder / "maestro-results" / library / cell / "maestro/results/maestro" / token[1]
     points = [p for p in root.iterdir() if p.is_dir() and p.name.isdigit()]
     if len(points) != 1 or points[0].name != "1":
         raise ValueError("Expected one native Maestro design point for the fixed test matrix")

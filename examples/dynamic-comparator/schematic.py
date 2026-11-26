@@ -32,8 +32,8 @@ def note(x, y, text, size=0.14):
     return f'dbCreateLabel(cv list("text" "drawing") {pt(x, y)} {q(text)} "lowerLeft" "R0" "roman" {size})'
 
 
-def pin(name, origin, orient):
-    direction = PORTS[name]
+def pin(name, origin, orient, ports=PORTS):
+    direction = ports[name]
     master = {"input": "ipin", "output": "opin", "inputOutput": "iopin"}[direction]
     return (f'schCreatePin(cv dbOpenCellViewByType("basic" {q(master)} "symbol" "" "r")'
             f' {q(name)} {q(direction)} nil {pt(*origin)} {q(orient)})')
@@ -254,12 +254,12 @@ def testbench():
     ]
     return ops, instances
 
-def view_procedure(name, cell, view, ops):
+def view_procedure(name, cell, view, ops, library=LIB):
     view_type = "schematicSymbol" if view == "symbol" else "schematic"
     lines = [
         f"procedure({name}() let((cv result)",
-        f'when(ddGetObj("{LIB}" "{cell}" "{view}") error("View already exists"))',
-        f'cv=dbOpenCellViewByType("{LIB}" "{cell}" "{view}" "{view_type}" "w")',
+        f'when(ddGetObj("{library}" "{cell}" "{view}") error("View already exists"))',
+        f'cv=dbOpenCellViewByType("{library}" "{cell}" "{view}" "{view_type}" "w")',
         'unless(cv && cv~>DBUPerUU==160 error("This drawing requires 160 DBU/UU"))',
         *ops,
     ]
@@ -272,7 +272,7 @@ def view_procedure(name, cell, view, ops):
     lines.extend([
         'unless(dbSave(cv) error("Cannot save cell view"))',
         'dbClose(cv)',
-        f'cv=dbOpenCellViewByType("{LIB}" "{cell}" "{view}" "" "r")',
+        f'cv=dbOpenCellViewByType("{library}" "{cell}" "{view}" "" "r")',
         f'cmpReadView(cv "{cell}-{view}.json")',
         'dbClose(cv) t))',
     ])

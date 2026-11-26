@@ -53,8 +53,13 @@ def deck(lib, state, native, reference_uA=DEFAULT_CURRENT_UA, max_settling_ns=MA
 
 
 def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERROR_PCT, max_settling_ns=MAX_SETTLING_NS):
-    reference_A = reference_uA / 1e6
     dc = table(folder / "dc.dat", VECTORS + ("v(vdd)",))
+    tran = table(folder / "transient.dat", VECTORS + ("v(vdd)",))
+    return sample_metrics(dc, tran, vdd, reference_uA, max_error_pct, max_settling_ns)
+
+
+def sample_metrics(dc, tran, vdd, reference_uA, max_error_pct, max_settling_ns, allow_unsettled=False):
+    reference_A = reference_uA / 1e6
     if len(dc) != 151 or not math.isclose(dc[-1][0], 1.5):
         raise ValueError("Incomplete output-voltage sweep")
     errors, samples = [], {}
@@ -72,7 +77,6 @@ def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERRO
     slope = (samples[85][0]-samples[75][0]) / 0.10
     if slope <= 0:
         raise ValueError("Unexpected output conductance around 0.8 V")
-    tran = table(folder / "transient.dat", VECTORS + ("v(vdd)",))
     stop = observation_ns(max_settling_ns) * 1e-9
     if (tran[0][0] > 1e-9 or not math.isclose(tran[-1][0], stop, rel_tol=0, abs_tol=0.3e-9)
             or any(b[0]-a[0] > 0.201e-9 for a,b in zip(tran,tran[1:]))):
@@ -90,9 +94,13 @@ def metrics(folder, vdd, reference_uA=DEFAULT_CURRENT_UA, max_error_pct=MAX_ERRO
     if steady <= 0:
         raise ValueError("Invalid steady-state output current")
     last = max((i for i in range(crossing,len(tran)) if abs(-tran[i][3]/steady-1) > 0.01), default=crossing-1)
-    if last + 1 >= len(tran):
+    settled = last + 1 < len(tran)
+    if not settled and not allow_unsettled:
         raise ValueError("Output did not stay within 1% of its measured DC current")
-    settle = (tran[last+1][0] - trip)*1e9
-    return {"worst_error_pct":errors[worst], "worst_vout_V":dc[worst][1], "compliance_mV":compliance,
-            "settling_ns":settle, "output_current_uA_at_0p8V":steady*1e6, "reference_node_V":samples[80][1],
-            "output_resistance_Mohm":1e-6/slope, "dc_points":len(dc), "transient_points":len(tran)}
+    result = {"worst_error_pct":errors[worst], "worst_vout_V":dc[worst][1], "compliance_mV":compliance,
+              "settling_ns":(tran[last+1][0] - trip)*1e9 if settled else None,
+              "output_current_uA_at_0p8V":steady*1e6, "reference_node_V":samples[80][1],
+              "output_resistance_Mohm":1e-6/slope, "dc_points":len(dc), "transient_points":len(tran)}
+    if not settled:
+        result["settling_lower_bound_ns"]=(tran[-1][0]-trip)*1e9
+    return result
