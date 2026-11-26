@@ -201,6 +201,11 @@ def overview(summary):
 
 
 def main(argv=None):
+    # Windows terminals can display Unicode natively, while redirected Python
+    # output can inherit a legacy code page that cannot encode the source units.
+    if sys.platform=="win32" and hasattr(sys.stdout,"reconfigure"):
+        if not sys.stdout.isatty():sys.stdout.reconfigure(encoding="utf-8")
+        else:sys.stdout.reconfigure(errors="backslashreplace")
     cli=argparse.ArgumentParser(description=__doc__);sub=cli.add_subparsers(dest="action")
     run=sub.add_parser("run");run.add_argument("--requirements",type=Path,default=HERE/"requirements.example.json")
     run.add_argument("--out",required=True,type=Path);run.add_argument("--core-models",type=Path);run.add_argument("--switch-models",type=Path)

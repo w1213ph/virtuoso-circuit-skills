@@ -68,7 +68,7 @@ def page(root,s,revision):
     details="".join(detail_rows)
     dc=v["max_dc_vbs_excess"];spec=s["requirements"]
     return f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SKY130 自举采样开关前仿</title><style>body{{font:17px/1.65 system-ui,sans-serif;max-width:960px;margin:auto;padding:1.4rem;color:#182d34}}h1,h2{{line-height:1.25}}table{{border-collapse:collapse;width:100%}}th,td{{border-bottom:1px solid #b8c5c8;padding:.4rem;text-align:left}}img{{display:block;max-width:100%;height:auto}}figure{{margin:1.5rem 0}}code{{background:#eff4f4;padding:.1rem .3rem}}a{{color:#075875}}.table{{overflow:auto}}</style>
+<title>SKY130 自举采样开关前仿</title><style>body{{font:17px/1.65 system-ui,sans-serif;max-width:960px;margin:auto;padding:1.4rem;color:#182d34}}h1,h2{{line-height:1.25}}table{{border-collapse:collapse;width:100%}}th,td{{border-bottom:1px solid #b8c5c8;padding:.4rem;text-align:left}}img{{display:block;max-width:100%;height:auto}}figure{{margin:1.5rem 0}}code{{background:#eff4f4;padding:.1rem .3rem;overflow-wrap:anywhere}}a{{color:#075875}}.table{{overflow:auto}}</style>
 <h1>SKY130 自举采样开关</h1><p>{escape(spec["purpose"])}</p><p><strong>{title}为 {name}。</strong> 在 {v["cases_total"]} 个工况中通过细步长复测 {fine["passed_cases"]} 个，复测最差 H2–H5 总失真 {fine["thd_dBc"]:.2f} dBc，目标 {limit:g} dBc。</p>
 <p>在解压目录运行 <code>python sample.py</code>，可从器件扫描和所有原始波形复算。用 Xschem 打开 <a href="evidence/designs/{name}/views/TB_BSW_SAMPLE.sch">测试台</a> 或 <a href="evidence/designs/{name}/views/BSW_SWITCH.sch">开关原理图</a>。Linux 用户可在 <code>evidence/designs/{name}</code> 下运行 <code>sh open.sh bench</code>。<a href="evidence/RESULTS.md">逐项结果</a></p>
 <h2>开关、测试台和采样频谱</h2>
