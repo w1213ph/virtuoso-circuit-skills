@@ -4,6 +4,10 @@
 
 把这句话交给能运行命令的 agent，可以拿到两个可编辑的晶体管级放大器、实际 NMOS/PMOS 传输门、采样负载、测试台和比较报告。7 位、1 V 和各项负载及时序是本练习的规格。若要换成自己的 ADC，先说明输入电平、量化范围、实际采样电容、可用的跟踪窗口，以及要求在哪一时刻读数。[本例的完整需求](requirements.example.json)
 
+**直接试用**，下载 ZIP 并解压，打开 `index.html`。页面上的两组原理图都有对应的 Xschem 源文件。波形同时画出放大器输出 OUT 和传输门后的 SAMPLE，黑点标出实际用于判定的电容电压。工程根目录运行 `python sample.py` 即可从器件扫描、网表和波形复算。Windows 复算只需 Python 3。[下载 7 位、1 pF 的完整工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-7bit-v1/adc-driver-7bit.zip)
+
+**改成自己的规格**，把新需求告诉 agent，让它更新包内的 `my-driver.json`。在装有 Xschem 和 ngspice 的 Linux 上运行 `python3 sample.py run --out my-design`，再运行 `python3 sample.py verify --out my-design`。新原理图和逐工况测值在 `my-design/RESULTS.md`。也可以在自己的 GitHub fork 启用 Actions，选择 **Build an ADC sampling driver from user requirements**，将确认好的 JSON 粘贴到 `requirements`。运行结束下载 `adc-sampling-project` 即是按这次输入实测的完整工程。返回 0 表示至少一组达标，1 表示两组均有实测超限，2 表示运行或证据有误。[在 GitHub 提交规格](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/adc-driver-project.yml)
+
 ![候选放大器的 Xschem 原理图，左为偏置、右为差分对和有源负载](images/core.png)
 
 ## 从空目录开始
@@ -25,7 +29,7 @@ sh work/adc-driver/candidate/open.sh bench
 sh work/adc-driver/candidate/open.sh sampler
 ```
 
-若要改条件，复制 `requirements.example.json`，修改后用 `--requirements 新文件 --out 新目录` 重跑。若已有本仓库电流镜案例的运行目录，可加 `--models work/mirror/models --reuse-lut work/mirror/characterization`。程序校验模型、工况、查表输入、求解器和原始数据后复用器件表，两版驱动器均重新网表化和仿真。没有本地 EDA 时，可从最近成功运行的 `sky130-adc-sampling-driver` 下载 7 位与 8 位两套结果。[公开仿真工作流](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/sky130-prelayout.yml)
+若要从源码改条件，复制 `requirements.example.json`，修改后用 `--requirements 新文件 --out 新目录` 重跑。若已有本仓库电流镜案例的运行目录，可加 `--models work/mirror/models --reuse-lut work/mirror/characterization`。程序校验模型、工况、查表输入、求解器和原始数据后复用器件表，两版驱动器均重新网表化和仿真。新工程在仿真前记录所有可编辑图和符号。复算会重读实际器件曲线、还原定尺寸与激励，并检查归档图与测量的一致性。在副本中改了采样电容后，可用同一入口重建测试台并重新测量。
 
 ## 由采样需求推导设计指标
 

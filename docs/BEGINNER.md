@@ -8,7 +8,7 @@
 
 有论文时提供 PDF 和复现范围。准备独立的新电路时，说明用途和已知条件。以传感器放大器为例，ADC 的输入负载和采样窗口决定需要多快建立，供电与输入范围影响可用结构。Agent 会把已知条件、建议目标和仍需确认的问题列在任务记录里。遇到确实影响性能取舍的未知项，再一起确定。
 
-例如，你可以说“给 7 位、量化范围 1 V 的 ADC 驱动 1 pF，输入在 0.85 V 和 1.05 V 之间切换，100 ns 内采好，断开后保持 20 ns”。让 agent 把半个 LSB 换算成毫伏，画出放大器、偏置和实际采样开关，再用电容上的波形告诉你哪一版能用。这个公开案例保留了初版的四项超限，以及换成 8 位时两版都未达标的结果。[原理图、双向采样与打开工程的方法](../examples/sky130-adc-driver/README.md)
+例如，你可以说“给 7 位、量化范围 1 V 的 ADC 驱动 1 pF，输入在 0.85 V 和 1.05 V 之间切换，100 ns 内采好，断开后保持 20 ns”。让 agent 把半个 LSB 换算成毫伏，画出放大器、偏置和实际采样开关，再用电容上的波形告诉你哪一版能用。可以直接下载这次工程，解压打开 `index.html` 看图，用 `python sample.py` 核对初版的四项超限和改型后的结果。[下载 7 位实测工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-7bit-v1/adc-driver-7bit.zip) · [用自己的规格重新设计](../examples/sky130-adc-driver/README.md)
 
 真正生成 Virtuoso 电路需要可用的 Cadence、合法可访问的 PDK、仿真模型和连接工具。连接入口见 [SETUP.md](SETUP.md)。只有聊天环境时，可以先完成论文分析和设计计划；agent 应说明还缺哪些能力。
 

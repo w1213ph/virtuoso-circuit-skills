@@ -1,4 +1,5 @@
 """Size and audit the native driver and sampled load, including the placed parent pins."""
+import json
 import math
 import os
 import re
@@ -52,7 +53,19 @@ def size(rows, r, long_load):
             "switch_gate_area_um2": sum(w*l*m for w,l,m in (devices[n] for n in SAMPLER))}
 
 
-def materialize(folder, sizing, r):
+def check_sizing(saved, sizing):
+    expected = json.loads(json.dumps(sizing))
+    if saved.keys() != expected.keys():
+        raise ValueError("Missing or unexpected sizing fields")
+    for key, value in expected.items():
+        # Python versions may round the final area sum differently. All device geometries and lookup rows must match.
+        agrees = (math.isclose(saved[key], value, rel_tol=1e-13, abs_tol=1e-12)
+                  if key in ("core_gate_area_um2", "switch_gate_area_um2") else saved[key] == value)
+        if not agrees:
+            raise ValueError("Native sizes differ from characterized family: " + key)
+
+
+def view_sources(sizing, r):
     repl = {n: "w={:.10g} l={:g} mult={} ad={:.10g} pd={:.10g}".format(w,l,m,.3*w,2*(w+.3))
             for n,(w,l,m) in sizing["devices"].items()}
     repl.update(sources(r))
@@ -74,7 +87,28 @@ def materialize(folder, sizing, r):
     for source in sorted(list(HERE.glob("*.sym"))+list(HERE.glob("*.sch"))):
         data = source.read_text(encoding="utf-8")
         text = re.sub(r"__([A-Z][A-Z0-9_]*)__", lambda m:repl[m[1]], data)
-        (folder/source.name).write_text(text,encoding="utf-8")
+        yield source.name, text
+
+
+def materialize(folder, sizing, r):
+    for name, text in view_sources(sizing, r):
+        (folder/name).write_text(text,encoding="utf-8")
+
+
+def checked_views(folder, sizing, req, *, legacy=False):
+    def components(text):
+        # Historical schematics may use a different position for a net label.
+        return [row for row in text.splitlines() if row.startswith("C {") and not row.startswith("C {devices/lab_pin.sym}")]
+    names = []
+    for name, expected in view_sources(sizing, req):
+        actual = (folder / name).read_text(encoding="utf-8")
+        if legacy:
+            if name.endswith(".sch") and components(actual) != components(expected):
+                raise ValueError("Editable component differs from the measured design: " + name)
+        elif actual != expected:
+            raise ValueError("Editable view differs from the simulated design: " + name)
+        names.append("views/" + name)
+    return sorted(names)
 
 
 def parent_pins(folder):

@@ -1,0 +1,100 @@
+name: Build an ADC sampling driver from user requirements
+on:
+  workflow_dispatch:
+    inputs:
+      requirements:
+        description: 'Confirmed sampling requirements as JSON. Blank runs 7 bits, 1 pF, 100 ns track and 20 ns hold.'
+        type: string
+        required: false
+  push:
+    paths:
+      - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/adc-driver-project.yml'
+  pull_request:
+    paths:
+      - 'examples/sky130-adc-driver/**'
+      - 'examples/sky130-current-mirror/**'
+      - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - '.github/workflows/adc-driver-project.yml'
+permissions:
+  contents: read
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    timeout-minutes: 15
+    steps:
+      - name: Install the simulator, schematic editor and plot tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates python3 python3-matplotlib xschem ngspice xvfb xauth fonts-dejavu-core
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Size and measure the requested sampling circuit
+        env:
+          DRIVER_REQUIREMENTS: ${{ inputs.requirements }}
+        run: |
+          ex=examples/sky130-adc-driver
+          mkdir -p work
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          supplied = os.environ.get("DRIVER_REQUIREMENTS") or Path("examples/sky130-adc-driver/requirements.example.json").read_text()
+          Path("work/requested.json").write_text(supplied, encoding="utf-8")
+          PY
+          status=0
+          python3 "$ex/run.py" --requirements work/requested.json --out work/measured || status=$?
+          test "$status" -le 1
+          xvfb-run -a python3 "$ex/pack_project.py" --run work/measured --project work/project --revision "$GITHUB_SHA"
+          python3 - "$status" <<'PY'
+          import json, pathlib, subprocess, sys, tempfile
+          root = pathlib.Path("work/project").resolve()
+          req = json.loads(pathlib.Path("work/requested.json").read_text())
+          assert req == json.loads((root/"evidence/requirements.json").read_text()) == json.loads((root/"my-driver.json").read_text())
+          with tempfile.TemporaryDirectory() as empty:
+              replay = subprocess.run([sys.executable, "-IB", str(root / "sample.py")], cwd=empty)
+          assert replay.returncode == int(sys.argv[1])
+          PY
+          echo '下载 adc-sampling-project，解压后打开 index.html。在解压目录运行 python sample.py 从器件表和波形复算。' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adc-sampling-project
+          path: work/project/
+          if-no-files-found: error
+      - name: Design for a different ADC using the delivered source
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          req = json.loads(Path("work/project/my-driver.json").read_text())
+          req.update(purpose="8 位 ADC，1.25 pF 采样电容，跟踪 85 ns 并保持 25 ns。", adc_bits=8, sample_cap_pF=1.25, track_ns=85, hold_ns=25)
+          Path("work/altered.json").write_text(json.dumps(req),encoding="utf-8")
+          PY
+          status=0
+          python3 -IB work/project/sample.py run --requirements work/altered.json --models work/measured/models --reuse-lut work/measured/characterization --out work/altered || status=$?
+          test "$status" -eq 1
+          xvfb-run -a python3 examples/sky130-adc-driver/pack_project.py --run work/altered --project work/altered-project --revision "$GITHUB_SHA"
+          replayed=0
+          python3 -IB work/altered-project/sample.py || replayed=$?
+          test "$replayed" -eq "$status"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("work/altered-project/evidence")
+          assert json.loads((root/"requirements.json").read_text()) == json.loads(Path("work/altered.json").read_text())
+          assert json.loads((root/"status.json").read_text())["selected"] is None
+          for name in ("baseline", "candidate"):
+              native = json.loads((root/name/"readback.json").read_text())["native_sections"]
+              assert native["ADRV_SAMPLER"]["CSH"] == ["SAMPLE","VSS","1.25P","M=1"]
+              assert (root/name/"views/ADRV_OTA.sch").is_file()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          name: adc-sampling-project-8bit
+          path: work/altered-project/
+          if-no-files-found: error

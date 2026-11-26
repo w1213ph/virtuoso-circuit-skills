@@ -1,11 +1,20 @@
-name: 记录一次 ADC 偏置试用
+name: 记录一次 ADC 偏置或采样驱动器试用
 description: 记录使用一个 agent 实际打开的电路、复算的结果，或中途遇到的问题。
-title: "[首次试用] ADC 偏置支路"
+title: "[首次试用] ADC 电路设计"
 body:
   - type: markdown
     attributes:
       value: |
         请使用[公开试用题](https://github.com/w1213ph/virtuoso-circuit-skills/blob/main/docs/FIRST_USE_TRIAL.md)。这份记录会公开。路径可写成相对工程目录的路径。只需填写你实际做到的部分。
+  - type: dropdown
+    id: circuit
+    attributes:
+      label: 这次试用哪个电路？
+      options:
+        - ADC 偏置支路
+        - ADC 采样驱动器
+    validations:
+      required: true
   - type: dropdown
     id: experience
     attributes:
@@ -47,7 +56,7 @@ body:
     id: observations
     attributes:
       label: 你在电路或测试台中看到了什么？
-      description: 可写实际打开的核心与父级、参考端负载、所用工艺表行与 W/L、两管栅面积，以及哪个工况决定了选择。如果卡住，请写最后一步和当时看到的现象。
+      description: 可写打开的核心与父级、负载和实际测量节点、所用器件表行与 W/L，以及哪个工况决定了取舍。如果卡住，请写最后一步和当时看到的现象。
     validations:
       required: true
   - type: textarea

@@ -1,13 +1,10 @@
 """Reconstruct device tables and measure both mirror branches in the native testbench."""
-import csv
-import json
 import math
-from pathlib import Path
 
 import measure
 import mos_table
 import native
-from fetch_models import checksum
+import replay_lut
 
 
 def library_path(process):
@@ -56,33 +53,7 @@ def operating_point(path, model, sizing, req, dc):
 
 
 def replay_table(folder, process, model, state, lengths, identity):
-    corner, temp, supply = state
-    deck, devices = mos_table.scans(library_path(process), corner, temp, supply, lengths, model)
-    if (folder / "input.spice").read_text(encoding="utf-8") != deck:
-        raise ValueError("Characterization deck differs from the process and bias grid: " + process + "/" + corner)
-    record = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
-    files = ["input.spice", "ngspice.log", "table.csv"] + [d[0] + ".dat" for d in devices]
-    recipe = dict(identity, lengths_um=list(lengths), input_sha256=checksum(deck.encode("utf-8")),
-                  reader_sha256=checksum(Path(mos_table.__file__).read_bytes()))
-    if (record["recipe"] != recipe or record["mode"] != "measured"
-            or record["corner"] != corner or record["temperature_C"] != temp or record["vdd_V"] != supply
-            or mos_table.cache_record(folder, recipe, files) is None):
-        raise ValueError("Characterization provenance differs: " + process + "/" + corner)
-    rows = mos_table.read_curves(folder, devices, supply)
-    with (folder / "table.csv").open(encoding="utf-8", newline="") as f:
-        table = csv.DictReader(f)
-        if tuple(table.fieldnames or ()) != mos_table.FIELDS:
-            raise ValueError("Unexpected lookup columns")
-        for row in rows:
-            saved = next(table, None)
-            if saved is None or any(saved[k] != ("" if row[k] is None else str(row[k])) for k in mos_table.FIELDS):
-                raise ValueError("Lookup row differs from the raw simulator curve")
-        if next(table, None) is not None:
-            raise ValueError("Unexpected extra lookup row")
-    if (record["points"] != len(rows) or record["curves"] != len(devices)
-            or record["table_sha256"] != record["files"]["table.csv"]):
-        raise ValueError("Incomplete lookup table")
-    return rows
+    return replay_lut.replay(folder, library_path(process), model, state, lengths, identity)
 
 
 def measure_design(folder, process, model, states, sizing, req, tools=None, allow_unsettled=False):

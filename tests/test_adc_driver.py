@@ -11,6 +11,7 @@ sys.path.insert(0,str(ROOT/"examples/sky130-current-mirror"))
 sys.path.insert(0,str(CASE))
 import bench
 import driver
+from driver_review import limiting_measurements
 
 
 class SamplingDriverTests(unittest.TestCase):
@@ -47,6 +48,25 @@ class SamplingDriverTests(unittest.TestCase):
         f.write_text(f.read_text().replace("755 360 755 415","755 360 755 315"))
         with self.assertRaisesRegex(ValueError,"CLKB"):
             driver.parent_pins(self.tmp)
+
+    def test_changed_editable_capacitor_invalidates_current_and_historical_results(self):
+        sizing = {"devices": {name:(2, .5, 1) for name in (*driver.OTA, *driver.SAMPLER)}}
+        driver.materialize(self.tmp, sizing, self.req)
+        self.assertEqual(len(driver.checked_views(self.tmp, sizing, self.req)), 8)
+        cap = self.tmp / "ADRV_SAMPLER.sch"
+        source = cap.read_text(encoding="utf-8")
+        cap.write_text(source.replace("name=CSH value=1p", "name=CSH value=2p"), encoding="utf-8")
+        for legacy in (False, True):
+            with self.subTest(legacy=legacy), self.assertRaisesRegex(ValueError, "ADRV_SAMPLER.sch"):
+                driver.checked_views(self.tmp, sizing, self.req, legacy=legacy)
+
+    def test_worst_aperture_hold_and_loop_can_come_from_different_cases(self):
+        def case(track, hold, down, track_pm, hold_pm):
+            return {"transient":{"edges":{"up":{"track_error_mV":track,"hold_error_mV":hold},
+                                          "down":{"track_error_mV":.1,"hold_error_mV":down}}},
+                    "track":{"phase_margin_deg":track_pm},"hold":{"phase_margin_deg":hold_pm}}
+        rows = {"ss":case(4, .2, .6, 70, 72), "ff":case(2, .3, 5, 80, 65)}
+        self.assertEqual(limiting_measurements(rows), (("ss","up",4),("ff","down",5),("ff","hold",65)))
 
     def test_loop_uses_loaded_state_and_rejects_multiple_crossings(self):
         op=self.tmp/"op.dat"

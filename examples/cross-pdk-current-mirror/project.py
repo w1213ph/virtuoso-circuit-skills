@@ -17,7 +17,7 @@ SOURCE = {
     "examples/cross-pdk-current-mirror": ("transfer.py", "transfer_bench.py", "transfer_models.py", "sizing_search.py",
                                          "gf180-models.lock.json"),
     "examples/sky130-current-mirror": ("run.py", "fetch_models.py", "measure.py", "mos_model.py", "mos_table.py",
-                                      "native.py", "models.lock.json", "adc-bias.example.json", "BIAS_MIRROR.sch",
+                                      "native.py", "replay_lut.py", "models.lock.json", "adc-bias.example.json", "BIAS_MIRROR.sch",
                                       "BIAS_MIRROR.sym", "NMOS18.sym", "TB_BIAS_MIRROR.sch"),
     "skills/paper-to-virtuoso/scripts": ("check_prelayout.py",),
 }

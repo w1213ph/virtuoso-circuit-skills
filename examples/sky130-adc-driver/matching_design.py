@@ -2,11 +2,8 @@
 
 import copy
 import json
-import math
-import tempfile
-from pathlib import Path
 
-from driver import OTA, audit, build, materialize, parent_pins, size
+from driver import OTA, audit, build, check_sizing, checked_views, parent_pins, size
 from mismatch_bench import require
 from mos_table import save_json
 
@@ -68,20 +65,6 @@ def family(rows, spec, repair=False):
     return result
 
 
-def check_sizing(saved, sizing):
-    expected = json.loads(json.dumps(sizing))
-    # Python 3.12 changed float summation. A different rounding of the area total
-    # leaves the individual native W, L, M and the underlying MOS table rows identical.
-    require(saved.keys() == expected.keys(), "Missing or unexpected sizing fields")
-    for key, value in expected.items():
-        agrees = (
-            math.isclose(saved[key], value, rel_tol=1e-13, abs_tol=1e-12)
-            if key in ("core_gate_area_um2", "switch_gate_area_um2")
-            else saved[key] == value
-        )
-        require(agrees, "Native sizes differ from characterized family: " + key)
-
-
 def native_views(folder, sizing, spec, xschem):
     views = folder / "views"
     if xschem:
@@ -99,14 +82,7 @@ def native_views(folder, sizing, spec, xschem):
         and json.loads(json.dumps(parent_pins(views))) == back["parent_pins"],
         "Native hierarchy or parent pins differ",
     )
-    with tempfile.TemporaryDirectory() as tmp:
-        check = Path(tmp)
-        materialize(check, sizing, spec)
-        for f in check.iterdir():
-            require(
-                f.read_text(encoding="utf-8") == (views / f.name).read_text(encoding="utf-8"),
-                "Editable schematic or symbol differs: " + f.name,
-            )
+    checked_views(views, sizing, spec)
     fixture = {k: sections[k] for k in ("TOP", "ADRV_SAMPLER")}
     native = "\n".join(line for line in raw.splitlines() if not line.strip().startswith("**")) + "\n"
     return native, fixture

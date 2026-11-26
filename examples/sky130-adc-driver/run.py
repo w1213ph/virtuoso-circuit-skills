@@ -46,7 +46,8 @@ def tests_for(corner, temp, vdd, r, theory, include_diagnostics=False):
 
 def simulate_variant(path,native,r,lib,tool,references):
     theory=budget(r)
-    plan={"schema_version":1,"inputs":["sizing.json","views/TB_ADRV_SAMPLE.spice"],"reference_inputs":references,"tests":[],"results":{}}
+    views = sorted("views/" + p.name for p in (path/"views").iterdir() if p.suffix in (".sch", ".sym"))
+    plan={"schema_version":1,"inputs":["sizing.json","views/TB_ADRV_SAMPLE.spice",*views],"reference_inputs":references,"tests":[],"results":{}}
     for state in STATES:
         corner,temp,vdd=state
         for mode in ("track","hold"):
@@ -100,7 +101,7 @@ def simulate_variant(path,native,r,lib,tool,references):
     return review,details
 
 
-def report(out,r,theory,geometry,measurements,reviews,pick):
+def report(out,r,theory,geometry,measurements,reviews,pick,incomplete=False):
     lines=["# ADC 采样驱动器前仿","","    "+r["purpose"].replace("\n","\n    "),"",
            "量化范围 {:g} V、{} 位，半个 LSB 为 {:.4f} mV。输入步阶 {:.3f} V，采样电容 {:g} pF、输出固定负载 {:g} pF。".format(
                r["full_scale_span_V"],r["adc_bits"],theory["half_lsb_mV"],theory["step_V"],r["sample_cap_pF"],FIXED_OUTPUT_PF),
@@ -108,7 +109,8 @@ def report(out,r,theory,geometry,measurements,reviews,pick):
                r["track_ns"],r["hold_ns"],r["min_phase_margin_deg"]),
            "单极点初算 τ ≤ {:.2f} ns，带宽 ≥ {:.2f} MHz，等效跨导 ≥ {:.2f} µS。查表与尺寸见各版 sizing.json。".format(
                theory["tau_max_ns"],theory["one_pole_bandwidth_MHz"],theory["gm_floor_uS"]),"",
-           "**选中 "+pick+"。**" if pick else "**当前条件下没有全部达标的版本。**",""]
+           "**有测量未完成，无法完成两版选型。**" if incomplete else
+           ("**选中 "+pick+"。**" if pick else "**当前条件下没有全部达标的版本。**"),""]
     if pick:
         lines+=["[选中原理图]({0}/views/ADRV_OTA.sch) · [实际采样负载]({0}/views/ADRV_SAMPLER.sch) · "
                 "[测试台]({0}/views/TB_ADRV_SAMPLE.sch) · [逐项结果]({0}/checked.json)".format(pick),"",
@@ -173,7 +175,7 @@ def run(out,r,models,previous,xschem,ngspice):
         if state[0]=="tt":
             tt_rows=rows
         print("MOS",state[0],record["mode"],record["points"],flush=True)
-    save_json(out/"recipe.json",dict(identity,schema_version=2,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
+    save_json(out/"recipe.json",dict(identity,schema_version=3,extractor=digest(HERE/"bench.py"),driver=digest(HERE/"driver.py"),
                                      runner=digest(HERE/"run.py"),xschem_binary=digest(Path(xschem))))
     refs=["../requirements.json","../budget.json","../recipe.json","../fixture.json","../ngspice-version.txt",str(lib)]
     refs += [str(lib.parent/p) for p in sorted(LOCK["files"])]
@@ -194,21 +196,25 @@ def run(out,r,models,previous,xschem,ngspice):
         reviews[name],measurements[name]=simulate_variant(path,native,r,lib,ngspice,refs)
     comparison=checks.compare(reviews["baseline"],reviews["candidate"])
     save_json(out/"comparison.json",comparison)
+    missing = [name+"/"+test["id"] for name,review in reviews.items() for test in review["tests"]
+               if test["status"] not in ("PASS", "FAIL", "DIAGNOSTIC_MEASURED")]
     eligible=comparison["passing_variants"]
-    pick=min(eligible,key=lambda n:geometry[n]["core_gate_area_um2"]) if eligible else None
-    report(out,r,theory,geometry,measurements,reviews,pick)
+    pick=min(eligible,key=lambda n:geometry[n]["core_gate_area_um2"]) if eligible and not missing else None
+    report(out,r,theory,geometry,measurements,reviews,pick,incomplete=bool(missing))
+    if missing:
+        return {"status":"failed","selected":None,"reason":"Missing verified measurements: "+", ".join(missing)}
     return {"status":"completed" if pick else "review_required","passing_variants":eligible,"selected":pick}
 
 
-def main():
+def main(argv=None, default_requirements=HERE/"requirements.example.json"):
     cli=argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--out",type=Path,required=True,help="New result directory")
-    cli.add_argument("--requirements",type=Path,default=HERE/"requirements.example.json")
+    cli.add_argument("--requirements",type=Path,default=default_requirements)
     cli.add_argument("--models",type=Path,help="Already verified public SKY130 model directory")
     cli.add_argument("--reuse-lut",type=Path,help="Reuse a previous verified characterization if compatible")
     cli.add_argument("--xschem",default="xschem")
     cli.add_argument("--ngspice",default="ngspice")
-    args=cli.parse_args()
+    args=cli.parse_args(argv)
     try:
         r=requirements(args.requirements)
         tools=[shutil.which(v) for v in (args.xschem,args.ngspice)]
@@ -226,7 +232,7 @@ def main():
         result={"status":"failed","reason":str(exc)}
     save_json(out/"status.json",result)
     print(json.dumps(result),flush=True)
-    return 0 if result["status"]=="completed" else 1
+    return {"completed":0, "review_required":1, "failed":2}[result["status"]]
 
 
 if __name__=="__main__":
