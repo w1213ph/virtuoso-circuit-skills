@@ -1,0 +1,8 @@
+{
+  "purpose": "给 ADC 复制外部 10 µA 参考，参考端接 200 fF。输出在 0.40–1.20 V 时误差最多 7%，输出固定在 0.80 V 时按 99% 开启、±1% 建立判据限时 40 ns。选择各工艺中面积最小的达标尺寸。",
+  "reference_uA": 10,
+  "reference_load_fF": 200,
+  "max_error_pct": 7,
+  "max_settling_ns": 40,
+  "selection": "min_gate_area"
+}

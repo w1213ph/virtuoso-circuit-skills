@@ -1,6 +1,11 @@
 name: Cross-PDK ADC bias sizing and waveform replay
 on:
   workflow_dispatch:
+    inputs:
+      requirements:
+        description: 'Confirmed ADC mirror requirements as JSON (blank runs the 10 µA / 200 fF example)'
+        type: string
+        required: false
   push:
     paths:
       - 'examples/cross-pdk-current-mirror/**'
@@ -24,19 +29,19 @@ jobs:
       - name: Install native tools
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends ca-certificates git python3 ngspice xschem
+          apt-get install -y --no-install-recommends ca-certificates git python3 ngspice xschem xvfb xauth fonts-dejavu-core
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Sweep both pinned libraries and simulate the sized and copied native designs
-        run: python3 examples/cross-pdk-current-mirror/transfer.py run --out work/transfer
-      - name: Replay the raw device curves, native dimensions, DC, OP and transient
+      - name: Reproduce the two-size 250 fF reference
+        if: github.event_name != 'workflow_dispatch' || inputs.requirements == ''
         run: |
-          python3 examples/cross-pdk-current-mirror/transfer.py verify --out work/transfer
+          python3 examples/cross-pdk-current-mirror/transfer.py run --out work/reference
+          python3 examples/cross-pdk-current-mirror/transfer.py verify --out work/reference
           python3 - <<'PY'
           import json
           from pathlib import Path
-          report = json.loads(Path("work/transfer/summary.json").read_text())
+          report = json.loads(Path("work/reference/summary.json").read_text())
           sky, gf = [report["processes"][name] for name in ("sky130", "gf180")]
           assert sky["selected"] == gf["selected"] == "short"
           assert sum(sky["points"].values()) == 12600 and sum(gf["points"].values()) == 23040
@@ -47,12 +52,61 @@ jobs:
           assert control["worst_error_pct"] < report["requirements"]["max_error_pct"]
           assert control["corners"]["ss"]["metrics"]["settling_ns"] > limit
           PY
-          cat work/transfer/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Size both circuits for the requested load and replay every measured candidate
+        env:
+          BIAS_REQUIREMENTS: ${{ inputs.requirements }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+          import sys
+          here = Path("examples/cross-pdk-current-mirror")
+          work = Path("work")
+          work.mkdir(exist_ok=True)
+          custom = os.environ.get("BIAS_REQUIREMENTS", "")
+          req = here / "sizing.example.json"
+          if custom:
+              req = work / "requested.json"
+              req.write_text(custom, encoding="utf-8")
+          out = work / "transfer"
+          cli = [sys.executable, str(here / "transfer.py")]
+          measured = subprocess.run(cli + ["run", "--optimize", "--requirements", str(req), "--out", str(out)]).returncode
+          if measured not in (0, 1):
+              raise SystemExit(measured)
+          replayed = subprocess.run(cli + ["verify", "--out", str(out)]).returncode
+          report = json.loads((out / "summary.json").read_text())
+          assert measured == replayed == (0 if report["qualified_in_both"] else 1)
+          supplied = json.loads(req.read_text())
+          assert all(report["requirements"].get(k) == v for k,v in supplied.items() if k != "assumed_fields")
+          if not custom:
+              assert measured == 0 and all(p["selected"] for p in report["processes"].values())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(("两种工艺各有达标尺寸。" if not measured else "本次规格有工艺未找到达标尺寸。") + "\n\n")
+              f.write("下载 `cross-pdk-bias-evidence` 并打开 `RESULTS.md`，即可沿图纸和波形的相对链接核对测量。\n\n")
+              f.write(re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", (out / "RESULTS.md").read_text()))
+          PY
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: cross-pdk-bias-evidence
           path: |
             work/transfer/
             !work/transfer/models/**
+          if-no-files-found: error
+      - name: Open the measured core, symbol and testbench in Xschem and export their images
+        run: xvfb-run -a python3 examples/cross-pdk-current-mirror/preview.py --out work/transfer --images work/previews
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cross-pdk-schematic-previews
+          path: work/previews/*.png
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'workflow_dispatch' || inputs.requirements == ''
+        with:
+          name: cross-pdk-reference-250fF
+          path: |
+            work/reference/
+            !work/reference/models/**
           if-no-files-found: error

@@ -41,7 +41,37 @@
 
 直流检查覆盖 0.40–1.20 V 之间的 81 个输出电压。建立时间从参考电流达到设定值的 99% 起算，输出固定在 0.80 V，进入并持续保持在该工况直流输出电流的 ±1% 才算稳定。250 fF 接在参考端，参考电流由测试台提供。ΣWL 只计核心两只 MOS 的栅面积。当前测量覆盖这三组前仿工况，失配、参考源本身的启动和芯片实占面积需要各自的验证。
 
-## 复跑和打开选中的电路
+## 用你自己的电流、负载和时限选尺寸
+
+把需求交给 agent，例如“给 ADC 复制 10 µA 外部参考，参考端接 200 fF，输出 0.40–1.20 V 时误差最多 7%，开启后 40 ns 内建立。选达标且两管栅面积最小的尺寸，给我图和波形”。让 agent 把确认的四个数写入输入文件，并保留原话。建立时间沿用上面的 0.80 V 输出、99% 开启、±1% 稳态判据。[可直接修改的输入文件](sizing.example.json)
+
+在仓库根目录运行。输出目录必须是新目录。
+
+```sh
+python3 examples/cross-pdk-current-mirror/transfer.py run --optimize --requirements examples/cross-pdk-current-mirror/sizing.example.json --out work/my-bias
+python3 examples/cross-pdk-current-mirror/transfer.py verify --out work/my-bias
+sh work/my-bias/sky130/open.sh bench
+sh work/my-bias/gf180/open.sh core
+```
+
+每种工艺在两档 L 上试 10、12、15、18、20、22 V⁻¹ 六个 gm/ID 目标。由本工艺实测 ID/W 算出的 W 按 0.05 µm 取整，跳过不在 0.50–20 µm 内的宽度，合并相同 W/L。每个合法尺寸都生成原理图并测三个工况，只在这些尺寸里选总栅面积最小的达标者。以下为 ngspice 39 的前仿结果。
+
+| 10 µA、200 fF、7%、40 ns | 目标 15 V⁻¹ 的短管，两管栅面积 | 搜索选中的单管 W/L | 选中两管栅面积 | 最大误差 | 最慢建立 |
+|---|---:|---:|---:|---:|---:|
+| SKY130 | 3.45 µm² | 1.15 / 0.50 µm | 1.15 µm² | 6.55% | 27.31 ns |
+| GF180MCU | 7.65 µm² | 2.50 / 0.50 µm | 2.50 µm² | 4.63% | 28.31 ns |
+
+另一组规格为 8 µA、320 fF、8%、42 ns。SKY130 的 10 个和 GF180 的 7 个合法尺寸全部超限。SKY130 有一版在慢角 39.91 ns 建立，但快角在 1.20 V 的误差达到 8.98%。GF180 中直流达标的最快一版在慢角仍需 46.71 ns。打开 `RESULTS.md` 可以沿每一行找到决定判定的 DC 或瞬态数据，也能打开超限的原理图排查。观察窗结束仍未建立时，报告给出实际观察时长的下界。
+
+### 本机没有仿真环境时
+
+可以让 agent 把输入 JSON 提交到 GitHub 的 **Cross-PDK ADC bias sizing and waveform replay → Run workflow → requirements**。手动运行需要该仓库的写权限。首次使用者可以在自己的 fork 启用 Actions，再提交自己的规格。输入留空会跑上表的 10 µA 算例。[打开工作流](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/cross-pdk-sizing.yml) · [GitHub 手动运行说明](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)
+
+在完成的运行页面下载 `cross-pdk-bias-evidence` 并解压。先打开 `RESULTS.md`，它指向本次的原理图、测试台和原始波形。同一页的 `cross-pdk-schematic-previews` 提供 Xschem 导出的核心、符号和父级 PNG，文件名中的 `qualified` 表示入选，`over-limit` 表示用于排查。查看 PNG 无需安装 EDA 工具，编辑原理图使用 Xschem。所有查表结果都超出宽度范围时，报告列出被排除的宽度，本次没有原理图预览。
+
+在运行对应版本的仓库内，用 `python examples/cross-pdk-current-mirror/transfer.py verify --out 解压目录` 从波形复算，Windows 也只需要 Python。返回 0 表示两种工艺各有达标版本，1 表示至少一种工艺的范围内没有达标版本，2 表示输入、执行或证据有误。工作流正常结束时，仍要从报告读取电路是否达标。
+
+## 复跑前面的 250 fF 对照
 
 在仓库根目录执行下面的命令。生成需要 Python 3、Xschem 和 ngspice。首次运行会下载两个固定版本的公开模型，输出写入新的目录。用 Debian trixie 可以通过 `apt-get install python3 xschem ngspice ca-certificates` 安装依赖。
 
@@ -52,8 +82,8 @@ sh work/transfer/gf180/short/open.sh core
 sh work/transfer/gf180/short/open.sh bench
 ```
 
-打开输出根目录的 `RESULTS.md` 即可找到每种工艺选中的图和对应查表行。`summary.json` 保存三组工况下两支管的工作点、最差误差以及建立时间。想查 GF180 的短管时，看 `gf180/short/sizing.json`，再对照 `gf180/short/tt/op.dat` 和 `gf180/short/ss/transient.dat`。改规格可以复制输入 JSON，填写已确认的参考电流、负载、误差和期限，保留 `selection=min_gate_area`，用 `run --requirements 你的文件.json --out 新目录` 重跑。
+打开输出根目录的 `RESULTS.md` 即可找到每种工艺选中的图和对应查表行。`summary.json` 保存三组工况下两支管的工作点、最差误差以及建立时间。想查 GF180 的短管时，看 `gf180/short/sizing.json`，再对照 `gf180/short/tt/op.dat` 和 `gf180/short/ss/transient.dat`。
 
 已有离线模型时，`--sky130-models` 和 `--gf180-models` 分别接收与锁文件目录结构一致的上游源树。每份输入先校验 SHA-256。SKY130 的上游选项使用微米缩放，GF180 的原始 ngspice 子电路用 `nmos_3p3`、`pmos_3p3`，长度显式写 `u`、结面积显式写 `p`。GF180 的 TT 映射到 `typical`，三组确定性工况均关闭全局统计与局部失配开关。[SKY130 输入锁](../sky130-current-mirror/models.lock.json) · [GF180 输入锁](gf180-models.lock.json) · [GF180 原始模型](https://github.com/google/globalfoundries-pdk-libs-gf180mcu_fd_pr/blob/9f992d5a9186d1f7820c58f039c484ad35b2edea/models/ngspice/sm141064.ngspice)
 
-只想复核结果时，从最近一次通过的工作流下载 `cross-pdk-bias-evidence`，解压到空目录。在对应提交的仓库中执行 `python3 examples/cross-pdk-current-mirror/transfer.py verify --out 解压目录`。这一步只需 Python，会从原始曲线重建表行、从网表和内部工作点核对尺寸，并从 DC 与瞬态重算全部结果。返回 0 表示两种工艺各有达标方案，1 表示有工艺缺少达标方案，2 表示输入、运行或证据检查失败。[仿真工作流与下载入口](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/cross-pdk-sizing.yml)
+默认工作流另附 `cross-pdk-reference-250fF`，可用同一个 `verify` 命令从原始曲线复核这组历史对照。[仿真工作流与下载入口](https://github.com/w1213ph/virtuoso-circuit-skills/actions/workflows/cross-pdk-sizing.yml)

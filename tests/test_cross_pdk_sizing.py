@@ -7,11 +7,45 @@ sys.path[:0] = [str(EXAMPLES / "cross-pdk-current-mirror"), str(EXAMPLES / "sky1
 
 import mos_table
 import native
+import sizing_search
 import transfer_models
 from mos_model import GF180, SKY130
 
 
 class CrossPdkSizingTests(unittest.TestCase):
+    def test_duplicate_grid_points_share_one_design_and_keep_the_lookup_row(self):
+        rows = [dict(polarity="N", length_um=l, vds_V=0.65, vbs_V=0, gm_id_per_V=14.8,
+                     abs_id_uA=8, id_per_width_uA_um=4) for _,l in sizing_search.LENGTHS]
+        designs, trials = sizing_search.candidates(rows, "sky130", 10)
+        self.assertEqual(set(designs), {"short", "long"})
+        self.assertEqual(len(trials), 12)
+        self.assertEqual(trials["short-g10"]["design"], "short")
+        self.assertEqual(trials["long-g22"]["status"], "same_geometry")
+        self.assertEqual(designs["short"]["selected_row"], rows[0])
+        self.assertEqual(designs["long"]["mirror_pair_gate_area_um2"], 5)
+        for current in (0.001, 1000):
+            excluded, traces = sizing_search.candidates(rows, "gf180", current)
+            self.assertFalse(excluded)
+            self.assertEqual({r["status"] for r in traces.values()}, {"outside_width_range"})
+
+    def test_incomplete_settling_points_to_the_measured_lower_bound_and_dc_failure(self):
+        case = dict(sizing=dict(width_um=2, length_um=0.5, mirror_pair_gate_area_um2=2),
+                    corners={"tt":dict(metrics=dict(worst_error_pct=10, worst_vout_V=1.2, settling_ns=25)),
+                             "ss":dict(metrics=dict(worst_error_pct=3, worst_vout_V=0.4, settling_ns=None,
+                                                    settling_lower_bound_ns=289.01))})
+        line = sizing_search.case_line("sky130", "short", case, dict(max_error_pct=8, max_settling_ns=40))
+        for part in ("tt/dc.dat", "ss/transient.dat", "&gt;289.01 ns", "直流误差超限", "观察结束仍未建立"):
+            self.assertIn(part, line)
+
+    def test_diagnostic_prefers_the_fastest_dc_qualified_or_least_dc_excess(self):
+        def sample(error, time, area):
+            return dict(worst_error_pct=error, worst_settling_ns=time, sizing=dict(mirror_pair_gate_area_um2=area))
+        limits = dict(max_error_pct=8)
+        cases = {"a":sample(9, 20, 2), "b":sample(7, None, 4), "c":sample(8, 45, 8), "d":sample(6, 50, 3)}
+        self.assertEqual(sizing_search.diagnostic_candidate(cases, limits), "c")
+        self.assertEqual(sizing_search.diagnostic_candidate({"a":cases["a"], "e":sample(9.5, 10, 1)}, limits), "a")
+        self.assertIsNone(sizing_search.diagnostic_candidate({}, limits))
+
     def test_four_terminal_instances_use_the_units_of_each_upstream_model(self):
         for model, card, vector in ((GF180, "nmos_3p3 w=2u l=0.5u nf=1", "@m.xn000.m0[gm]"),
                                     (SKY130, "sky130_fd_pr__nfet_01v8 w=2 l=0.5 nf=1",

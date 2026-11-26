@@ -85,7 +85,7 @@ def replay_table(folder, process, model, state, lengths, identity):
     return rows
 
 
-def measure_design(folder, process, model, states, sizing, req, tools=None):
+def measure_design(folder, process, model, states, sizing, req, tools=None, allow_unsettled=False):
     views = folder / "views"
     fixture = (req["reference_load_fF"], req["max_settling_ns"])
     if tools:
@@ -106,11 +106,16 @@ def measure_design(folder, process, model, states, sizing, req, tools=None):
             mos_table.simulate(tools["ngspice"], case, deck)
         elif (case / "input.spice").read_text(encoding="utf-8") != deck:
             raise ValueError("Circuit deck differs from the native netlist or PDK: " + str(case))
-        dc = measure.metrics(case, supply, req["reference_uA"], req["max_error_pct"], req["max_settling_ns"])
+        vectors = measure.VECTORS + ("v(vdd)",)
+        dc = measure.sample_metrics(mos_table.table(case / "dc.dat", vectors),
+                                    mos_table.table(case / "transient.dat", vectors), supply, req["reference_uA"],
+                                    req["max_error_pct"], req["max_settling_ns"], allow_unsettled=allow_unsettled)
         branches = operating_point(case / "op.dat", model, sizing, req, dc)
-        passed = dc["worst_error_pct"] <= req["max_error_pct"] and dc["settling_ns"] <= req["max_settling_ns"]
+        passed = (dc["worst_error_pct"] <= req["max_error_pct"] and dc["settling_ns"] is not None
+                  and dc["settling_ns"] <= req["max_settling_ns"])
         cases[corner] = dict(metrics=dc, operating_point=branches, passed=passed)
+    times = [v["metrics"]["settling_ns"] for v in cases.values()]
     return dict(sizing=sizing, native_readback=readback, corners=cases,
                 passed=all(v["passed"] for v in cases.values()),
                 worst_error_pct=max(v["metrics"]["worst_error_pct"] for v in cases.values()),
-                worst_settling_ns=max(v["metrics"]["settling_ns"] for v in cases.values()))
+                worst_settling_ns=None if None in times else max(times))
