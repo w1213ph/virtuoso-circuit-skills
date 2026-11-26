@@ -146,6 +146,23 @@ def export_points(path, curves, fresh):
         raise ValueError("Exported DC points differ from raw native evidence: "+str(path))
 
 
+def measure_ranges(out, native, site, state, baseline, fresh):
+    corner = state[0]
+    curves = {}
+    for label,(mode,reverse,delta) in TRIALS.items():
+        folder = out/(corner+"-"+label)
+        raw = analysis(folder,sweep_deck(native,site,state,mode,reverse,delta),"range_dc.dc",site,site["spectre"] if fresh else None)
+        job = read_json(folder/"job.json")
+        if job["warnings"] or any(sha256(Path(k))!=v for k,v in job["dependencies"].items()):
+            raise ValueError("Review the DC sweep warnings or a changed model")
+        curves[label] = read_curve(raw,state,mode,reverse,delta)
+    result = summarize(curves,state[2],baseline)
+    table = out/(corner+"-points.csv")
+    export_points(table,curves,fresh)
+    result.update(points_file=table.name,points_sha256=sha256(table))
+    return result
+
+
 def evaluate(site, ota, out, name, icm, swing, fresh):
     prior = read_json(ota/"summary.json")
     if (prior["model_sha256"]!=site["model_sha256"] or prior["pdk_revision"]!=site["pdk_revision"]
@@ -164,20 +181,9 @@ def evaluate(site, ota, out, name, icm, swing, fresh):
         baseline = measure(ota/name/corner,site,state,native,False)
         if baseline!=ref["corners"][corner]:
             raise ValueError("Baseline differs from the original native circuit at "+corner)
-        curves = {}
-        for label,(mode,reverse,delta) in TRIALS.items():
-            folder = out/(corner+"-"+label)
-            raw = analysis(folder,sweep_deck(native,site,state,mode,reverse,delta),"range_dc.dc",site,site["spectre"] if fresh else None)
-            job = read_json(folder/"job.json")
-            if job["warnings"] or any(sha256(Path(k))!=v for k,v in job["dependencies"].items()):
-                raise ValueError("Review the DC sweep warnings or a changed model")
-            curves[label] = read_curve(raw,state,mode,reverse,delta)
-        result = summarize(curves,state[2],baseline)
-        table = out/(corner+"-points.csv")
-        export_points(table,curves,fresh)
+        result = measure_ranges(out,native,site,state,baseline,fresh)
         result.update(input_request_pass=covers(result["input_cm"]["bounds_V"],icm),
-                      swing_request_pass=covers(result["output_diff"]["bounds_V"],swing),original_checks_pass=baseline["passed"],
-                      points_file=table.name,points_sha256=sha256(table))
+                      swing_request_pass=covers(result["output_diff"]["bounds_V"],swing),original_checks_pass=baseline["passed"])
         corners[corner] = result
         print(corner,result["input_cm"]["bounds_V"],result["output_diff"]["bounds_V"],flush=True)
     passed = all(c["original_checks_pass"] and c["input_request_pass"] and c["swing_request_pass"] for c in corners.values())

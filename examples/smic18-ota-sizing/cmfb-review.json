@@ -1,0 +1,982 @@
+{
+  "baseline": "l150-i06-c275",
+  "limits": {
+    "input_common_V": [
+      0.95,
+      1.1
+    ],
+    "command_V": [
+      -0.3,
+      0.3
+    ],
+    "cm_error_mV_max": 25,
+    "tracking_mV_max": 1,
+    "noise_10Hz_100kHz_uV_max": 40,
+    "gain_dB_min": 80,
+    "both_loop_PM_deg_min": 55,
+    "settling_us_max": 1,
+    "saturation_margin_V_min": 0,
+    "worst_power_uW_max": 25.22,
+    "MOS_gate_area_um2_max": 114.19,
+    "output_load_pF_each": 2
+  },
+  "states": [
+    [
+      "tt",
+      27,
+      1.8
+    ],
+    [
+      "ss",
+      85,
+      1.62
+    ],
+    [
+      "ff",
+      -40,
+      1.8
+    ]
+  ],
+  "diagnosis": {
+    "tt": {
+      "physical": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": -13.3774939,
+          "tracking_error_mV": 0.0172834,
+          "control_V": 1.2809519,
+          "detector_P_N_uA": [
+            0.0467234,
+            1.1145534
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": -2.8489336,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.2809523,
+          "detector_P_N_uA": [
+            0.580635,
+            0.580635
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": -13.3774889,
+          "tracking_error_mV": 0.0172834,
+          "control_V": 1.2809519,
+          "detector_P_N_uA": [
+            1.1145535,
+            0.0467234
+          ]
+        }
+      },
+      "ideal_average": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": -2.8490347,
+          "tracking_error_mV": 0.0172829,
+          "control_V": 1.2809523,
+          "detector_P_N_uA": [
+            0.5806349,
+            0.5806349
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": -2.8489348,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.2809523,
+          "detector_P_N_uA": [
+            0.5806349,
+            0.5806349
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": -2.8489338,
+          "tracking_error_mV": 0.0172829,
+          "control_V": 1.2809523,
+          "detector_P_N_uA": [
+            0.5806349,
+            0.5806349
+          ]
+        }
+      }
+    },
+    "ss": {
+      "physical": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": 3.6442431,
+          "tracking_error_mV": 0.0172685,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.0655858,
+            0.8845621
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": 1.7545493,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.4750744,
+            0.4750744
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": 3.6442423,
+          "tracking_error_mV": 0.0172685,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.8845621,
+            0.0655858
+          ]
+        }
+      },
+      "ideal_average": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": 1.7536951,
+          "tracking_error_mV": 0.0172693,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.4750744,
+            0.4750744
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": 1.7545496,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.4750743,
+            0.4750743
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": 1.7545676,
+          "tracking_error_mV": 0.0172693,
+          "control_V": 1.0945763,
+          "detector_P_N_uA": [
+            0.4750744,
+            0.4750744
+          ]
+        }
+      }
+    },
+    "ff": {
+      "physical": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": -44.8954598,
+          "tracking_error_mV": 0.0174926,
+          "control_V": 1.2888826,
+          "detector_P_N_uA": [
+            0.0144289,
+            1.1792934
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": -7.5399942,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.2888841,
+          "detector_P_N_uA": [
+            0.5968457,
+            0.5968457
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": -44.8953268,
+          "tracking_error_mV": 0.0174645,
+          "control_V": 1.2888826,
+          "detector_P_N_uA": [
+            1.1792933,
+            0.0144289
+          ]
+        }
+      },
+      "ideal_average": {
+        "negative": {
+          "command_V": -0.3,
+          "signed_output_cm_error_mV": -7.539936,
+          "tracking_error_mV": 0.0175432,
+          "control_V": 1.2888841,
+          "detector_P_N_uA": [
+            0.5968463,
+            0.5968463
+          ]
+        },
+        "zero": {
+          "command_V": 0.0,
+          "signed_output_cm_error_mV": -7.5400003,
+          "tracking_error_mV": 0.0,
+          "control_V": 1.2888841,
+          "detector_P_N_uA": [
+            0.5968455,
+            0.5968455
+          ]
+        },
+        "positive": {
+          "command_V": 0.3,
+          "signed_output_cm_error_mV": -7.5400055,
+          "tracking_error_mV": 0.0174643,
+          "control_V": 1.2888841,
+          "detector_P_N_uA": [
+            0.5968455,
+            0.5968455
+          ]
+        }
+      }
+    }
+  },
+  "physical_candidates": {
+    "w090-l150": {
+      "width_um": 0.9,
+      "length_um": 1.5,
+      "gate_area_um2": 106.35,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -11.6828546,
+        "ss": 3.7742661,
+        "ff": -41.4376603
+      },
+      "static_screen_failures": [
+        {
+          "corner": "ff",
+          "command_V": 0.3,
+          "signed_cm_error_mV": -41.4376603,
+          "least_headroom_mV": 218.0366397,
+          "limiting_device": "XDUT.XC.MCTN"
+        }
+      ],
+      "passes_full_nominal_budget": false
+    },
+    "w065-l150": {
+      "width_um": 0.65,
+      "length_um": 1.5,
+      "gate_area_um2": 104.85,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -10.2484365,
+        "ss": 3.8918016,
+        "ff": -37.6297729
+      },
+      "static_screen_failures": [
+        {
+          "corner": "ff",
+          "command_V": 0.3,
+          "signed_cm_error_mV": -37.6297729,
+          "least_headroom_mV": 207.867699,
+          "limiting_device": "XDUT.XC.MCTN"
+        }
+      ],
+      "passes_full_nominal_budget": false
+    },
+    "w045-l150": {
+      "width_um": 0.45,
+      "length_um": 1.5,
+      "gate_area_um2": 103.65,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -8.8167878,
+        "ss": 4.094298,
+        "ff": -32.7559589
+      },
+      "static_screen_failures": [
+        {
+          "corner": "ff",
+          "command_V": 0.3,
+          "signed_cm_error_mV": -32.7559589,
+          "least_headroom_mV": 197.0567438,
+          "limiting_device": "XDUT.XC.MCTN"
+        }
+      ],
+      "passes_full_nominal_budget": false
+    },
+    "w045-l225": {
+      "width_um": 0.45,
+      "length_um": 2.25,
+      "gate_area_um2": 105.0,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -7.4764701,
+        "ss": 4.4836618,
+        "ff": -26.9305424
+      },
+      "static_screen_failures": [
+        {
+          "corner": "ff",
+          "command_V": 0.3,
+          "signed_cm_error_mV": -26.9305424,
+          "least_headroom_mV": 174.8085423,
+          "limiting_device": "XDUT.XC.MCTN"
+        }
+      ],
+      "passes_full_nominal_budget": false
+    },
+    "w045-l300": {
+      "width_um": 0.45,
+      "length_um": 3.0,
+      "gate_area_um2": 106.35,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -6.7905892,
+        "ss": 5.1226419,
+        "ff": -23.7602292
+      },
+      "static_screen_failures": [],
+      "passes_full_nominal_budget": true,
+      "corners": {
+        "tt": {
+          "differential_gain_dB": 84.8058712,
+          "DM_phase_margin_deg": 64.321337,
+          "CM_phase_margin_deg": 78.3358206,
+          "quiescent_power_uW": 23.1588277,
+          "input_noise_uVrms": 36.5844488,
+          "rise_us": 0.41,
+          "fall_us": 0.409,
+          "cm_step_us": 0.524,
+          "startup_passed": true,
+          "input_common_V": [
+            0.63,
+            1.8
+          ],
+          "coarse_output_differential_V": [
+            -0.495,
+            0.495
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": true,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 4.8e-06,
+            "worst_abs_cm_error_mV": 6.7905915,
+            "worst_tracking_mV": 0.017283,
+            "min_headroom_V": 0.1166931
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 10.3713899,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.6103875,
+            "nearest_gm_over_Id_per_V": 10.3157131,
+            "nearest_current_uA": 0.6171622,
+            "VDS_V": 0.9361821,
+            "VBS_V": -0.3414158
+          },
+          "previous_coarse_only_checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          }
+        },
+        "ss": {
+          "differential_gain_dB": 84.8182281,
+          "DM_phase_margin_deg": 65.9930623,
+          "CM_phase_margin_deg": 79.8470376,
+          "quiescent_power_uW": 16.9935941,
+          "input_noise_uVrms": 39.8546988,
+          "rise_us": 0.554,
+          "fall_us": 0.553,
+          "cm_step_us": 0.818,
+          "startup_passed": true,
+          "input_common_V": [
+            0.66825,
+            1.62
+          ],
+          "coarse_output_differential_V": [
+            -0.729,
+            0.729
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": true,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 1.22e-05,
+            "worst_abs_cm_error_mV": 5.1226417,
+            "worst_tracking_mV": 0.0172746,
+            "min_headroom_V": 0.0237271
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 9.8008719,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.461692,
+            "nearest_gm_over_Id_per_V": 9.6945535,
+            "nearest_current_uA": 0.4714326,
+            "VDS_V": 0.8245906,
+            "VBS_V": -0.271911
+          },
+          "previous_coarse_only_checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          }
+        },
+        "ff": {
+          "differential_gain_dB": 84.7139364,
+          "DM_phase_margin_deg": 60.4821498,
+          "CM_phase_margin_deg": 75.1686658,
+          "quiescent_power_uW": 23.9954956,
+          "input_noise_uVrms": 32.6848888,
+          "rise_us": 0.324,
+          "fall_us": 0.323,
+          "cm_step_us": 0.342,
+          "startup_passed": true,
+          "input_common_V": [
+            0.6075,
+            1.8
+          ],
+          "coarse_output_differential_V": [
+            -0.2925,
+            0.2925
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": false,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 5.55e-05,
+            "worst_abs_cm_error_mV": 23.7602518,
+            "worst_tracking_mV": 0.0174629,
+            "min_headroom_V": 0.1560148
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 12.3798034,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.6975627,
+            "nearest_gm_over_Id_per_V": 12.2616587,
+            "nearest_current_uA": 0.7138106,
+            "VDS_V": 0.9449411,
+            "VBS_V": -0.3343798
+          },
+          "previous_coarse_only_checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": false,
+            "noise": true,
+            "power": true,
+            "area": true
+          }
+        }
+      },
+      "physical_area_um2": {
+        "mos_gate_um2": 106.35,
+        "resistor_strip_um2": 4227.82,
+        "mim_plate_um2": 1512.5
+      }
+    },
+    "w045-l450": {
+      "width_um": 0.45,
+      "length_um": 4.5,
+      "gate_area_um2": 109.05,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -6.0748417,
+        "ss": 8.4000956,
+        "ff": -21.2835558
+      },
+      "static_screen_failures": [
+        {
+          "corner": "ss",
+          "command_V": 0.3,
+          "signed_cm_error_mV": 8.4000956,
+          "least_headroom_mV": -9.4729176,
+          "limiting_device": "XDUT.XC.MCTN"
+        }
+      ],
+      "passes_full_nominal_budget": false
+    },
+    "w045-l375": {
+      "width_um": 0.45,
+      "length_um": 3.75,
+      "gate_area_um2": 107.7,
+      "signed_output_cm_at_positive_300mV_mV": {
+        "tt": -6.3753907,
+        "ss": 6.1579631,
+        "ff": -22.1108359
+      },
+      "static_screen_failures": [],
+      "passes_full_nominal_budget": true,
+      "corners": {
+        "tt": {
+          "differential_gain_dB": 84.8058712,
+          "DM_phase_margin_deg": 64.308285,
+          "CM_phase_margin_deg": 79.3262795,
+          "quiescent_power_uW": 23.1533526,
+          "input_noise_uVrms": 36.58445,
+          "rise_us": 0.41,
+          "fall_us": 0.411,
+          "cm_step_us": 0.586,
+          "startup_passed": true,
+          "input_common_V": [
+            0.63,
+            1.8
+          ],
+          "coarse_output_differential_V": [
+            -0.54,
+            0.54
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": true,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 1.4e-06,
+            "worst_abs_cm_error_mV": 6.375391,
+            "worst_tracking_mV": 0.017283,
+            "min_headroom_V": 0.0982181
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 9.4294772,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.6103875,
+            "nearest_gm_over_Id_per_V": 9.4073054,
+            "nearest_current_uA": 0.6115727,
+            "VDS_V": 0.9361821,
+            "VBS_V": -0.3414158
+          }
+        },
+        "ss": {
+          "differential_gain_dB": 84.8183778,
+          "DM_phase_margin_deg": 65.9824887,
+          "CM_phase_margin_deg": 80.7126755,
+          "quiescent_power_uW": 16.9882857,
+          "input_noise_uVrms": 39.8546892,
+          "rise_us": 0.554,
+          "fall_us": 0.553,
+          "cm_step_us": 0.922,
+          "startup_passed": true,
+          "input_common_V": [
+            0.66825,
+            1.62
+          ],
+          "coarse_output_differential_V": [
+            -0.34425,
+            0.34425
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": true,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 2e-06,
+            "worst_abs_cm_error_mV": 6.1579649,
+            "worst_tracking_mV": 0.0172676,
+            "min_headroom_V": 0.0053767
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 8.9273883,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.461692,
+            "nearest_gm_over_Id_per_V": 8.9534534,
+            "nearest_current_uA": 0.4545034,
+            "VDS_V": 0.8245906,
+            "VBS_V": -0.271911
+          }
+        },
+        "ff": {
+          "differential_gain_dB": 84.713997,
+          "DM_phase_margin_deg": 60.4664297,
+          "CM_phase_margin_deg": 76.3706149,
+          "quiescent_power_uW": 23.9898135,
+          "input_noise_uVrms": 32.6848988,
+          "rise_us": 0.324,
+          "fall_us": 0.323,
+          "cm_step_us": 0.382,
+          "startup_passed": true,
+          "input_common_V": [
+            0.6075,
+            1.8
+          ],
+          "coarse_output_differential_V": [
+            -0.315,
+            0.315
+          ],
+          "requested_swing": {
+            "passed": true,
+            "coarse_covers_both_endpoints": true,
+            "all_interior_coarse_points_connected": true,
+            "points_each_direction": 81,
+            "step_mV": 7.5,
+            "largest_direction_difference_mV": 0.0003307,
+            "worst_abs_cm_error_mV": 22.110836,
+            "worst_tracking_mV": 0.017463,
+            "min_headroom_V": 0.1397378
+          },
+          "checks": {
+            "gain": true,
+            "dc_cm": true,
+            "startup": true,
+            "saturation": true,
+            "dm_stability": true,
+            "cm_stability": true,
+            "rise_us": true,
+            "fall_us": true,
+            "cm_step_us": true,
+            "input_common": true,
+            "differential_swing": true,
+            "noise": true,
+            "power": true,
+            "area": true
+          },
+          "reference_branch_gm_over_Id_per_V": 11.2594788,
+          "device_lookup": {
+            "points": 181,
+            "target_current_uA": 0.6975627,
+            "nearest_gm_over_Id_per_V": 11.0091123,
+            "nearest_current_uA": 0.7337495,
+            "VDS_V": 0.9449411,
+            "VBS_V": -0.3343798
+          }
+        }
+      },
+      "physical_area_um2": {
+        "mos_gate_um2": 107.7,
+        "resistor_strip_um2": 4227.82,
+        "mim_plate_um2": 1512.5
+      }
+    }
+  },
+  "first_selected_before_joint_validation": "w045-l300",
+  "first_joint_holdout": {
+    "tt-0950": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 8.4256997,
+      "worst_tracking_error_mV": 0.0171166,
+      "minimum_headroom_mV": 116.3861316
+    },
+    "tt-1025": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 7.456509,
+      "worst_tracking_error_mV": 0.0171971,
+      "minimum_headroom_mV": 116.567593
+    },
+    "tt-1100": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 6.5559219,
+      "worst_tracking_error_mV": 0.0173173,
+      "minimum_headroom_mV": 116.7374489
+    },
+    "ss-0950": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 4.8291616,
+      "worst_tracking_error_mV": 0.0172169,
+      "minimum_headroom_mV": 23.6638434
+    },
+    "ss-1025": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 5.7984062,
+      "worst_tracking_error_mV": 0.0174044,
+      "minimum_headroom_mV": 23.8730811
+    },
+    "ss-1100": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 6.6947409,
+      "worst_tracking_error_mV": 0.0176361,
+      "minimum_headroom_mV": 24.0676637
+    },
+    "ff-0950": {
+      "passed": 1,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 25.6134265,
+      "worst_tracking_error_mV": 0.0173321,
+      "minimum_headroom_mV": 155.8140156
+    },
+    "ff-1025": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 24.5199515,
+      "worst_tracking_error_mV": 0.0173992,
+      "minimum_headroom_mV": 155.9318482
+    },
+    "ff-1100": {
+      "passed": 3,
+      "commands_V": [
+        -0.3,
+        0.0,
+        0.3
+      ],
+      "worst_abs_cm_error_mV": 23.4910739,
+      "worst_tracking_error_mV": 0.0174888,
+      "minimum_headroom_mV": 156.0444558
+    }
+  },
+  "first_joint_passed": false,
+  "midpoint_candidate": "w045-l375",
+  "midpoint_joint_validation": {
+    "tt": {
+      "unique_conditions": 231,
+      "passed": 231,
+      "worst_abs_common_error_mV": {
+        "corner": "tt",
+        "input_common_V": 0.95,
+        "command_V": 0.3,
+        "value": 8.0158065
+      },
+      "worst_tracking_mV": {
+        "corner": "tt",
+        "input_common_V": 1.1,
+        "command_V": -0.3,
+        "value": 0.0173173
+      },
+      "minimum_headroom_V": {
+        "corner": "tt",
+        "input_common_V": 0.95,
+        "command_V": 0.3,
+        "value": 0.0978671
+      },
+      "worst_direction_difference_mV": {
+        "corner": "tt",
+        "input_common_V": 0.95,
+        "command_V": 0.3,
+        "value": 0.000147
+      }
+    },
+    "ss": {
+      "unique_conditions": 231,
+      "passed": 231,
+      "worst_abs_common_error_mV": {
+        "corner": "ss",
+        "input_common_V": 1.1,
+        "command_V": -0.3,
+        "value": 7.7486419
+      },
+      "worst_tracking_mV": {
+        "corner": "ss",
+        "input_common_V": 1.1,
+        "command_V": -0.3,
+        "value": 0.0176357
+      },
+      "minimum_headroom_V": {
+        "corner": "ss",
+        "input_common_V": 0.95,
+        "command_V": -0.3,
+        "value": 0.0053084
+      },
+      "worst_direction_difference_mV": {
+        "corner": "ss",
+        "input_common_V": 1.055,
+        "command_V": 0.3,
+        "value": 0.0001986
+      }
+    },
+    "ff": {
+      "unique_conditions": 231,
+      "passed": 231,
+      "worst_abs_common_error_mV": {
+        "corner": "ff",
+        "input_common_V": 0.95,
+        "command_V": -0.3,
+        "value": 23.8728417
+      },
+      "worst_tracking_mV": {
+        "corner": "ff",
+        "input_common_V": 1.1,
+        "command_V": -0.3,
+        "value": 0.0174889
+      },
+      "minimum_headroom_V": {
+        "corner": "ff",
+        "input_common_V": 0.95,
+        "command_V": 0.3,
+        "value": 0.1394903
+      },
+      "worst_direction_difference_mV": {
+        "corner": "ff",
+        "input_common_V": 1.025,
+        "command_V": -0.24,
+        "value": 0.0005344
+      }
+    }
+  },
+  "independent_replay": {
+    "decisions": {
+      "w090-l150": false,
+      "w065-l150": false,
+      "w045-l150": false,
+      "w045-l225": false,
+      "w045-l300": true,
+      "w045-l450": false
+    },
+    "chosen": "w045-l300",
+    "holdout_passed": 25,
+    "holdout_points": 27,
+    "midpoint": "w045-l375",
+    "joint_count": 693,
+    "joint_pass": 693,
+    "old_coordinates_pass": 27,
+    "new_coordinates_pass": 666,
+    "minimum_headroom": {
+      "device": "XDUT.XC.MCTN",
+      "headroom_mV": 5.3084156,
+      "corner": "ss",
+      "input_common_V": 0.95,
+      "differential_command_V": 0.3
+    },
+    "native_dc_points": 2934,
+    "noise_integrals": 6,
+    "max_noise_relative_error": 1e-07
+  },
+  "maestro_tests_by_candidate": {
+    "w045-l300": 15,
+    "w045-l375": 15
+  },
+  "native_device_curve_points": 3801,
+  "passed": true
+}

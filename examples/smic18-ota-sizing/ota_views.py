@@ -72,13 +72,16 @@ class Drawing:
 
     def mos(self, name, kind, x, y, gate_side, nets, group):
         # x is the channel column. Mirroring exchanges the side of the gate and body stubs.
+        length = self.sizes["length_um"]
+        if group=="cm_input":
+            length = self.sizes.get("cm_length_um",length)
         self.device(name, self.pdk, kind + "18", (x + 0.25 * gate_side, y), "R0" if gate_side < 0 else "MY",
                     dict(zip(("D", "G", "S", "B"), nets)),
-                    dict(l="{:g}u".format(self.sizes["length_um"]), fw="{:g}u".format(self.sizes[group]),
+                    dict(l="{:g}u".format(length), fw="{:g}u".format(self.sizes[group]),
                          fingers="1", m="1"), True)
         end = (x - gate_side * 0.75, y)
         self.wire((x, y), end, net=nets[3], label=end, justify="lowerRight" if gate_side > 0 else "lowerLeft")
-        self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name, self.sizes[group], self.sizes["length_um"]), 0.105)
+        self.text(x + 0.17, y + 0.26, "{}  {:g}/{:g}".format(name, self.sizes[group], length), 0.105)
 
     def resistor(self, name, xy, plus, minus, value):
         segments = math.ceil(value / 45000)
@@ -212,11 +215,12 @@ def output_stage(d):
 
 def common_mode(d):
     # Each output has a matched sense/reference pair. Sense drains and reference drains sum separately.
+    detector_role = "cm_input" if "cm_input" in d.sizes else "input"
     for side, x in (("P", 5), ("N", 15)):
         tail = "TC" + side
         for name, col, sign, gate, drain in (("MDET", x - 2, -1, "OUT" + side, "PG"),
                                              ("MCREF", x + 2, 1, "VCM", "RCG")):
-            d.mos(name + side, "n", col, 4, sign, (drain, gate, tail, "VSS"), "input")
+            d.mos(name + side, "n", col, 4, sign, (drain, gate, tail, "VSS"), detector_role)
             d.stub((col + sign * 0.25, 4), (sign, 0), gate, 1)
             rail = 6 if drain == "PG" else 5.125
             d.wire((col, 4.1875), (col, rail))

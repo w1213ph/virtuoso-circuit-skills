@@ -16,7 +16,10 @@ STATES = (("tt", 27, 1.80), ("ss", 85, 1.62), ("ff", -40, 1.80))
 FIELDS = ("gm", "gds", "vdsat", "cgg", "cgd")
 
 
-def sweep(folder, state, site, cards, points, fresh):
+def sweep(folder, state, site, cards, points, fresh, width_um=2.0, target_current_uA=None):
+    if not math.isfinite(width_um) or width_um<=0 or (target_current_uA is not None and
+            (not math.isfinite(target_current_uA) or target_current_uA<=0)):
+        raise ValueError("The device width and optional lookup current must be positive")
     corner, temp, supply = state
     lines = ["simulator lang=spectre", "global 0", 'include "{}" section={}'.format(site["model_file"], corner),
              "simulator lang=spectre", "parameters VGMAG=0", "opts options temp={} reltol=1e-6".format(temp),
@@ -59,12 +62,18 @@ def sweep(folder, state, site, cards, points, fresh):
         for gate, measured, gm, gds, vdsat, cgg, cgd in zip(axis, *(table[s] for s in signals)):
             current = abs(measured)
             if current > 1e-8 and gm > 0 and gds > 0:
-                rows.append(dict(id_per_width_uA_um=current * 0.5e6, gm_id_V=gm / current, gds_id_V=gds / current,
+                rows.append(dict(id_per_width_uA_um=current * 1e6 / width_um, gm_id_V=gm / current, gds_id_V=gds / current,
                                  gate_V=gate, gm_gds=gm / gds, vdsat_V=abs(vdsat), cgg_fF=cgg * 1e15,
                                  cgd_signed_fF=cgd * 1e15))
         if not rows:
             raise ValueError("No conducting MOS operating point: " + str(key))
-        selected[key] = min(rows, key=lambda r: abs(r["gm_id_V"] - 15))
+        if target_current_uA is None:
+            selected[key] = min(rows, key=lambda r: abs(r["gm_id_V"] - 15))
+        else:
+            currents = [r["id_per_width_uA_um"]*width_um for r in rows]
+            if not min(currents)<=target_current_uA<=max(currents):
+                raise ValueError("Requested quiescent current lies outside the measured device sweep")
+            selected[key] = min(rows,key=lambda r:abs(r["id_per_width_uA_um"]*width_um-target_current_uA))
         selected[key].update(vds_V=points[key][0], vbs_V=points[key][1])
     return selected, len(axis) * len(vectors)
 

@@ -2,6 +2,8 @@
 
 ## 2026-11-26 的复核与转化
 
+JKU 的全差分 OTA 测试台给同一设计设置独立差模与共模激励，并分别记录输出。课程还解释了用输出平均电压作检测量和分别检查环路稳定性的原因。上游版本固定为 `21b5255`，课程和测试台采用 Apache-2.0。本项目据此设计了保留实际偏置、负载、误差放大器和执行管的对照实验，并在 SMIC18 上独立实现以原始电流和两端输出诊断误差的程序。[课程原文](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/content/ota_diff/_sec_differential_ota.qmd#common-mode-regulation) · [Xschem 测试台](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/xschem/ota-diff_tb-acol.sch) · [许可证](https://github.com/iic-jku/analog-circuit-design/blob/21b52550a9ff256ee272585f384590fbd386a221/LICENSE) · [本项目的实现](../examples/smic18-ota-sizing/ota_cmfb.py)
+
 本轮通过 GitHub API 枚举 Arcadia-1 的 33 个公开仓库和 131 个公开 Star，并查阅 iic-jku、idea-fasoc、bluecheetah、cascode-ai、Nova-Silicon 的公开目录。针对 17 个候选核对实际仓库、版本、许可证元数据及可见 issue/PR，9 个在索引里有具体代码位置和筛选评分。累计索引有 296 个唯一仓库。下面的 288 个是上一轮的历史清单。[可搜索的逐项记录](sources.jsonl)
 
 | 实际阅读的实现 | 纳入本项目的决定与核验 |

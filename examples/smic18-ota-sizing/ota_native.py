@@ -142,7 +142,7 @@ def audit(folder, site, sizes):
                 if (master != device or values["nf"] != 1 or values["m"] != 1
                         or not all(math.isclose(values[k], cdf_value(props,k)) for k in ("w","l"))
                         or not math.isclose(values["w"], spice_number(spec["parameters"]["fw"]))
-                        or not math.isclose(values["l"], sizes["length_um"]*1e-6)):
+                        or not math.isclose(values["l"], spice_number(spec["parameters"]["l"]))):
                     raise ValueError("MOS model, width or length differs for " + name)
                 areas["mos_gate_um2"] += values["w"] * values["l"] * 1e12
             elif device == "mim2":

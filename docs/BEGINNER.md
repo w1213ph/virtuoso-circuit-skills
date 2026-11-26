@@ -8,7 +8,7 @@
 
 想看 agent 怎样把一个原本超限的电路改到达标，可以下载 8 位 ADC 采样驱动器。解压后打开 `index.html`，先看选中电路的采样波形，再展开尺寸表，比较只改电流镜、只改开关和两者都改时的结果。把自己的精度、负载和采样时间告诉 agent，即可用包内的 `--optimize` 入口重新设计。[下载优化工程](https://github.com/w1213ph/virtuoso-circuit-skills/releases/download/adc-driver-precision-v1/adc-driver-8bit-optimized.zip) · [复跑命令](../examples/sky130-adc-driver/README.md#precision)
 
-如果已有 SMIC18 和 Cadence，可以直接说「给我一个 1.8 V 两级全差分运放，每侧带 2 pF，增益超过 80 dB，尽量省电」。Agent 可以从器件扫描一直做到可编辑的测试台。这个例子还保留了增益够、补偿却不足的一版，便于你对着波形理解为什么要换电容。[原理图、三工况读数和打开方法](../examples/smic18-ota-sizing/OTA.md)
+如果后面要接 ADC，把允许的输入电平也告诉 agent。例如「用 SMIC18 做 1.8 V 全差分运放，每侧接 2 pF，增益超过 80 dB。输入平均电压在 0.95 到 1.10 V 之间，两个输出的电压差要能到 ±0.30 V，两路输出的平均值要留在半电源的 ±25 mV 内」。这样 agent 可以同时改变输入电平和输出摆幅，交付可打开的图和测试台，并指出最先超限的是哪只管、哪项要求。[原理图、失败点和打开方法](../examples/smic18-ota-sizing/OTA.md#定位共模误差并修正检测管尺寸)
 
 有论文时提供 PDF 和复现范围。准备独立的新电路时，说明用途和已知条件。以传感器放大器为例，ADC 的输入负载和采样窗口决定需要多快建立，供电与输入范围影响可用结构。Agent 会把已知条件、建议目标和仍需确认的问题列在任务记录里。遇到确实影响性能取舍的未知项，再一起确定。
 

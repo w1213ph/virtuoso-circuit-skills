@@ -23,7 +23,7 @@
 | 用开源工艺跑第一个工程 | 在 SKY130 建 10 µA 电流镜，从 gm/ID 表取尺寸，实测精度、输出电阻和稳定时间 | [Xschem + ngspice](examples/sky130-current-mirror/README.md) |
 | 按自己的规格跨工艺选尺寸 | 给出参考电流、负载和时限，在 SKY130、GF180 分别测 gm/ID、选栅面积最小的达标者；可在线生成原理图与波形 | [按实际需求运行 ADC 偏置设计](examples/cross-pdk-current-mirror/README.md#用你自己的电流负载和时限选尺寸) |
 | 用 Virtuoso 给 ADC 搭偏置支路 | 在 SMIC18 实测 gm/ID，保留建立时间超限的尺寸，打开达标电流镜的原理图和六个 Maestro 测试 | [SMIC18 偏置电流镜](examples/smic18-bias-mirror/README.md) |
-| 搭一个低功耗两级全差分运放 | 用 SMIC18 的 gm/ID 表建图，验证双环稳定性、启动与建立。指定输入噪声频带和预算，比较八组尺寸的噪声、功耗与面积 | [可编辑原理图、Maestro 与逐角噪声选型](examples/smic18-ota-sizing/OTA.md) |
+| 搭一个低功耗两级全差分运放 | 从 SMIC18 的 gm/ID 表建图，按噪声、功耗与面积选尺寸。输出平均电平超限时，定位检测管并同时复验输入范围、输出摆幅和双环稳定性 | [可编辑原理图、Maestro 与逐角测量](examples/smic18-ota-sizing/OTA.md) |
 | 在已有 Cadence 环境复跑 | 在 SMIC18 建动态比较器，打开 Maestro 改测试条件，查看改尺寸后的延迟、能耗、反冲与慢角超限项 | [Virtuoso、Maestro 和 Spectre](examples/dynamic-comparator/README.md#打开和复跑可编辑的-ade-maestro-测试台) |
 | 不熟悉电路设计 | 解释论文和指标，补齐偏置、参考、共模、时钟与控制，逐模块检查 | [新手入口](docs/BEGINNER.md) |
 | 整理已有电路 | 紧凑排版、功能 symbol、规范命名、同步父级连线 | [整理电路提示](docs/AI_START.md#整理已有原理图和-symbol) |
