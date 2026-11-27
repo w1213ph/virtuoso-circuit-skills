@@ -57,6 +57,8 @@ python skills/paper-to-virtuoso/scripts/device_headroom.py check evidence/sky130
 
 程序用偶数序号的栅压点构表，在 gm/ID 为 5–25 V⁻¹ 的范围，用其余内点的实测电流反求栅压，并与被保留的实测栅压和 gm/ID 对照。重新从两个工艺工程包的 ngspice 原始数据解出 3 个角、共 144 条曲线，检验 5,369 个留出点。SKY130 最大电压误差 2.26 mV、gm/ID 最大相对误差 3.96%。GF180 分别为 1.88 mV 和 2.73%。误差界限只对应这两套扫描的步长和工作区。
 
+更改查表工具会触发两种开放工艺的 GitHub 回归。工作流从锁定的模型重新运行 ngspice，对每角 24 条曲线检查最大栅压误差 3 mV 和 gm/ID 相对误差 5% 的回归上限，每一角的实测结果列在运行摘要。这两项回归阈值对应表中 10 mV 栅压扫描步长，留出相邻采样后插值间距为 20 mV。[开放工艺工作流](../../.github/workflows/cross-pdk-sizing.yml)
+
 ## 在本机 Virtuoso 复跑
 
 先依次完成四位修调和 130 kΩ 共模反馈基准，示例输入目录与这两个案例相同。[四位修调](TRIM.md#在自己的授权工艺环境复跑) · [130 kΩ 基准的原生流程](RECOVERY.md#在本地-virtuoso-工程重做)

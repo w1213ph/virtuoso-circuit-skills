@@ -11,12 +11,14 @@ on:
       - 'examples/cross-pdk-current-mirror/**'
       - 'examples/sky130-current-mirror/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - 'skills/paper-to-virtuoso/scripts/device_headroom.py'
       - '.github/workflows/cross-pdk-sizing.yml'
   pull_request:
     paths:
       - 'examples/cross-pdk-current-mirror/**'
       - 'examples/sky130-current-mirror/**'
       - 'skills/paper-to-virtuoso/scripts/check_prelayout.py'
+      - 'skills/paper-to-virtuoso/scripts/device_headroom.py'
       - '.github/workflows/cross-pdk-sizing.yml'
 permissions:
   contents: read
@@ -87,6 +89,30 @@ jobs:
               f.write(("两种工艺各有达标尺寸。" if not measured else "本次规格有工艺未找到达标尺寸。") + "\n\n")
               f.write("下载 `adc-bias-project` 后解压，打开 `index.html` 看图，在工程根目录运行 `python bias.py` 从原始数据复算。\n\n")
               f.write(re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", (out / "RESULTS.md").read_text()))
+          PY
+      - name: Measure held-out gate-bias error in all six native device tables
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, "skills/paper-to-virtuoso/scripts")
+          from device_headroom import crosscheck, read_curves
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
+              out.write("\n| PDK | Corner | Curves | Held-out points | Max VGS error (mV) | Max gm/ID error (%) |\n")
+              out.write("|---|---|---:|---:|---:|---:|\n")
+              for process in ("sky130", "gf180"):
+                  for corner in ("tt", "ss", "ff"):
+                      path = Path("work/transfer") / process / "lut" / corner / "table.csv"
+                      result = crosscheck(read_curves(path))
+                      curves, points = result["curves"], result["withheld_points"]
+                      voltage, efficiency = result["max_gate_error_mV"], result["max_relative_gm_id_error_percent"]
+                      line = f"| {process} | {corner} | {curves} | {points} | {voltage:.4f} | {efficiency:.4f} |"
+                      print(line, flush=True)
+                      out.write(line + "\n")
+                      if curves != 24 or voltage > 3 or efficiency > 5:
+                          raise ValueError(f"Review interpolation accuracy on the pinned {process} {corner} sweep")
           PY
       - uses: actions/upload-artifact@v4
         with:
